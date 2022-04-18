@@ -1,7 +1,21 @@
 {
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
     "extends": [
-        "airbnb",
-        "airbnb/hooks"
+        "plugin:react/recommended",
+        "airbnb"
+    ],
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+    },
+    "plugins": [
+        "react"
     ],
     "rules": {
         // suppress errors for missing 'import React' in files
@@ -16,28 +30,5 @@
                 ]
             }
         ]
-    },
-    "overrides": [
-        {
-            //eslint cannot understand 'test' and 'expect' in test.js file
-            "files": [
-                "*.test.js"
-            ],
-            "rules": {
-                "no-undef": "off"
-            }
-        },
-        {
-            //eslint cannot understand 'document' in index.js file
-            "files": [
-                "*index.js"
-            ],
-            "rules": {
-                "no-undef": "off"
-            }
-        }
-    ],
-    "env": {
-        "browser": true
     }
 }
