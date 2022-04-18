@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 // Should probably enable later, for now it is just useless
-// import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 
@@ -51,10 +51,10 @@ AdItem.propTypes = {
   }),
 };
 
-/* function ListOfAds() {
-  // const [ads, setAds] = useState(Array(0));
+function ListOfAds() {
+  const [ads, setAds] = useState(Array(0));
 
-   function getAds() {
+  function getAds() {
     // fetch ads from database
     fetch('/return_ads?for=adsPage', {
       method: 'GET',
@@ -69,38 +69,21 @@ AdItem.propTypes = {
           throw new Error('Error while fetching ads data');
         }
       });
-} */
+  }
 
-/* useEffect(() => { getAds(); }, []);
+  useEffect(() => { getAds(); }, []);
   const listOfAds = ads.map((ad) => <AdItem ad={ad} />);
   return (
     <div>
       {listOfAds}
     </div>
   );
-} */
+}
 
 function AdsPage() {
   return (
     <div>
-      {/* <MenuBar /> */}
-
-      {/* <ListOfAds /> */}
-
-      {/* Should delete it later */}
-      <div>
-        Welcome to the AdsPage!
-        <ul>
-          <li><a href="/">Go to AdsPage</a></li>
-          <li><a href="/channels">Go to ChannelsPage</a></li>
-          <li><a href="/login">Go to LoginPage</a></li>
-          <li><a href="/signup">Go to SignupPage</a></li>
-          <li><a href="/acount">Go to UserAccountPage</a></li>
-          <li><a href="/new_add">Go to NewAdPage</a></li>
-          <li><a href="/new_response">Go to NewResponsePage</a></li>
-          <li><a href="/new_offer">Go to NewOfferPage</a></li>
-        </ul>
-      </div>
+      <ListOfAds />
     </div>
   );
 }
