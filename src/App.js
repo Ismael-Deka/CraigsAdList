@@ -17,6 +17,7 @@ function App() {
       <MenuBar />
       <Routes>
         <Route path="/" element={<AdsPage />} />
+        <Route path="/ads" element={<AdsPage />} />
         <Route path="/channels" element={<ChannelsPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
