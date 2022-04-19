@@ -210,6 +210,11 @@ def return_ads():
                     "showInList": advertisement.show_in_list,
                 }
             )
+        if args.get("id") is not None:
+            ad_id = int(args.get("id"))
+            ads_data = list(
+                filter(lambda advertisement: advertisement["id"] == ad_id, ads_data)
+            )
         # trying to jsonify a list of channel objects gives an error
         return flask.jsonify(
             {

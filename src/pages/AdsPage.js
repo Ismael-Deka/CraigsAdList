@@ -51,12 +51,15 @@ AdItem.propTypes = {
   }),
 };
 
-function ListOfAds() {
+function ListOfAds(props) {
+  const { query } = props;
   const [ads, setAds] = useState(Array(0));
 
-  function getAds() {
+  function getAds(newQuery) {
+    // eslint-disable-next-line no-console
+    console.log(`Path for ads fetching: /return_ads?for=adsPage${query}`);
     // fetch ads from database
-    fetch('/return_ads?for=adsPage', {
+    fetch(`/return_ads?for=adsPage${newQuery}`, {
       method: 'GET',
     })
       .then((response) => response.json())
@@ -71,7 +74,7 @@ function ListOfAds() {
       });
   }
 
-  useEffect(() => { getAds(); }, []);
+  useEffect(() => { getAds(query); }, [props]);
   const listOfAds = ads.map((ad) => <AdItem ad={ad} />);
   return (
     <div>
@@ -79,11 +82,95 @@ function ListOfAds() {
     </div>
   );
 }
+ListOfAds.defaultProps = {
+  query: '',
+};
+ListOfAds.propTypes = {
+  query: PropTypes.string,
+};
 
-function AdsPage() {
+function SearchBar(props) {
+  const { setQuery } = props;
+  const [id, setID] = useState('');
+  const [creator, setCreator] = useState('');
+  const [title, setTitle] = useState('');
+  const [topics, setTopics] = useState('');
+  const [text, setText] = useState('');
+  const [reward, setReward] = useState('');
+
+  function applyFilters() {
+    let query = '';
+    if (id.trim() !== '') {
+      query += `&id=${id}`;
+    }
+    if (creator.trim() !== '') {
+      query += `&creator=${creator}`;
+    }
+    if (title.trim() !== '') {
+      query += `&title=${title}`;
+    }
+    if (topics.trim() !== '') {
+      query += `&topics=${topics}`;
+    }
+    if (text.trim() !== '') {
+      query += `&text=${text}`;
+    }
+    if (reward.trim() !== '') {
+      query += `&reward=${reward}`;
+    }
+
+    // eslint-disable-next-line no-console
+    console.log(`Query params: ${query}`);
+    setQuery(query);
+  }
+
   return (
     <div>
-      <ListOfAds />
+      Filter by:
+      <form>
+        <label htmlFor="id">
+          Ad`s ID
+          <input name="id" type="text" inputMode="numeric" onChange={(e) => setID(e.target.value)} />
+        </label>
+        <label htmlFor="creator">
+          Posted by:
+          <input name="creator" type="text" onChange={(e) => setCreator(e.target.value)} />
+        </label>
+        <label htmlFor="title">
+          Title
+          <input name="title" type="text" onChange={(e) => setTitle(e.target.value)} />
+        </label>
+        <label htmlFor="topics">
+          Topics
+          <input name="topics" type="text" onChange={(e) => setTopics(e.target.value)} />
+        </label>
+        <label htmlFor="text">
+          Text
+          <input name="text" type="text" onChange={(e) => setText(e.target.value)} />
+        </label>
+        <label htmlFor="maxReward">
+          Max reward
+          <input name="maxReward" type="text" inputMode="numeric" onChange={(e) => setReward(e.target.value)} />
+        </label>
+        <button type="button" onClick={applyFilters}>Apply filters</button>
+      </form>
+    </div>
+
+  );
+}
+SearchBar.defaultProps = {
+  setQuery: () => { },
+};
+SearchBar.propTypes = {
+  setQuery: PropTypes.func,
+};
+
+function AdsPage() {
+  const [query, setQuery] = useState('');
+  return (
+    <div>
+      <SearchBar setQuery={(newQuery) => setQuery(newQuery)} />
+      <ListOfAds query={query} />
     </div>
   );
 }
