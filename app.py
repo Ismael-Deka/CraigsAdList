@@ -62,6 +62,7 @@ bp = flask.Blueprint(
 
 # route for serving React page
 @bp.route("/")
+@bp.route("/ads")
 @bp.route("/channels")
 @bp.route("/login")
 @bp.route("/signup")
@@ -161,6 +162,7 @@ def handle_logout():
     logout_user()
     return is_logged_in()
 
+
 @bp.route("/channelowner", methods=["GET"])
 def is_channel_owner():
     """returns true if current user is a channel owner"""
@@ -215,8 +217,7 @@ def return_ads():
                 "ads_data": ads_data,
             }
         )
-    else:
-        return flask.jsonify({"ads": getAllAds()})
+    return flask.jsonify({"ads": getAllAds()})
 
 
 @bp.route("/return_channels", methods=["GET"])
