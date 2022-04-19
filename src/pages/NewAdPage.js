@@ -5,12 +5,6 @@ import LoginErrorDialog from '../components/ui/js/LoginErrorDialog';
 
 function NewAdPage() {
   const navigate = useNavigate();
-  const [title, setTitle] = useState('');
-  const [topics, setTopics] = useState('');
-  const [text, setText] = useState('');
-  const [reward, setReward] = useState('');
-  const [error, setError] = useState('');
-  const [RedirectFunction, setRedirectFunction] = useState('');
   const [IsErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
 
   const hideCloseHandler = useCallback(() => setIsErrorDialogOpen(false), []);
@@ -29,18 +23,7 @@ function NewAdPage() {
   useEffect(() => {
     isUserLoggedIn();
   }, []);
-  function setTitle(text){
-    setTitleText(text.target.value);
-  }
-  function setTopics(text){
-    setTopicsText(text.target.value);
-  }
-  function setText(text){
-    setTextText(text.target.value);
-  }
-  function setReward(number){
-    setRewardText(number.target.value);
-  }
+
   function add_ads() {
     const popupbox = document.getElementById('popupbox');
     popupbox.style.display = 'block';

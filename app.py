@@ -10,9 +10,9 @@ import flask
 
 from flask_login import current_user, login_user, logout_user, LoginManager
 
-from flask import render_template, request
+from flask import request
 
-from db_utils import createAd
+from db_utils import createAd, getAllAccounts, getAllAds
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -47,7 +47,11 @@ def load_user(user_id):
 # by create-react-app/npm run build.
 # By doing this, we make it so you can paste in all your old app routes
 # from Milestone 2 without interfering with the functionality here.
-bp = flask.Blueprint("bp", __name__, template_folder="./static/react",)
+bp = flask.Blueprint(
+    "bp",
+    __name__,
+    template_folder="./static/react",
+)
 
 
 # route for serving React page
@@ -190,7 +194,12 @@ def return_channels():
                 }
             )
         # trying to jsonify a list of channel objects gives an error
-        return flask.jsonify({"success": True, "channels_data": channels_data,})
+        return flask.jsonify(
+            {
+                "success": True,
+                "channels_data": channels_data,
+            }
+        )
     return flask.jsonify({"success": False})
 
 
@@ -223,56 +232,7 @@ def proccess_emails():
             return flask.jsonify({"success": False})
 
 
-@bp.route("/make_response", methods=["POST"])
-def make_response():
-    if request.method == "POST":
-        data = flask.request.form
-        response = Response(
-            text=data["text"],
-            ad_id=data["adId"],
-            owner_id=data["ownerId"],
-            channel_id=data["channelId"],
-            title=data["title"],
-            topics=data["topics"],
-            reward=data["reward"],
-            channel_name=data["channel_name"],
-            subscribers=data["subscribers"],
-            preferred_reward=data["preferred_reward"],
-        )
-        if response.preferred_reward > response.reward:
-            response.text = "Sorry, but your preferred reward is higher than the reward you offered. Please try again."
-            return flask.jsonify({"success": False})
-
-        db.session.add(response)
-        db.session.commit()
-        return flask.jsonify({"success": True})
-
-
-@bp.route("/make_offer", methods=["POST"])
-def make_offer():
-    if request.method == "POST":
-        data = flask.request.form
-        response = Response(
-            text=data["text"],
-            ad_id=data["adId"],
-            owner_id=data["ownerId"],
-            channel_id=data["channelId"],
-            title=data["title"],
-            topics=data["topics"],
-            reward=data["reward"],
-            channel_name=data["channel_name"],
-            subscribers=data["subscribers"],
-            preferred_reward=data["preferred_reward"],
-        )
-        if response.preferred_reward < response.reward:
-            response.text = "Sorry, but your preferred reward is higher than the reward you offered. Please try again."
-            return flask.jsonify({"success": False})
-
-        db.session.add(response)
-        db.session.commit()
-        return flask.jsonify({"success": True})
-
-
 app.register_blueprint(bp)
 
-app.run(debug=True)
+if __name__ == "__main__":
+    app.run()
