@@ -47,11 +47,7 @@ def load_user(user_id):
 # by create-react-app/npm run build.
 # By doing this, we make it so you can paste in all your old app routes
 # from Milestone 2 without interfering with the functionality here.
-bp = flask.Blueprint(
-    "bp",
-    __name__,
-    template_folder="./static/react",
-)
+bp = flask.Blueprint("bp", __name__, template_folder="./static/react",)
 
 
 # route for serving React page
@@ -194,12 +190,7 @@ def return_channels():
                 }
             )
         # trying to jsonify a list of channel objects gives an error
-        return flask.jsonify(
-            {
-                "success": True,
-                "channels_data": channels_data,
-            }
-        )
+        return flask.jsonify({"success": True, "channels_data": channels_data,})
     return flask.jsonify({"success": False})
 
 
@@ -220,7 +211,7 @@ def add_ad():
     return flask.jsonify({"success": True})
 
 
-@bp.route("/proccess_emails", methods=["GET"])
+@bp.route("/proccess_emails", methods=["POST"])
 def proccess_emails():
     if request.method == "POST":
         data = flask.request.form
@@ -232,7 +223,7 @@ def proccess_emails():
             return flask.jsonify({"success": False})
 
 
-@bp.route("/make_response", methods=["GET"])
+@bp.route("/make_response", methods=["POST"])
 def make_response():
     if request.method == "POST":
         data = flask.request.form
@@ -257,7 +248,7 @@ def make_response():
         return flask.jsonify({"success": True})
 
 
-@bp.route("/make_offer", methods=["GET"])
+@bp.route("/make_offer", methods=["POST"])
 def make_offer():
     if request.method == "POST":
         data = flask.request.form
