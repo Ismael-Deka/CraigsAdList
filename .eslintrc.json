@@ -30,5 +30,25 @@
                 ]
             }
         ]
-    }
+    },
+    "overrides": [
+        {
+            //eslint cannot understand 'test' and 'expect' in test.js file
+            "files": [
+                "*.test.js"
+            ],
+            "rules": {
+                "no-undef": "off"
+            }
+        },
+        {
+            //eslint cannot understand 'document' in index.js file
+            "files": [
+                "*index.js"
+            ],
+            "rules": {
+                "no-undef": "off"
+            }
+        }
+    ]
 }
