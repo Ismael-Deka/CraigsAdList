@@ -19,6 +19,7 @@ from db_utils import (
     getAllAccounts,
     getAllAds,
     get_ads,
+    get_channels,
 )
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -195,6 +196,7 @@ def return_ads():
     """Returns JSON with ads"""
     args = flask.request.args
     if args.get("for") == "adsPage":
+        # return ads for ads page, filtered according to args
         # trying to jsonify a list of channel objects gives an error
         return flask.jsonify(
             {
@@ -210,27 +212,12 @@ def return_channels():
     """Returns JSON with channels"""
     args = flask.request.args
     if args.get("for") == "channelsPage":
-        # return channels for channels page
-        channels = Channel.query.filter_by(show_channel=True).all()
-        channels_data = []
-        for channel in channels:
-            channel.topics = channel.topics.split(",")
-            channels_data.append(
-                {
-                    "id": channel.id,
-                    "ownerId": channel.owner_id,
-                    "showChannel": channel.show_channel,
-                    "channelName": channel.channel_name,
-                    "subscribers": channel.subscribers,
-                    "topics": channel.topics,
-                    "preferredReward": channel.preferred_reward,
-                }
-            )
+        # return channels for channels page, filtered acording to args
         # trying to jsonify a list of channel objects gives an error
         return flask.jsonify(
             {
                 "success": True,
-                "channels_data": channels_data,
+                "channelsData": get_channels(args),
             }
         )
     return flask.jsonify({"success": False})

@@ -8,6 +8,7 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
+import Badge from 'react-bootstrap/Badge';
 
 function AdItem(props) {
   const { ad } = props;
@@ -24,7 +25,7 @@ function AdItem(props) {
     <Col>
       <Card>
         <Card.Body>
-          <Card.Title><u>{title}</u></Card.Title>
+          <Card.Title><h4><Badge pill bg="light" text="dark">{title}</Badge></h4></Card.Title>
           <Card.Text>
             <p>
               Topics:
@@ -70,7 +71,6 @@ AdItem.defaultProps = {
     topics: '',
     text: '',
     reward: 0,
-    showInList: true,
   }),
 };
 AdItem.propTypes = {
@@ -81,7 +81,6 @@ AdItem.propTypes = {
     topics: PropTypes.string,
     text: PropTypes.number.isRequired,
     reward: PropTypes.number,
-    showInList: PropTypes.bool.isRequired,
   }),
 };
 
