@@ -3,6 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
+import Card from 'react-bootstrap/Card';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Button from 'react-bootstrap/Button';
 
 function AdItem(props) {
   const { ad } = props;
@@ -16,15 +23,38 @@ function AdItem(props) {
   }
 
   return (
-    <div>
-      <p>Ad id {id}</p>
-      <p>Ad creator name {creatorName}</p>
-      <p>Title {title}</p>
-      <p>Topics {topics}</p>
-      <p>Text {text}</p>
-      <p>Reward {reward}</p>
-      <p><button type="button" onClick={makeResponse}>Respond</button></p>
-    </div>
+    <Col>
+      <Card>
+        <Card.Body>
+          <Card.Title><u>{title}</u></Card.Title>
+          <Card.Text>
+            <p>
+              Topics:
+              <br />
+              {topics}
+            </p>
+
+            <p>Text:
+              <br />
+              {text}
+            </p>
+
+            <p>
+              <b style={{ float: 'left' }}>Reward: ${reward}</b>
+              <b style={{ float: 'right' }}><Button variant="primary" onClick={() => makeResponse()}>Respond</Button></b>
+            </p>
+          </Card.Text>
+        </Card.Body>
+        <Card.Footer>
+          <small className="text-muted" style={{ float: 'left' }}>
+            #{id}
+          </small>
+          <small className="text-muted" style={{ float: 'right' }}>
+            by {creatorName}
+          </small>
+        </Card.Footer>
+      </Card>
+    </Col>
   );
 }
 AdItem.defaultProps = {
@@ -32,7 +62,7 @@ AdItem.defaultProps = {
     id: 0,
     creatorId: 0,
     title: '',
-    topics: [''],
+    topics: '',
     text: '',
     reward: 0,
     showInList: true,
@@ -43,7 +73,7 @@ AdItem.propTypes = {
     id: PropTypes.number.isRequired,
     creatorName: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
-    topics: PropTypes.arrayOf(PropTypes.string),
+    topics: PropTypes.string,
     text: PropTypes.number.isRequired,
     reward: PropTypes.number,
     showInList: PropTypes.bool.isRequired,
@@ -76,16 +106,16 @@ function ListOfAds(props) {
   useEffect(() => { getAds(query); }, [props]);
   if (ads.length === 0) {
     return (
-      <div>
-        No ads are found.
-      </div>
+      <h2 className="text-muted" align="center">
+        No ads are found. Try different filters?
+      </h2>
     );
   }
   const listOfAds = ads.map((ad) => <AdItem ad={ad} />);
   return (
-    <div>
+    <Row xs={1} md={2} className="g-4">
       {listOfAds}
-    </div>
+    </Row>
   );
 }
 ListOfAds.defaultProps = {
@@ -151,38 +181,34 @@ function SearchBar(props) {
   }
 
   return (
-    <div>
-      Filter by:
-      <form>
-        <label htmlFor="id">
-          Ad`s #
-          <input name="id" type="text" pattern="[0-9]*" value={id} onChange={(e) => (isValidNumbericInput(e.target.value) ? setID(e.target.value) : null)} />
-        </label>
-        <label htmlFor="creator">
-          Posted by:
-          <input name="creator" type="text" value={creator} onChange={(e) => setCreator(e.target.value)} />
-        </label>
-        <label htmlFor="title">
-          Title
-          <input name="title" type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
-        </label>
-        <label htmlFor="topics">
-          Topics
-          <input name="topics" type="text" value={topics} onChange={(e) => setTopics(e.target.value)} />
-        </label>
-        <label htmlFor="text">
-          Text
-          <input name="text" type="text" value={text} onChange={(e) => setText(e.target.value)} />
-        </label>
-        <label htmlFor="maxReward">
-          Max reward
-          <input name="maxReward" type="text" pattern="[0-9]*" value={reward} onChange={(e) => (isValidNumbericInput(e.target.value) ? setReward(e.target.value) : null)} />
-        </label>
-        <button type="button" onClick={applyFilters}>Apply filters</button>
-        <button type="button" onClick={clearFilters}>Clear all filters</button>
-      </form>
-    </div>
+    <Form>
+      <p><b>Filter by:</b></p>
+      <Form.Label htmlFor="id">Ad`s #</Form.Label>
+      <Form.Control name="id" type="text" pattern="[0-9]*" placeholder="100, 101" value={id} onChange={(e) => (isValidNumbericInput(e.target.value) ? setID(e.target.value) : null)} />
 
+      <Form.Label htmlFor="creator">Posted by</Form.Label>
+      <Form.Control name="creator" type="text" placeholder="username" value={creator} onChange={(e) => setCreator(e.target.value)} />
+
+      <Form.Label htmlFor="title">Title</Form.Label>
+      <Form.Control name="title" type="title" value={title} onChange={(e) => setTitle(e.target.value)} />
+
+      <Form.Label htmlFor="topics">Topics</Form.Label>
+      <Form.Control name="topics" type="text" placeholder="cats, dogs" value={topics} onChange={(e) => setTopics(e.target.value)} />
+
+      <Form.Label htmlFor="text">Text</Form.Label>
+      <Form.Control name="text" type="text" value={text} onChange={(e) => setText(e.target.value)} />
+
+      <Form.Label htmlFor="maxReward">Max reward</Form.Label>
+      <InputGroup className="mb-3">
+        <InputGroup.Text id="basic-addon1">$</InputGroup.Text>
+        <Form.Control name="maxReward" type="text" pattern="[0-9]*" value={reward} onChange={(e) => (isValidNumbericInput(e.target.value) ? setReward(e.target.value) : null)} />
+      </InputGroup>
+
+      <div className="d-grid gap-2">
+        <Button variant="primary" onClick={() => applyFilters()}>Apply filters</Button>
+        <Button variant="danger" onClick={() => clearFilters()}>Clear all filters</Button>
+      </div>
+    </Form>
   );
 }
 SearchBar.defaultProps = {
@@ -196,9 +222,21 @@ function AdsPage() {
   const [query, setQuery] = useState('');
   return (
     <div>
-      <SearchBar setQuery={(newQuery) => setQuery(newQuery)} />
-      <ListOfAds query={query} />
+      <br />
+      <Container>
+        <Row>
+          <Col xs={2}>
+            <div className="position-sticky">
+              <SearchBar setQuery={(newQuery) => setQuery(newQuery)} />
+            </div>
+          </Col>
+          <Col>
+            <ListOfAds query={query} />
+          </Col>
+        </Row>
+      </Container>
     </div>
+
   );
 }
 

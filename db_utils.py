@@ -180,7 +180,6 @@ def get_ads(args):
                     "topics": advertisement.topics,
                     "text": advertisement.text,
                     "reward": advertisement.reward,
-                    "showInList": advertisement.show_in_list,
                 }
             )
         if args.get("id") is not None:
@@ -231,6 +230,10 @@ def get_ads(args):
                     ads_data,
                 )
             )
+
+        for advertisement in ads_data:
+            advertisement["topics"] = (", ").join(advertisement["topics"])
+
         return ads_data
 
     return ads_data
