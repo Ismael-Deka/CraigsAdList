@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 function AdItem(props) {
   const { ad } = props;
   const {
-    id, creatorId, title, topics, text, reward, showInList,
+    id, creatorName, title, topics, text, reward,
   } = ad;
   const navigate = useNavigate();
 
@@ -18,12 +18,11 @@ function AdItem(props) {
   return (
     <div>
       <p>Ad id {id}</p>
-      <p>Ad creator id {creatorId}</p>
+      <p>Ad creator name {creatorName}</p>
       <p>Title {title}</p>
       <p>Topics {topics}</p>
       <p>Text {text}</p>
       <p>Reward {reward}</p>
-      <p>Show in list flag {showInList}</p>
       <p><button type="button" onClick={makeResponse}>Respond</button></p>
     </div>
   );
@@ -42,7 +41,7 @@ AdItem.defaultProps = {
 AdItem.propTypes = {
   ad: PropTypes.shape({
     id: PropTypes.number.isRequired,
-    creatorId: PropTypes.number.isRequired,
+    creatorName: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     topics: PropTypes.arrayOf(PropTypes.string),
     text: PropTypes.number.isRequired,
@@ -65,7 +64,7 @@ function ListOfAds(props) {
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          setAds(data.ads_data);
+          setAds(data.adsData);
           // eslint-disable-next-line no-console
           console.log(data);
         } else {
@@ -75,6 +74,13 @@ function ListOfAds(props) {
   }
 
   useEffect(() => { getAds(query); }, [props]);
+  if (ads.length === 0) {
+    return (
+      <div>
+        No ads are found.
+      </div>
+    );
+  }
   const listOfAds = ads.map((ad) => <AdItem ad={ad} />);
   return (
     <div>
@@ -100,7 +106,7 @@ function SearchBar(props) {
 
   function applyFilters() {
     let query = '';
-    if (id.trim() !== '') {
+    if (id.toString().trim() !== '') {
       query += `&id=${id}`;
     }
     if (creator.trim() !== '') {
@@ -115,7 +121,7 @@ function SearchBar(props) {
     if (text.trim() !== '') {
       query += `&text=${text}`;
     }
-    if (reward.trim() !== '') {
+    if (reward.toString().trim() !== '') {
       query += `&reward=${reward}`;
     }
 
@@ -124,35 +130,56 @@ function SearchBar(props) {
     setQuery(query);
   }
 
+  function clearFilters() {
+    setID('');
+    setCreator('');
+    setTitle('');
+    setTopics('');
+    setText('');
+    setReward('');
+
+    setQuery('');
+  }
+
+  function isValidNumbericInput(input) {
+    const value = +input; // convert to number
+    if (value !== +value || value < 0) { // if fails validity check
+      return false;
+    }
+
+    return true;
+  }
+
   return (
     <div>
       Filter by:
       <form>
         <label htmlFor="id">
-          Ad`s ID
-          <input name="id" type="text" inputMode="numeric" onChange={(e) => setID(e.target.value)} />
+          Ad`s #
+          <input name="id" type="text" pattern="[0-9]*" value={id} onChange={(e) => (isValidNumbericInput(e.target.value) ? setID(e.target.value) : null)} />
         </label>
         <label htmlFor="creator">
           Posted by:
-          <input name="creator" type="text" onChange={(e) => setCreator(e.target.value)} />
+          <input name="creator" type="text" value={creator} onChange={(e) => setCreator(e.target.value)} />
         </label>
         <label htmlFor="title">
           Title
-          <input name="title" type="text" onChange={(e) => setTitle(e.target.value)} />
+          <input name="title" type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
         </label>
         <label htmlFor="topics">
           Topics
-          <input name="topics" type="text" onChange={(e) => setTopics(e.target.value)} />
+          <input name="topics" type="text" value={topics} onChange={(e) => setTopics(e.target.value)} />
         </label>
         <label htmlFor="text">
           Text
-          <input name="text" type="text" onChange={(e) => setText(e.target.value)} />
+          <input name="text" type="text" value={text} onChange={(e) => setText(e.target.value)} />
         </label>
         <label htmlFor="maxReward">
           Max reward
-          <input name="maxReward" type="text" inputMode="numeric" onChange={(e) => setReward(e.target.value)} />
+          <input name="maxReward" type="text" pattern="[0-9]*" value={reward} onChange={(e) => (isValidNumbericInput(e.target.value) ? setReward(e.target.value) : null)} />
         </label>
         <button type="button" onClick={applyFilters}>Apply filters</button>
+        <button type="button" onClick={clearFilters}>Clear all filters</button>
       </form>
     </div>
 
