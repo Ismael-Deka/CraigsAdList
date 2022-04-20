@@ -209,15 +209,43 @@ def add_channel():
     pass
 
 
-@bp.route("/add_ad", methods=["POST"])
+@bp.route("/add_Ad", methods=["POST"])
 def add_ad():
-    createAd(
-        flask.request.json["title"],
-        flask.request.json["topics"],
-        flask.request.json["text"],
-        flask.request.json["reward"],
-    )
-    return flask.jsonify({"success": True})
+    if flask.request.method == "POST":
+        u = Ad.query.filter_by(title=flask.request.json["title"]).first()
+        if u is None:
+            ad = Ad(
+                title=flask.request.json["title"],
+                topics=flask.request.json["topics"],
+                text=flask.request.json["text"],
+                reward=flask.request.json["reward"],
+            )
+            db.session.add(ad)
+            db.session.commit()
+            new_Ad = Ad.query.filter_by(title=flask.request.json["title"]).first()
+            add_Ads_succesful = new_Ad is not None
+            return flask.jsonify(
+                {"add_Ads_succesful": add_Ads_succesful, "error_message": ""}
+            )
+        elif (
+            flask.request.json["title"] == ""
+            or flask.request.json["topics"] == ""
+            or flask.request.json["text"] == ""
+            or flask.request.json["reward"] == ""
+        ):
+            return flask.jsonify(
+                {
+                    "add_Ads_succesful": False,
+                    "error_message": "Fill in all the required data",
+                }
+            )
+        elif u is not None:
+            return flask.jsonify(
+                {
+                    "add_Ads_succesful": False,
+                    "error_message": "An Ad with such title already exists",
+                }
+            )
 
 
 @bp.route("/proccess_emails", methods=["POST"])
