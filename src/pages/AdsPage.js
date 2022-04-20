@@ -1,5 +1,3 @@
-/* eslint-disable react/jsx-one-expression-per-line */
-// Should probably enable later, for now it is just useless
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
@@ -34,23 +32,30 @@ function AdItem(props) {
               {topics}
             </p>
 
-            <p>Text:
+            <p>
+              Text:
               <br />
               {text}
             </p>
 
             <p>
-              <b style={{ float: 'left' }}>Reward: ${reward}</b>
+              <b style={{ float: 'left' }}>
+                Reward: $
+                {reward}
+              </b>
               <b style={{ float: 'right' }}><Button variant="primary" onClick={() => makeResponse()}>Respond</Button></b>
             </p>
           </Card.Text>
         </Card.Body>
         <Card.Footer>
           <small className="text-muted" style={{ float: 'left' }}>
-            #{id}
+            #
+            {id}
           </small>
           <small className="text-muted" style={{ float: 'right' }}>
-            by {creatorName}
+            by
+            {' '}
+            {creatorName}
           </small>
         </Card.Footer>
       </Card>
@@ -85,8 +90,6 @@ function ListOfAds(props) {
   const [ads, setAds] = useState(Array(0));
 
   function getAds(newQuery) {
-    // eslint-disable-next-line no-console
-    console.log(`Path for ads fetching: /return_ads?for=adsPage${query}`);
     // fetch ads from database
     fetch(`/return_ads?for=adsPage${newQuery}`, {
       method: 'GET',
@@ -95,8 +98,6 @@ function ListOfAds(props) {
       .then((data) => {
         if (data.success) {
           setAds(data.adsData);
-          // eslint-disable-next-line no-console
-          console.log(data);
         } else {
           throw new Error('Error while fetching ads data');
         }
@@ -155,8 +156,6 @@ function SearchBar(props) {
       query += `&reward=${reward}`;
     }
 
-    // eslint-disable-next-line no-console
-    console.log(`Query params: ${query}`);
     setQuery(query);
   }
 
