@@ -26,7 +26,7 @@ class AppTestCase(unittest.TestCase):
             assert type(response["adsData"][0]["id"]) == int
             assert type(response["adsData"][0]["creatorName"]) == str
             assert type(response["adsData"][0]["title"]) == str
-            assert type(response["adsData"][0]["topics"]) == list
+            assert type(response["adsData"][0]["topics"]) == str
             assert type(response["adsData"][0]["text"]) == str
             assert type(response["adsData"][0]["reward"]) == int
             assert type(response["adsData"][0]["showInList"]) == bool
