@@ -19,7 +19,7 @@ def getAllAccounts():
     return accountList
 
 
-def createAd( title, topics="", text="", reward=0, show_in_list=True):
+def createAd(title, topics="", text="", reward=0, show_in_list=True):
     new_ad = Ad(current_user.id, title, topics, text, reward, show_in_list)
 
     db.session.add(new_ad)
@@ -36,7 +36,12 @@ def createChannel(
     channel_name, topics, preferred_reward, subscribers=0, show_channel=True
 ):
     new_channel = Channel(
-        current_user.id, show_channel, channel_name, subscribers, topics, preferred_reward
+        current_user.id,
+        show_channel,
+        channel_name,
+        subscribers,
+        topics,
+        preferred_reward,
     )
 
     db.session.add(new_channel)
@@ -151,6 +156,89 @@ def getChannelsByOwnerEmail(owner_email):
     return channelList
 
 
+def map_usernames(raw_accounts):
+    """Create dictionary mapping accounts` ids and usernames"""
+    accounts = {}
+    for account in raw_accounts:
+        accounts.update({account.id: account.username})
+    return accounts
+
+
+def get_ads(args):
+    """Return ads data filtered according to the query"""
+    ads_data = []
+    if args.get("for") == "adsPage":
+        ads = Ad.query.filter_by(show_in_list=True).all()
+        accounts = map_usernames(Account.query.all())
+        for advertisement in ads:
+            advertisement.topics = advertisement.topics.split(",")
+            ads_data.append(
+                {
+                    "id": advertisement.id,
+                    "creatorName": accounts[advertisement.creator_id],
+                    "title": advertisement.title,
+                    "topics": advertisement.topics,
+                    "text": advertisement.text,
+                    "reward": advertisement.reward,
+                }
+            )
+        if args.get("id") is not None:
+            searched_id = int(args.get("id"))
+            ads_data = list(
+                filter(
+                    lambda advertisement: advertisement["id"] == searched_id, ads_data
+                )
+            )
+        if args.get("creator") is not None:
+            searched_creator = args.get("creator")
+            ads_data = list(
+                filter(
+                    lambda advertisement: searched_creator
+                    in advertisement["creatorName"],
+                    ads_data,
+                )
+            )
+        if args.get("title") is not None:
+            searched_title = args.get("title")
+            ads_data = list(
+                filter(
+                    lambda advertisement: searched_title in advertisement["title"],
+                    ads_data,
+                )
+            )
+        if args.get("topics") is not None:
+            searched_topics = args.get("topics")
+            ads_data = list(
+                filter(
+                    lambda advertisement: searched_topics in advertisement["topics"],
+                    ads_data,
+                )
+            )
+        if args.get("text") is not None:
+            searched_text = args.get("text")
+            ads_data = list(
+                filter(
+                    lambda advertisement: searched_text in advertisement["text"],
+                    ads_data,
+                )
+            )
+        if args.get("reward") is not None:
+            max_reward = int(args.get("reward"))
+            ads_data = list(
+                filter(
+                    lambda advertisement: advertisement["reward"] <= max_reward,
+                    ads_data,
+                )
+            )
+
+        for advertisement in ads_data:
+            advertisement["topics"] = (", ").join(advertisement["topics"])
+
+        return ads_data
+
+    return ads_data
+
+
 def getAllAds():
     ads = Ad.query.all()
     adsList = []
@@ -226,20 +314,24 @@ def getAdsByOwnerEmail(owner_email):
 
     return adsList
 
+
 def deleteAllAds():
     rows_deleted = Ad.query.delete()
     db.session.commit()
     return rows_deleted
+
 
 def deleteAllChannels():
     rows_deleted = Channel.query.delete()
     db.session.commit()
     return rows_deleted
 
+
 def deleteAllAccount():
     rows_deleted = Account.query.delete()
     db.session.commit()
     return rows_deleted
+
 
 def deleteAd(ad_id):
     if ad_id is None:
@@ -248,12 +340,14 @@ def deleteAd(ad_id):
     db.session.commit()
     return rows_deleted
 
+
 def deleteChannel(channel_id):
     if channel_id is None:
         return -1
     rows_deleted = Channel.query.filter_by(id=channel_id).delete()
     db.session.commit()
     return rows_deleted
+
 
 def deleteAccount(account_id):
     if account_id is None:
