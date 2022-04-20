@@ -18,6 +18,7 @@ from db_utils import (
     getAdsByOwnerEmail,
     getAllAccounts,
     getAllAds,
+    get_ads,
 )
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -191,30 +192,14 @@ def account_info():
 
 @bp.route("/return_ads", methods=["GET"])
 def return_ads():
-    """Returns JSON with all ads"""
+    """Returns JSON with ads"""
     args = flask.request.args
     if args.get("for") == "adsPage":
-        # return channels for channels page
-        ads = Ad.query.filter_by(show_in_list=True).all()
-        ads_data = []
-        for advertisement in ads:
-            advertisement.topics = advertisement.topics.split(",")
-            ads_data.append(
-                {
-                    "id": advertisement.id,
-                    "creatorId": advertisement.creator_id,
-                    "title": advertisement.title,
-                    "topics": advertisement.topics,
-                    "text": advertisement.text,
-                    "reward": advertisement.reward,
-                    "showInList": advertisement.show_in_list,
-                }
-            )
         # trying to jsonify a list of channel objects gives an error
         return flask.jsonify(
             {
                 "success": True,
-                "ads_data": ads_data,
+                "adsData": get_ads(args),
             }
         )
     return flask.jsonify({"ads": getAllAds()})
@@ -331,7 +316,6 @@ def make_offer():
 
 
 app.register_blueprint(bp)
-
 
 if __name__ == "__main__":
     app.run()
