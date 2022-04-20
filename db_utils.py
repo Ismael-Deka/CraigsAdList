@@ -19,7 +19,7 @@ def getAllAccounts():
     return accountList
 
 
-def createAd( title, topics="", text="", reward=0, show_in_list=True):
+def createAd(title="", topics="", text="", reward=0, show_in_list=True):
     new_ad = Ad(current_user.id, title, topics, text, reward, show_in_list)
 
     db.session.add(new_ad)
@@ -36,7 +36,12 @@ def createChannel(
     channel_name, topics, preferred_reward, subscribers=0, show_channel=True
 ):
     new_channel = Channel(
-        current_user.id, show_channel, channel_name, subscribers, topics, preferred_reward
+        current_user.id,
+        show_channel,
+        channel_name,
+        subscribers,
+        topics,
+        preferred_reward,
     )
 
     db.session.add(new_channel)
@@ -226,20 +231,24 @@ def getAdsByOwnerEmail(owner_email):
 
     return adsList
 
+
 def deleteAllAds():
     rows_deleted = Ad.query.delete()
     db.session.commit()
     return rows_deleted
+
 
 def deleteAllChannels():
     rows_deleted = Channel.query.delete()
     db.session.commit()
     return rows_deleted
 
+
 def deleteAllAccount():
     rows_deleted = Account.query.delete()
     db.session.commit()
     return rows_deleted
+
 
 def deleteAd(ad_id):
     if ad_id is None:
@@ -248,12 +257,14 @@ def deleteAd(ad_id):
     db.session.commit()
     return rows_deleted
 
+
 def deleteChannel(channel_id):
     if channel_id is None:
         return -1
     rows_deleted = Channel.query.filter_by(id=channel_id).delete()
     db.session.commit()
     return rows_deleted
+
 
 def deleteAccount(account_id):
     if account_id is None:

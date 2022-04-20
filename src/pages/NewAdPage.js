@@ -1,5 +1,5 @@
-/* eslint-disable no-undef */
 /* eslint-disable no-shadow */
+/* eslint-disable object-shorthand */
 /* eslint-disable camelcase */
 import { useNavigate } from 'react-router';
 import { useState, useEffect, useCallback } from 'react';
@@ -11,9 +11,9 @@ function NewAdPage() {
   const [topics, setTopicsText] = useState('');
   const [text, setTextText] = useState('');
   const [reward, setRewardNumber] = useState('');
-  const [showmyads, setShowmyadsCheckbox] = useState(false);
+  const [show_in_list, setShow_in_list_Checkbox] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [IsErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
-
   const hideCloseHandler = useCallback(() => setIsErrorDialogOpen(false), []);
   const navigateBackToLogin = useCallback(() => navigate('/login'), [navigate]);
 
@@ -42,16 +42,16 @@ function NewAdPage() {
   function setReward(number) {
     setRewardNumber(number.target.value);
   }
-  function setShowmyads(checkbox) {
+  function setShow_In_List(checkbox) {
     if (checkbox.target.checked) {
-      setShowmyadsCheckbox(true);
+      setShow_in_list_Checkbox(true);
     } else {
-      setShowmyadsCheckbox(false);
+      setShow_in_list_Checkbox(false);
     }
   }
 
-  function submitAd() {
-    if (title === '' || topics === '' || text === '' || reward === '') {
+  function add_Ad() {
+    if (title === '' || topics === '' || text === '' || reward === '' || show_in_list === '') {
       setErrorMessage('Please fill in all fields');
       setIsErrorDialogOpen(true);
     } else {
@@ -59,11 +59,11 @@ function NewAdPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          title,
-          topics,
-          text,
-          reward,
-          showmyads,
+          title: title,
+          topics: topics,
+          text: text,
+          reward: reward,
+          show_in_list: show_in_list,
         }),
       };
       fetch('/add_Ad', requestoptions)
@@ -72,6 +72,7 @@ function NewAdPage() {
           if (data.add_Ads_succesful === true) {
             setErrorMessage('The ad has been created');
             setIsErrorDialogOpen(true);
+            console.log('The ad has been created');
           } else if (data.error_message === ' ') {
             setErrorMessage('Something went wrong');
             setIsErrorDialogOpen(true);
@@ -87,17 +88,18 @@ function NewAdPage() {
     <div>
       {IsErrorDialogOpen && (
       <LoginErrorDialog
-        message="User isn't logged in."
+        message={errorMessage}
         onCancel={hideCloseHandler}
         onRedirect={navigateBackToLogin}
       />
       )}
+
       <input type="text" onChange={setTitle} placeholder="title" />
       <input type="text" onChange={setTopics} placeholder="topics" />
       <input type="text" onChange={setText} placeholder="text" />
       <input type="number" onChange={setReward} placeholder="reward" />
-      <input type="checkbox" onChange={setShowmyads} />
-      <button type="submit" onClick={submitAd}>Submit</button>
+      <input type="checkbox" onChange={setShow_In_List} />
+      <button type="submit" onClick={add_Ad}>Submit</button>
       <h1>Welcome to the New Ad Page!</h1>
       <ul>
         <li><a href="/">Go to AdsPage</a></li>

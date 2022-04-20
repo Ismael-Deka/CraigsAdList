@@ -6,6 +6,7 @@
 
 import os
 
+
 import flask
 
 from flask_login import current_user, login_user, logout_user, LoginManager
@@ -219,10 +220,11 @@ def add_ad():
                 topics=flask.request.json["topics"],
                 text=flask.request.json["text"],
                 reward=flask.request.json["reward"],
+                show_in_list=flask.request.json["show_in_list"],
             )
             db.session.add(ad)
             db.session.commit()
-            new_Ad = Ad.query.filter_by(title=flask.request.json["title"]).first()
+            new_Ad = Ad.query.filter_by(topics=flask.request.json["topics"]).first()
             add_Ads_succesful = new_Ad is not None
             return flask.jsonify(
                 {"add_Ads_succesful": add_Ads_succesful, "error_message": ""}
@@ -232,6 +234,7 @@ def add_ad():
             or flask.request.json["topics"] == ""
             or flask.request.json["text"] == ""
             or flask.request.json["reward"] == ""
+            or flask.request.json["show_in_list"] == ""
         ):
             return flask.jsonify(
                 {
@@ -246,18 +249,6 @@ def add_ad():
                     "error_message": "An Ad with such title already exists",
                 }
             )
-
-
-@bp.route("/proccess_emails", methods=["POST"])
-def proccess_emails():
-    if request.method == "POST":
-        data = flask.request.form
-        email = data["email"]
-        user = Account.query.filter_by(email=email).first()
-        if user is not None:
-            return flask.jsonify({"success": True})
-        else:
-            return flask.jsonify({"success": False})
 
 
 app.register_blueprint(bp)

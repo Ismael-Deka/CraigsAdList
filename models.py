@@ -36,7 +36,8 @@ class Ad(db.Model):
     reward = db.Column(db.Integer)
     show_in_list = db.Column(db.Boolean, default=False)
 
-    def __init__(self, creator_id, title, topics, text, reward, show_in_list):
+    def __init__(self, id, creator_id, title, topics, text, reward, show_in_list):
+        self.id = id
         self.creator_id = creator_id
         self.title = title
         self.topics = topics
