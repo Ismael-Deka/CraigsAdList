@@ -72,7 +72,6 @@ function NewAdPage() {
           if (data.add_Ads_succesful === true) {
             setErrorMessage('The ad has been created');
             setIsErrorDialogOpen(true);
-            console.log('The ad has been created');
           } else if (data.error_message === ' ') {
             setErrorMessage('Something went wrong');
             setIsErrorDialogOpen(true);
