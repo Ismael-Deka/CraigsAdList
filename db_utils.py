@@ -1,3 +1,6 @@
+# pylint: disable=no-member
+# pylint can't handle db.session
+""" Fuctions for extracting data from database """
 from models import Account, Ad, Channel, db
 from flask_login import current_user
 
@@ -52,6 +55,87 @@ def createChannel(
 def doesChannelExist(channelname):
     channel = Channel.query.filter_by(channel_name=channelname).first()
     return channel != None
+
+
+def map_usernames(raw_accounts):
+    """Create dictionary mapping accounts` ids and usernames"""
+    accounts = {}
+    for account in raw_accounts:
+        accounts.update({account.id: account.username})
+    return accounts
+
+
+def get_channels(args):
+    """Return ads data filtered according to the query"""
+    if args.get("for") == "channelsPage":
+        # return channels for channels page
+        channels = Channel.query.filter_by(show_channel=True).all()
+        accounts = map_usernames(Account.query.all())
+        channels_data = []
+        for channel in channels:
+            channel.topics = channel.topics.split(",")
+            channels_data.append(
+                {
+                    "id": channel.id,
+                    "ownerName": accounts[channel.owner_id],
+                    "channelName": channel.channel_name,
+                    "subscribers": channel.subscribers,
+                    "topics": channel.topics,
+                    "preferredReward": channel.preferred_reward,
+                }
+            )
+        if args.get("id") is not None:
+            searched_id = int(args.get("id"))
+            channels_data = list(
+                filter(lambda channel: channel["id"] == searched_id, channels_data)
+            )
+        if args.get("owner") is not None:
+            searched_owner = args.get("owner")
+            channels_data = list(
+                filter(
+                    lambda channel: searched_owner in channel["ownerName"],
+                    channels_data,
+                )
+            )
+        if args.get("name") is not None:
+            searched_name = args.get("name")
+            channels_data = list(
+                filter(
+                    lambda channel: searched_name in channel["channelName"],
+                    channels_data,
+                )
+            )
+        if args.get("subs") is not None:
+            min_subs = int(args.get("subs"))
+            channels_data = list(
+                filter(
+                    lambda channel: channel["subscribers"] >= min_subs,
+                    channels_data,
+                )
+            )
+        if args.get("topics") is not None:
+            topics = args.get("topics")
+            channels_data = list(
+                filter(
+                    lambda channel: topics in channel["topics"],
+                    channels_data,
+                )
+            )
+        if args.get("reward") is not None:
+            max_reward = int(args.get("reward"))
+            channels_data = list(
+                filter(
+                    lambda channel: channel["preferredReward"] <= max_reward,
+                    channels_data,
+                )
+            )
+
+        for channel in channels_data:
+            channel["topics"] = (", ").join(channel["topics"])
+
+        return channels_data
+
+    return None
 
 
 def getAllChannels():  ## returns JSON of all channels on site.
@@ -154,14 +238,6 @@ def getChannelsByOwnerEmail(owner_email):
         )
 
     return channelList
-
-
-def map_usernames(raw_accounts):
-    """Create dictionary mapping accounts` ids and usernames"""
-    accounts = {}
-    for account in raw_accounts:
-        accounts.update({account.id: account.username})
-    return accounts
 
 
 def get_ads(args):

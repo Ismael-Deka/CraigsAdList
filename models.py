@@ -54,7 +54,7 @@ class Channel(db.Model):
     channel_name = db.Column(db.String(128), index=True, unique=True)
     subscribers = db.Column(db.Integer, default=0)
     topics = db.Column(db.String(128), index=True)  # CSV
-    preferred_reward = db.Column(db.String(128), index=True)
+    preferred_reward = db.Column(db.Integer, index=True)
 
     def __init__(
         self,
