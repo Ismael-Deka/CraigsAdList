@@ -253,8 +253,8 @@ def add_ad():
 
 @bp.route("/get_Ad", methods=["GET", "POST"])
 def get_ad():
-    current_user_id = current_user.id
-    ad_log = Ad.query.filter_by(id=current_user_id).all()
+
+    ad_log = Ad.query.filter_by(title=Ad.title).all()
     ad_log_data = []
     for ad in ad_log:
         ad_log_data.append(
@@ -267,14 +267,14 @@ def get_ad():
                 "show_in_list": ad.show_in_list,
             }
         )
-    return flask.jsonify({"ad_log_data": ad_log_data})
+    return flask.jsonify({"ad": ad_log_data})
 
 
 @bp.route("/make_responsse", methods=["POST"])
 def make_response():
     if flask.request.method == "POST":
-        current_user_id = current_user.id
-        ad_log = Ad.query.filter_by(id=current_user_id).all()
+
+        ad_log = Ad.query.filter_by(id=id).all()
         ad_log_data = []
         for ad in ad_log:
             ad_log_data.append(

@@ -78,12 +78,12 @@ function NewAdPage() {
         });
     }
   }
-  const [ads, setAds] = useState([]);
+  const [ad, setAd] = useState([]);
   useEffect(() => {
     fetch('/get_Ad', { method: 'POST' }).then((response) => response.json()).then((data) => {
-      setAds(data.ads);
+      setAd(data.ad);
     });
-  }, [setAds]);
+  }, [setAd]);
 
   return (
 
@@ -95,34 +95,45 @@ function NewAdPage() {
         onRedirect={navigateBackToLogin}
       />
       )}
-
-      <input type="text" onChange={setTitle} placeholder="title" />
-      <input type="text" onChange={setTopics} placeholder="topics" />
-      <input type="text" onChange={setText} placeholder="text" />
-      <input type="number" onChange={setReward} placeholder="reward" />
-      <input type="checkbox" onChange={setShow_In_List} />
-      <button type="submit" onClick={add_Ad}>Submit</button>
       <h1>Welcome to the New Ad Page!</h1>
-      {ads.map((ad) => (
+      <h2>Please fill in the fields below to create an ad</h2>
+      {ad.map((ad) => (
         <div key={ad.id}>
-          <h2>{ad.title}</h2>
-          <p>{ad.text}</p>
-          <p>{ad.reward}</p>
-          <p>{ad.show_in_list}</p>
-        
-      
-     
-        <ul>
-          <li><a href="/">Go to AdsPage</a></li>
-          <li><a href="/channels">Go to ChannelsPage</a></li>
-          <li><a href="/acount">Go to UserAccountPage</a></li>
-          <li><a href="/new_add">Go to NewAdPage</a></li>
-          <li><a href="/new_channel">Go to NewChannelPage</a></li>
-          <li><a href="/new_response">Go to NewResponsePage</a></li>
-          <li><a href="/new_offer">Go to NewOfferPage</a></li>
-        </ul>
-    </div>
+          <p>
+            {ad.title}
+            ,
+            {ad.topics}
+            ,
+            {ad.text}
+            ,
+            {ad.reward}
+            ,
+            {ad.show_in_list}
+          </p>
+        </div>
       ))}
+      <div>
+        <input type="text" onChange={setTitle} placeholder="title" />
+        <input type="text" onChange={setTopics} placeholder="topics" />
+        <input type="text" onChange={setText} placeholder="text" />
+        <input type="number" onChange={setReward} placeholder="reward" />
+        <input type="checkbox" onChange={setShow_In_List} />
+        <button type="submit" onClick={add_Ad}>Submit</button>
+      </div>
+
+      <ul>
+        <li><a href="/">Go to AdsPage</a></li>
+        <li><a href="/channels">Go to ChannelsPage</a></li>
+        <li><a href="/acount">Go to UserAccountPage</a></li>
+        <li><a href="/new_add">Go to NewAdPage</a></li>
+        <li><a href="/new_channel">Go to NewChannelPage</a></li>
+        <li><a href="/new_response">Go to NewResponsePage</a></li>
+        <li><a href="/new_offer">Go to NewOfferPage</a></li>
+      </ul>
+
     </div>
+
+  );
+}
 
 export default NewAdPage;
