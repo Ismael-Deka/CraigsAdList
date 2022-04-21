@@ -306,7 +306,7 @@ def get_ad():
 @bp.route("/make_responsse", methods=["POST"])
 def make_response():
     if flask.request.method == "POST":
-
+        current_user_id = current_user.id
         ad_log = Ad.query.filter_by(id=id).all()
         ad_log_data = []
         for ad in ad_log:
