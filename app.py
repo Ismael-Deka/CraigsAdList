@@ -155,15 +155,12 @@ def handle_logout():
     logout_user()
     return is_logged_in()
 
-<<<<<<< HEAD
-=======
 
 @bp.route("/channelowner", methods=["GET"])
 def is_channel_owner():
     """returns true if current user is a channel owner"""
     return flask.jsonify({"is_user_channel_owner": current_user.channel_owner})
 
->>>>>>> main
 
 @app.route("/getaccounts", methods=["GET"])
 def getAccounts():
@@ -208,8 +205,6 @@ def account_info():
 
 @bp.route("/return_ads", methods=["GET"])
 def return_ads():
-<<<<<<< HEAD
-=======
     """Returns JSON with ads"""
     args = flask.request.args
     if args.get("for") == "adsPage":
@@ -220,7 +215,6 @@ def return_ads():
                 "adsData": get_ads(args),
             }
         )
->>>>>>> main
     return flask.jsonify({"ads": getAllAds()})
 
 
