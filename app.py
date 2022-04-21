@@ -10,7 +10,7 @@ import flask
 
 from flask_login import current_user, login_user, logout_user, LoginManager
 
-from flask import render_template, request
+from flask import Response, render_template, request
 
 from db_utils import (
     createAd,
@@ -77,11 +77,10 @@ def index():
     """Root endpoint"""
     # NB: DO NOT add an "index.html" file in your normal templates folder
     # Flask will stop serving this React page correctly
-
     return flask.render_template("index.html")
 
 
-@bp.route("/handle_login", methods=["POST"])
+@bp.route("/handle_login", methods=["GET"])
 def handle_login():
     """Handle login"""
     if flask.request.method == "POST":
@@ -102,23 +101,16 @@ def handle_login():
             )
         # if the email is NOT present in the database, send a message saying “there is no user with this email”
         # and give a link to sign up page
-        elif user is None:
+        elif user == None:
             return flask.jsonify(
                 {
                     "is_login_successful": False,
                     "error_message": "No user with this email",
                 }
             )
-        else:
-            return flask.jsonify(
-                {
-                    "is_login_successful": False,
-                    "error_message": "Fixing pylint",
-                }
-            )
 
 
-@bp.route("/handle_signup", methods=["POST"])
+@bp.route("/handle_signup", methods=["GET"])
 def handle_signup():
     """Handle signup"""
     if flask.request.method == "POST":
@@ -178,17 +170,38 @@ def getAccounts():
 
 @bp.route("/is_logged_in", methods=["GET"])
 def is_logged_in():
-    """Check if user is logged in"""
     if current_user.is_authenticated == True:
         return flask.jsonify({"isuserloggedin": True})
     else:
         return flask.jsonify({"isuserloggedin": False})
 
 
-@bp.route("/account_info", methods=["GET"])
+@bp.route("/account_info", methods=["GET", "POST"])
 def account_info():
     """Return current user's JSON data"""
-    pass
+    current_account = current_user.username
+    account = Account.query.filter_by(username=current_account).first()
+    adLog = Ad.query.filter_by(account_id=account.id).all()
+    channelLog = Channel.query.filter_by(account_id=account.id).all()
+    adList = []
+    for i in adLog:
+        adDict = {}
+        adDict["title"] = i.title
+        adDict["topics"] = i.topics
+        adDict["text"] = i.text
+        adDict["reward"] = i.reward
+        adList.append(adDict)
+    channelList = []
+    for i in channelLog:
+        channelDict = {}
+        channelDict["channel_name"] = i.channel_name
+        channelDict["subscribers"] = i.subscribers
+        channelDict["topics"] = i.topics
+        channelDict["preferred_reward"] = i.preferred_reward
+        channelList.append(channelDict)
+    return flask.jsonify(
+        {"account": current_account, "ads": adList, "channels": channelList}
+    )
 
 
 @bp.route("/return_ads", methods=["GET"])

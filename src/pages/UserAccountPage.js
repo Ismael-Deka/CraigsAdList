@@ -1,73 +1,111 @@
+/* eslint-disable react/no-array-index-key */
 import { useEffect, useState } from 'react';
 
 function UserAccountPage() {
-  const [account, setAccount] = useState();
+  const [account, setAccount] = useState({});
   const [ads, setAds] = useState([]);
-  // eslint-disable-next-line no-unused-expressions
-  const [channels, setChannels] = useState([]); 8
+  const [channels, setChannels] = useState([]);
 
-    / useEffect(() => {
-      fetch('/account_info', { method: 'POST' })
-        .then(((response) => response.json()
-          .then((data) => {
-            setAccount(data.account);
-            setAds(data.ads);
-            setChannels(data.channels);
-          })
-        ));
-    }, [setAccount, setAds, setChannels]);
+  useEffect(() => {
+    fetch('/account_info', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setAccount(data.account);
+        setAds(data.ads);
+        setChannels(data.channels);
+      });
+  }, []);
 
   function handleAdDelete(i) {
-    setAds(...ads.splice(0, i), ...ads.splice(i + 1));
-  }
-
-  function handleChannelDelete(i) {
-    setChannels(...channels.splice(0, i), ...channels.splice(i + 1));
+    setAds([...ads.slice(0, i), ...ads.slice(i + 1)]);
   }
 
   return (
-    <div>
-      Welcome to the UserAccountPage!
-      <table>
-        <h2>{account}</h2>
-        <h1>User Ads</h1>
-        <tr>
-          <p>Title:</p>
-          <td>{ads.title}</td>
-          <p>Topics:</p>
-          <td>{ads.topic}</td>
-          <p>Reward:</p>
-          <td>{ads.reward}</td>
-          <p>Description</p>
-          <td>{ads.text}</td>
-          <td><button onClick={() => handleAdDelete(ads.creator_id)} type="submit">Delete</button></td>
-        </tr>
-      </table>
-      <table>
-        <h1>User Channels</h1>
-        <tr>
-          <p>Channel Name:</p>
-          <td>{channels.name}</td>
-          <p>Subscribers:</p>
-          <td>{channels.subscribers}</td>
-          <p>Topics:</p>
-          <td>{channels.topic}</td>
-          <p>Preferred Reward:</p>
-          <td>{channels.preferred_reward}</td>
-          <td><button onClick={() => handleChannelDelete(channels.owner_id)} type="submit">Delete</button></td>
-        </tr>
-      </table>
-      <ul>
-        <li><a href="/">Go to AdsPage</a></li>
-        <li><a href="/channels">Go to ChannelsPage</a></li>
-        <li><a href="/login">Go to LoginPage</a></li>
-        <li><a href="/signup">Go to SignupPage</a></li>
-        <li><a href="/account_info">Go to UserAccountPage</a></li>
-        <li><a href="/new_add">Go to NewAdPage</a></li>
-        <li><a href="/new_channel">Go to NewChannelPage</a></li>
-        <li><a href="/new_response">Go to NewResponsePage</a></li>
-        <li><a href="/new_offer">Go to NewOfferPage</a></li>
-      </ul>
+    <div className="container">
+      <div className="row">
+        <div className="col-md-12">
+          <h1>User Account</h1>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-md-12">
+          <div className="card">
+            <div className="card-body">
+              <h5 className="card-title">Account Info</h5>
+              <p className="card-text">
+                <strong>Name:</strong>
+                {' '}
+                {account.username}
+              </p>
+              <p className="card-text">
+                <strong>Email:</strong>
+                {' '}
+                {account.email}
+              </p>
+              <h5 className="card-title">Ads</h5>
+              <div className="row">
+                {ads.map((ad, i) => (
+                  <div className="col-md-4" key={i}>
+                    <div className="card">
+                      <div className="card-body">
+                        <h5 className="card-title">{ad.title}</h5>
+                        <p className="card-text">
+                          <strong>Topics:</strong>
+                          {' '}
+                          {ad.topic}
+                        </p>
+                        <p className="card-text">
+                          <strong>Text:</strong>
+                          {' '}
+                          {ad.text}
+                        </p>
+                        <p className="card-text">
+                          <strong>Reward:</strong>
+                          {' '}
+                          {ad.reward}
+                        </p>
+                        <button type="button" onClick={() => handleAdDelete(i)}>Delete</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <h5 className="card-title">Channels</h5>
+              <div className="row">
+                {channels.map((channel, i) => (
+                  <div className="col-md-4" key={i}>
+                    <div className="card">
+                      <div className="card-body">
+                        <h5 className="card-title">{channel.channel_name}</h5>
+                        <p className="card-text">
+                          <strong>Subscribers:</strong>
+                          {' '}
+                          {channel.subscribers}
+                        </p>
+                        <p className="card-text">
+                          <strong>Topics:</strong>
+                          {' '}
+                          {channel.topic}
+                        </p>
+                        <p className="card-text">
+                          <strong>Reward:</strong>
+                          {' '}
+                          {channel.preferred_reward}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
