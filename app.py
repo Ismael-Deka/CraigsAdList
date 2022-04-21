@@ -315,7 +315,7 @@ def make_response():
                 return flask.jsonify(
                     {"make_response_succesful": False, "error_message": ""}
                 )
-    return flask.jsomify(
+    return flask.jsonify(
         {"ad_log_data": ad_log_data, "channel_log_data": channel_log_data}
     )
 
@@ -356,7 +356,7 @@ def ad_offers():
                 return flask.jsonify(
                     {"make_response_succesful": False, "error_message": ""}
                 )
-    return flask.jsomify(
+    return flask.jsonify(
         {"ad_log_data": ad_log_data, "channel_log_data": channel_log_data}
     )
 
