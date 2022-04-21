@@ -19,6 +19,8 @@ from db_utils import (
     getAdsByOwnerEmail,
     getAllAccounts,
     getAllAds,
+    get_ads,
+    get_channels,
 )
 
 from werkzeug.security import generate_password_hash, check_password_hash
