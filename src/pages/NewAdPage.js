@@ -78,8 +78,15 @@ function NewAdPage() {
         });
     }
   }
+  const [ads, setAds] = useState([]);
+  useEffect(() => {
+    fetch('/get_Ad', { method: 'POST' }).then((response) => response.json()).then((data) => {
+      setAds(data.ads);
+    });
+  }, [setAds]);
 
   return (
+
     <div>
       {IsErrorDialogOpen && (
       <LoginErrorDialog
@@ -96,17 +103,26 @@ function NewAdPage() {
       <input type="checkbox" onChange={setShow_In_List} />
       <button type="submit" onClick={add_Ad}>Submit</button>
       <h1>Welcome to the New Ad Page!</h1>
-      <ul>
-        <li><a href="/">Go to AdsPage</a></li>
-        <li><a href="/channels">Go to ChannelsPage</a></li>
-        <li><a href="/acount">Go to UserAccountPage</a></li>
-        <li><a href="/new_add">Go to NewAdPage</a></li>
-        <li><a href="/new_channel">Go to NewChannelPage</a></li>
-        <li><a href="/new_response">Go to NewResponsePage</a></li>
-        <li><a href="/new_offer">Go to NewOfferPage</a></li>
-      </ul>
+      {ads.map((ad) => (
+        <div key={ad.id}>
+          <h2>{ad.title}</h2>
+          <p>{ad.text}</p>
+          <p>{ad.reward}</p>
+          <p>{ad.show_in_list}</p>
+        
+      
+     
+        <ul>
+          <li><a href="/">Go to AdsPage</a></li>
+          <li><a href="/channels">Go to ChannelsPage</a></li>
+          <li><a href="/acount">Go to UserAccountPage</a></li>
+          <li><a href="/new_add">Go to NewAdPage</a></li>
+          <li><a href="/new_channel">Go to NewChannelPage</a></li>
+          <li><a href="/new_response">Go to NewResponsePage</a></li>
+          <li><a href="/new_offer">Go to NewOfferPage</a></li>
+        </ul>
     </div>
-  );
-}
+      ))}
+    </div>
 
 export default NewAdPage;
