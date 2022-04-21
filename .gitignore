@@ -27,4 +27,5 @@ yarn-error.log*
 /__pycache__
 
 .env
-
+.python-version
+__pycache__
