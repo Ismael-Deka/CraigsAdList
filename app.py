@@ -6,6 +6,7 @@
 
 import os
 
+
 import flask
 
 from flask_login import current_user, login_user, logout_user, LoginManager
@@ -80,7 +81,7 @@ def index():
     return flask.render_template("index.html")
 
 
-@bp.route("/handle_login", methods=["GET"])
+@bp.route("/handle_login", methods=["POST"])
 def handle_login():
     """Handle login"""
     if flask.request.method == "POST":
@@ -110,7 +111,7 @@ def handle_login():
             )
 
 
-@bp.route("/handle_signup", methods=["GET"])
+@bp.route("/handle_signup", methods=["POST"])
 def handle_signup():
     """Handle signup"""
     if flask.request.method == "POST":
@@ -242,77 +243,147 @@ def add_channel():
     pass
 
 
-@bp.route("/add_ad", methods=["POST"])
+@bp.route("/add_Ad", methods=["POST"])
 def add_ad():
-    createAd(
-        flask.request.json["title"],
-        flask.request.json["topics"],
-        flask.request.json["text"],
-        flask.request.json["reward"],
-    )
-    return flask.jsonify({"success": True})
+    if flask.request.method == "POST":
+        u = Ad.query.filter_by(title=flask.request.json["title"]).first()
+        if u is None:
+            ad = Ad(
+                title=flask.request.json["title"],
+                topics=flask.request.json["topics"],
+                text=flask.request.json["text"],
+                reward=flask.request.json["reward"],
+                show_in_list=flask.request.json["show_in_list"],
+            )
+            db.session.add(ad)
+            db.session.commit()
+            new_Ad = Ad.query.filter_by(topics=flask.request.json["topics"]).first()
+            add_Ads_succesful = new_Ad is not None
+            return flask.jsonify(
+                {"add_Ads_succesful": add_Ads_succesful, "error_message": ""}
+            )
+        elif (
+            flask.request.json["title"] == ""
+            or flask.request.json["topics"] == ""
+            or flask.request.json["text"] == ""
+            or flask.request.json["reward"] == ""
+            or flask.request.json["show_in_list"] == ""
+        ):
+            return flask.jsonify(
+                {
+                    "add_Ads_succesful": False,
+                    "error_message": "Fill in all the required data",
+                }
+            )
+        elif u is not None:
+            return flask.jsonify(
+                {
+                    "add_Ads_succesful": False,
+                    "error_message": "An Ad with such title already exists",
+                }
+            )
 
 
-@bp.route("/proccess_emails", methods=["GET"])
-def proccess_emails():
-    if request.method == "POST":
-        data = flask.request.form
-        email = data["email"]
-        user = Account.query.filter_by(email=email).first()
-        if user is not None:
-            return flask.jsonify({"success": True})
-        else:
-            return flask.jsonify({"success": False})
+@bp.route("/get_Ad", methods=["GET", "POST"])
+def get_ad():
+
+    ad_log = Ad.query.filter_by(title=Ad.title).all()
+    ad_log_data = []
+    for ad in ad_log:
+        ad_log_data.append(
+            {
+                "id": ad.id,
+                "title": ad.title,
+                "topics": ad.topics,
+                "text": ad.text,
+                "reward": ad.reward,
+                "show_in_list": ad.show_in_list,
+            }
+        )
+    return flask.jsonify({"ad": ad_log_data})
 
 
-@bp.route("/make_response", methods=["GET"])
+@bp.route("/make_responsse", methods=["POST"])
 def make_response():
-    if request.method == "POST":
-        data = flask.request.form
-        response = Response(
-            text=data["text"],
-            ad_id=data["adId"],
-            owner_id=data["ownerId"],
-            channel_id=data["channelId"],
-            title=data["title"],
-            topics=data["topics"],
-            reward=data["reward"],
-            channel_name=data["channel_name"],
-            subscribers=data["subscribers"],
-            preferred_reward=data["preferred_reward"],
-        )
-        if response.preferred_reward > response.reward:
-            response.text = "Sorry, but your preferred reward is higher than the reward you offered. Please try again."
-            return flask.jsonify({"success": False})
+    if flask.request.method == "POST":
 
-        db.session.add(response)
-        db.session.commit()
-        return flask.jsonify({"success": True})
+        ad_log = Ad.query.filter_by(id=id).all()
+        ad_log_data = []
+        for ad in ad_log:
+            ad_log_data.append(
+                {
+                    "id": ad.id,
+                    "title": ad.title,
+                    "topics": ad.topics,
+                    "text": ad.text,
+                    "reward": ad.reward,
+                }
+            )
+        channel_log = Channel.query.filter_by(id=current_user_id).all()
+        channel_log_data = []
+        for channel in channel_log:
+
+            channel_log_data.append(
+                {
+                    "id": channel.id,
+                    "channelName": channel.channel_name,
+                    "subscribers": channel.subscribers,
+                    "topics": channel.topics,
+                    "preferredReward": channel.preferred_reward,
+                }
+            )
+            if channel_log_data["preferrerdReward"] < ad_log_data["reward"]:
+                return flask.jsonify(
+                    {"make_response_succesful": True, "error_message": ""}
+                )
+            else:
+                return flask.jsonify(
+                    {"make_response_succesful": False, "error_message": ""}
+                )
+    return flask.jsomify(
+        {"ad_log_data": ad_log_data, "channel_log_data": channel_log_data}
+    )
 
 
-@bp.route("/make_offer", methods=["GET"])
-def make_offer():
-    if request.method == "POST":
-        data = flask.request.form
-        response = Response(
-            text=data["text"],
-            ad_id=data["adId"],
-            owner_id=data["ownerId"],
-            channel_id=data["channelId"],
-            title=data["title"],
-            topics=data["topics"],
-            reward=data["reward"],
-            channel_name=data["channel_name"],
-            subscribers=data["subscribers"],
-            preferred_reward=data["preferred_reward"],
-        )
-        if response.preferred_reward < response.reward:
-            response.text = "Sorry, but your preferred reward is higher than the reward you offered. Please try again."
-            return flask.jsonify({"success": False})
-
-        db.session.add(response)
-        db.session.commit()
-        return flask.jsonify({"success": True})
+@bp.route("/ad_offers", methods=["POST"])
+def ad_offers():
+    if flask.request.method == "POST":
+        current_user_id = current_user.id
+        channel_log = Channel.query.filter_by(id=current_user_id).all()
+        channel_log_data = []
+        for channel in channel_log:
+            channel_log_data.append(
+                {
+                    "id": channel.id,
+                    "channelName": channel.channel_name,
+                    "subscribers": channel.subscribers,
+                    "topics": channel.topics,
+                    "preferredReward": channel.preferred_reward,
+                }
+            )
+        ad_log = Ad.query.filter_by(id=current_user_id).all()
+        ad_log_data = []
+        for ad in ad_log:
+            ad_log_data.append(
+                {
+                    "id": ad.id,
+                    "title": ad.title,
+                    "topics": ad.topics,
+                    "text": ad.text,
+                    "reward": ad.reward,
+                }
+            )
+            if channel_log_data["preferrerdReward"] > ad_log_data["reward"]:
+                return flask.jsonify(
+                    {"make_response_succesful": True, "error_message": ""}
+                )
+            else:
+                return flask.jsonify(
+                    {"make_response_succesful": False, "error_message": ""}
+                )
+    return flask.jsomify(
+        {"ad_log_data": ad_log_data, "channel_log_data": channel_log_data}
+    )
 
 
 app.register_blueprint(bp)
