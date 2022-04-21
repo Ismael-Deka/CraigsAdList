@@ -29,7 +29,21 @@ class AppTestCase(unittest.TestCase):
             self.assertEqual(type(response["adsData"][0]["topics"]), str)
             self.assertEqual(type(response["adsData"][0]["text"]), str)
             self.assertEqual(type(response["adsData"][0]["reward"]), int)
-            self.assertEqual(type(response["adsData"][0]["id"]), int)
+
+    def test_channels_page(self):
+        # check that request for channels page returns valid data
+        response = json.loads(
+            self.client.get("/return_channels?for=channelsPage").get_data(as_text=True)
+        )
+        self.assertEqual(response["success"], True)
+        self.assertEqual(type(response["channelsData"]), list)
+        if len(response["channelsData"]) > 0:
+            self.assertEqual(type(response["channelsData"][0]["id"]), int)
+            self.assertEqual(type(response["channelsData"][0]["ownerName"]), str)
+            self.assertEqual(type(response["channelsData"][0]["channelName"]), str)
+            self.assertEqual(type(response["channelsData"][0]["subscribers"]), int)
+            self.assertEqual(type(response["channelsData"][0]["topics"]), str)
+            self.assertEqual(type(response["channelsData"][0]["preferredReward"]), int)
 
 
 if __name__ == "__main__":

@@ -69,7 +69,6 @@ def get_channels(args):
     """Return ads data filtered according to the query"""
     if args.get("for") == "channelsPage":
         # return channels for channels page
-        channels_data = []
         channels = Channel.query.filter_by(show_channel=True).all()
         accounts = map_usernames(Account.query.all())
         channels_data = []
