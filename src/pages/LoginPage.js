@@ -55,7 +55,7 @@ function LoginPage() {
         <div>
           Welcome to the LoginPage!
 
-          <div><input type="text" onChange={setEmail} placeholder="Enter Username" /></div>
+          <div><input type="text" onChange={setEmail} placeholder="Enter Email" /></div>
           <div><input type="password" onChange={setPassword} placeholder="Enter Password" /></div>
           <button type="submit" onClick={logIn}>Submit</button>
           <div>
