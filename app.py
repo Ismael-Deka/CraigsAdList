@@ -10,12 +10,7 @@ import flask
 
 from flask_login import current_user, login_user, logout_user, LoginManager
 
-<<<<<<< HEAD
 from flask import Response, render_template, request
-
-from db_utils import createAd, getAllAccounts, getAllAds
-=======
-from flask import render_template, request
 
 from db_utils import (
     createAd,
@@ -25,7 +20,6 @@ from db_utils import (
     getAllAds,
     get_ads,
 )
->>>>>>> main
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
