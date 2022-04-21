@@ -11,9 +11,17 @@ import flask
 
 from flask_login import current_user, login_user, logout_user, LoginManager
 
-from flask import request
+from flask import Response, render_template, request
 
-from db_utils import createAd, getAllAccounts, getAllAds
+from db_utils import (
+    createAd,
+    deleteAllAds,
+    getAdsByOwnerEmail,
+    getAllAccounts,
+    getAllAds,
+    get_ads,
+    get_channels,
+)
 
 from werkzeug.security import generate_password_hash, check_password_hash
 

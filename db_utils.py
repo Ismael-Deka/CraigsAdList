@@ -19,7 +19,7 @@ def getAllAccounts():
     return accountList
 
 
-def createAd(title="", topics="", text="", reward=0, show_in_list=True):
+def createAd(title, topics="", text="", reward=0, show_in_list=True):
     new_ad = Ad(current_user.id, title, topics, text, reward, show_in_list)
 
     db.session.add(new_ad)
