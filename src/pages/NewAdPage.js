@@ -3,6 +3,7 @@
 /* eslint-disable camelcase */
 import { useNavigate } from 'react-router';
 import { useState, useEffect, useCallback } from 'react';
+
 import LoginErrorDialog from '../components/ui/js/LoginErrorDialog';
 
 function NewAdPage() {
@@ -12,7 +13,6 @@ function NewAdPage() {
   const [text, setTextText] = useState('');
   const [reward, setRewardNumber] = useState('');
   const [show_in_list, setShow_in_list_Checkbox] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
   const [IsErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const hideCloseHandler = useCallback(() => setIsErrorDialogOpen(false), []);
   const navigateBackToLogin = useCallback(() => navigate('/login'), [navigate]);
@@ -52,8 +52,7 @@ function NewAdPage() {
 
   function add_Ad() {
     if (title === '' || topics === '' || text === '' || reward === '' || show_in_list === '') {
-      setErrorMessage('Please fill in all fields');
-      setIsErrorDialogOpen(true);
+      alert('Please fill in all fields');
     } else {
       const requestoptions = {
         method: 'POST',
@@ -70,14 +69,11 @@ function NewAdPage() {
         .then((response) => response.json())
         .then((data) => {
           if (data.add_Ads_succesful === true) {
-            setErrorMessage('The ad has been created');
-            setIsErrorDialogOpen(true);
+            alert('The ad has been created');
           } else if (data.error_message === ' ') {
-            setErrorMessage('Something went wrong');
-            setIsErrorDialogOpen(true);
+            alert('Something went wrong');
           } else {
-            setErrorMessage(data.error_message);
-            setIsErrorDialogOpen(true);
+            alert(data.error_message);
           }
         });
     }
@@ -87,7 +83,7 @@ function NewAdPage() {
     <div>
       {IsErrorDialogOpen && (
       <LoginErrorDialog
-        message={errorMessage}
+        message="You are not logged in. Please log in to create an ad."
         onCancel={hideCloseHandler}
         onRedirect={navigateBackToLogin}
       />
