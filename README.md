@@ -12,9 +12,9 @@ https://sprint2-test.herokuapp.com/
 
 ### Set up .env file in the root of the project:
 
-`export DATABASE_URL='postgresql://<your database link>'`
+`export DATABASE_URL='postgresql://\<your database link\>'`
 
-`SECRET_KEY=<your secret key>`
+`SECRET_KEY=\<your secret key\>`
 
 
 **Then run `python app.py` or `gunicorn app:app` in the terminal to launch**
