@@ -1,13 +1,18 @@
-/* eslint-disable react/jsx-one-expression-per-line */
-// Should probably enable later, for now it is just useless
-// import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
+import Card from 'react-bootstrap/Card';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Button from 'react-bootstrap/Button';
 
 function AdItem(props) {
   const { ad } = props;
   const {
-    id, creatorId, title, topics, text, reward, showInList,
+    id, creatorName, title, topics, text, reward,
   } = ad;
   const navigate = useNavigate();
 
@@ -16,16 +21,45 @@ function AdItem(props) {
   }
 
   return (
-    <div>
-      <p>Ad id {id}</p>
-      <p>Ad creator id {creatorId}</p>
-      <p>Title {title}</p>
-      <p>Topics {topics}</p>
-      <p>Text {text}</p>
-      <p>Reward {reward}</p>
-      <p>Show in list flag {showInList}</p>
-      <p><button type="button" onClick={makeResponse}>Respond</button></p>
-    </div>
+    <Col>
+      <Card>
+        <Card.Body>
+          <Card.Title><u>{title}</u></Card.Title>
+          <Card.Text>
+            <p>
+              Topics:
+              <br />
+              {topics}
+            </p>
+
+            <p>
+              Text:
+              <br />
+              {text}
+            </p>
+
+            <p>
+              <b style={{ float: 'left' }}>
+                Reward: $
+                {reward}
+              </b>
+              <b style={{ float: 'right' }}><Button variant="primary" onClick={() => makeResponse()}>Respond</Button></b>
+            </p>
+          </Card.Text>
+        </Card.Body>
+        <Card.Footer>
+          <small className="text-muted" style={{ float: 'left' }}>
+            #
+            {id}
+          </small>
+          <small className="text-muted" style={{ float: 'right' }}>
+            by
+            {' '}
+            {creatorName}
+          </small>
+        </Card.Footer>
+      </Card>
+    </Col>
   );
 }
 AdItem.defaultProps = {
@@ -33,7 +67,7 @@ AdItem.defaultProps = {
     id: 0,
     creatorId: 0,
     title: '',
-    topics: [''],
+    topics: '',
     text: '',
     reward: 0,
     showInList: true,
@@ -42,66 +76,166 @@ AdItem.defaultProps = {
 AdItem.propTypes = {
   ad: PropTypes.shape({
     id: PropTypes.number.isRequired,
-    creatorId: PropTypes.number.isRequired,
+    creatorName: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
-    topics: PropTypes.arrayOf(PropTypes.string),
+    topics: PropTypes.string,
     text: PropTypes.number.isRequired,
     reward: PropTypes.number,
     showInList: PropTypes.bool.isRequired,
   }),
 };
 
-/* function ListOfAds() {
-  // const [ads, setAds] = useState(Array(0));
+function ListOfAds(props) {
+  const { query } = props;
+  const [ads, setAds] = useState(Array(0));
 
-   function getAds() {
+  function getAds(newQuery) {
     // fetch ads from database
-    fetch('/return_ads?for=adsPage', {
+    fetch(`/return_ads?for=adsPage${newQuery}`, {
       method: 'GET',
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          setAds(data.ads_data);
-          // eslint-disable-next-line no-console
-          console.log(data);
+          setAds(data.adsData);
         } else {
           throw new Error('Error while fetching ads data');
         }
       });
-} */
+  }
 
-/* useEffect(() => { getAds(); }, []);
+  useEffect(() => { getAds(query); }, [props]);
+  if (ads.length === 0) {
+    return (
+      <h2 className="text-muted" align="center">
+        No ads are found. Try different filters?
+      </h2>
+    );
+  }
   const listOfAds = ads.map((ad) => <AdItem ad={ad} />);
   return (
-    <div>
+    <Row xs={1} md={2} className="g-4">
       {listOfAds}
-    </div>
+    </Row>
   );
-} */
+}
+ListOfAds.defaultProps = {
+  query: '',
+};
+ListOfAds.propTypes = {
+  query: PropTypes.string,
+};
+
+function SearchBar(props) {
+  const { setQuery } = props;
+  const [id, setID] = useState('');
+  const [creator, setCreator] = useState('');
+  const [title, setTitle] = useState('');
+  const [topics, setTopics] = useState('');
+  const [text, setText] = useState('');
+  const [reward, setReward] = useState('');
+
+  function applyFilters() {
+    let query = '';
+    if (id.toString().trim() !== '') {
+      query += `&id=${id}`;
+    }
+    if (creator.trim() !== '') {
+      query += `&creator=${creator}`;
+    }
+    if (title.trim() !== '') {
+      query += `&title=${title}`;
+    }
+    if (topics.trim() !== '') {
+      query += `&topics=${topics}`;
+    }
+    if (text.trim() !== '') {
+      query += `&text=${text}`;
+    }
+    if (reward.toString().trim() !== '') {
+      query += `&reward=${reward}`;
+    }
+
+    setQuery(query);
+  }
+
+  function clearFilters() {
+    setID('');
+    setCreator('');
+    setTitle('');
+    setTopics('');
+    setText('');
+    setReward('');
+
+    setQuery('');
+  }
+
+  function isValidNumbericInput(input) {
+    const value = +input; // convert to number
+    if (value !== +value || value < 0) { // if fails validity check
+      return false;
+    }
+
+    return true;
+  }
+
+  return (
+    <Form>
+      <p><b>Filter by:</b></p>
+      <Form.Label htmlFor="id">Ad`s #</Form.Label>
+      <Form.Control name="id" type="text" pattern="[0-9]*" placeholder="100, 101" value={id} onChange={(e) => (isValidNumbericInput(e.target.value) ? setID(e.target.value) : null)} />
+
+      <Form.Label htmlFor="creator">Posted by</Form.Label>
+      <Form.Control name="creator" type="text" placeholder="username" value={creator} onChange={(e) => setCreator(e.target.value)} />
+
+      <Form.Label htmlFor="title">Title</Form.Label>
+      <Form.Control name="title" type="title" value={title} onChange={(e) => setTitle(e.target.value)} />
+
+      <Form.Label htmlFor="topics">Topics</Form.Label>
+      <Form.Control name="topics" type="text" placeholder="cats, dogs" value={topics} onChange={(e) => setTopics(e.target.value)} />
+
+      <Form.Label htmlFor="text">Text</Form.Label>
+      <Form.Control name="text" type="text" value={text} onChange={(e) => setText(e.target.value)} />
+
+      <Form.Label htmlFor="maxReward">Max reward</Form.Label>
+      <InputGroup className="mb-3">
+        <InputGroup.Text id="basic-addon1">$</InputGroup.Text>
+        <Form.Control name="maxReward" type="text" pattern="[0-9]*" value={reward} onChange={(e) => (isValidNumbericInput(e.target.value) ? setReward(e.target.value) : null)} />
+      </InputGroup>
+
+      <div className="d-grid gap-2">
+        <Button variant="primary" onClick={() => applyFilters()}>Apply filters</Button>
+        <Button variant="danger" onClick={() => clearFilters()}>Clear all filters</Button>
+      </div>
+    </Form>
+  );
+}
+SearchBar.defaultProps = {
+  setQuery: () => { },
+};
+SearchBar.propTypes = {
+  setQuery: PropTypes.func,
+};
 
 function AdsPage() {
+  const [query, setQuery] = useState('');
   return (
     <div>
-      {/* <MenuBar /> */}
-
-      {/* <ListOfAds /> */}
-
-      {/* Should delete it later */}
-      <div>
-        Welcome to the AdsPage!
-        <ul>
-          <li><a href="/">Go to AdsPage</a></li>
-          <li><a href="/channels">Go to ChannelsPage</a></li>
-          <li><a href="/login">Go to LoginPage</a></li>
-          <li><a href="/signup">Go to SignupPage</a></li>
-          <li><a href="/acount">Go to UserAccountPage</a></li>
-          <li><a href="/new_add">Go to NewAdPage</a></li>
-          <li><a href="/new_response">Go to NewResponsePage</a></li>
-          <li><a href="/new_offer">Go to NewOfferPage</a></li>
-        </ul>
-      </div>
+      <br />
+      <Container>
+        <Row>
+          <Col xs={2}>
+            <div className="position-sticky">
+              <SearchBar setQuery={(newQuery) => setQuery(newQuery)} />
+            </div>
+          </Col>
+          <Col>
+            <ListOfAds query={query} />
+          </Col>
+        </Row>
+      </Container>
     </div>
+
   );
 }
 

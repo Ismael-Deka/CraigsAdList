@@ -8,8 +8,10 @@ from flask_login import UserMixin
 
 db = SQLAlchemy()
 
+
 class Account(UserMixin, db.Model):
-    """ Model for user account """
+    """Model for user account"""
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(128), index=True, unique=True)
     password = db.Column(db.String(128), index=True)
@@ -24,11 +26,12 @@ class Account(UserMixin, db.Model):
 
 
 class Ad(db.Model):
-    """ Model for ads """
+    """Model for ads"""
+
     id = db.Column(db.Integer, primary_key=True)
     creator_id = db.Column(db.Integer, db.ForeignKey("account.id"))
     title = db.Column(db.String(128))
-    topics = db.Column(db.String(128)) #CSV
+    topics = db.Column(db.String(128))  # CSV
     text = db.Column(db.String(128))
     reward = db.Column(db.Integer)
     show_in_list = db.Column(db.Boolean, default=False)
@@ -43,15 +46,25 @@ class Ad(db.Model):
 
 
 class Channel(db.Model):
-    """ Class for channels """
+    """Class for channels"""
+
     id = db.Column(db.Integer, primary_key=True)
     owner_id = db.Column(db.Integer, db.ForeignKey("account.id"))
     show_channel = db.Column(db.Boolean, default=False)
     channel_name = db.Column(db.String(128), index=True, unique=True)
     subscribers = db.Column(db.Integer, default=0)
-    topics = db.Column(db.String(128), index=True, unique=True) #CSV
-    preferred_reward = db.Column(db.String(128), index=True, unique=True)
-    def __init__(self, owner_id, show_channel, channel_name, subscribers, topics, preferred_reward):
+    topics = db.Column(db.String(128), index=True)  # CSV
+    preferred_reward = db.Column(db.String(128), index=True)
+
+    def __init__(
+        self,
+        owner_id,
+        show_channel,
+        channel_name,
+        subscribers,
+        topics,
+        preferred_reward,
+    ):
         self.owner_id = owner_id
         self.show_channel = show_channel
         self.channel_name = channel_name

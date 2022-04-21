@@ -2,8 +2,6 @@
 
 name: Python Server CI
 env:
-    DATABASE_URL: ${{ secrets.DATABASE_URL }}
-    SECRET_KEY: ${{ secrets.SECRET_KEY }}
     DOTENV: ${{ secrets.DOTENV }}
     
 # Controls when the action will run. 

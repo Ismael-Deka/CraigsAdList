@@ -9,6 +9,12 @@ function MenuNavigation() {
       <Dropdown.Item href="/">
         {location.pathname === '/' && <text>✓</text>}
         {' '}
+        Go to LandingPage
+
+      </Dropdown.Item>
+      <Dropdown.Item href="/ads">
+        {location.pathname === '/ads' && <text>✓</text>}
+        {' '}
         Go to AdsPage
 
       </Dropdown.Item>

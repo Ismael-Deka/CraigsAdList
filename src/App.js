@@ -1,5 +1,6 @@
-import { Routes, Route } from 'react-router';
+import { Routes, Route } from 'react-router-dom';
 import './App.css';
+import LandingPage from './pages/LandingPage';
 import AdsPage from './pages/AdsPage';
 import ChannelsPage from './pages/ChannelsPage';
 import LoginPage from './pages/LoginPage';
@@ -16,7 +17,8 @@ function App() {
     <div>
       <MenuBar />
       <Routes>
-        <Route path="/" element={<AdsPage />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/ads" element={<AdsPage />} />
         <Route path="/channels" element={<ChannelsPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />

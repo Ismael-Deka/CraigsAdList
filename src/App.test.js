@@ -4,5 +4,5 @@ import App from './App';
 
 it('renders welcome message', () => {
   render(<BrowserRouter><App /></BrowserRouter>);
-  expect(screen.getByText('Welcome to the AdsPage!')).toBeInTheDocument();
+  expect(screen.getByText('Welcome to the Landing Page!')).toBeInTheDocument();
 });

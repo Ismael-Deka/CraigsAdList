@@ -20,17 +20,16 @@ class AppTestCase(unittest.TestCase):
         response = json.loads(
             self.client.get("/return_ads?for=adsPage").get_data(as_text=True)
         )
-        assert response["success"] == True
-        assert type(response["ads_data"]) == list
-        if len(response["ads_data"]) > 0:
-            assert type(response["ads_data"][0]["id"]) == int
-            assert type(response["ads_data"][0]["creatorId"]) == int
-            assert type(response["ads_data"][0]["title"]) == str
-            assert type(response["ads_data"][0]["topics"]) == list
-            assert type(response["ads_data"][0]["text"]) == str
-            assert type(response["ads_data"][0]["reward"]) == int
-            assert type(response["ads_data"][0]["showInList"]) == bool
-            assert type(response["ads_data"][0]["id"]) == int
+        self.assertEqual(response["success"], True)
+        self.assertEqual(type(response["adsData"]), list)
+        if len(response["adsData"]) > 0:
+            self.assertEqual(type(response["adsData"][0]["id"]), int)
+            self.assertEqual(type(response["adsData"][0]["creatorName"]), str)
+            self.assertEqual(type(response["adsData"][0]["title"]), str)
+            self.assertEqual(type(response["adsData"][0]["topics"]), str)
+            self.assertEqual(type(response["adsData"][0]["text"]), str)
+            self.assertEqual(type(response["adsData"][0]["reward"]), int)
+            self.assertEqual(type(response["adsData"][0]["id"]), int)
 
 
 if __name__ == "__main__":
