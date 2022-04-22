@@ -5,32 +5,16 @@
     justify-content: space-between;
     background-color: #c4c4c4;
     padding: 2rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    
 }
 
 .logo {
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     font: Helvetica, sans-serif;
     color: black;
     background-color: transparent;
     border-color: transparent;
 
-}
-
-.header ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: baseline;
-}
-
-.header li {
-    margin-left: 3rem;
-    font: Helvetica, sans-serif;
-    font-size: 1.5rem;
-    font: Helvetica, sans-serif;
-    color: white;
 }
 
 .menu {

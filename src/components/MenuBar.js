@@ -1,6 +1,8 @@
 import { useNavigate, useLocation } from 'react-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Dropdown, DropdownButton } from 'react-bootstrap';
+import {
+  Nav, Navbar, Dropdown, DropdownButton, Button,
+} from 'react-bootstrap';
 import classes from './css/MenuBar.module.css';
 import LoginErrorDialog from './ui/js/LoginErrorDialog';
 import MenuNavigation from './MenuNavigation';
@@ -14,7 +16,7 @@ function MenuBar() {
   const [RedirectFunction, setRedirectFunction] = useState({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const navigateToAdsPage = useCallback(() => navigate('/'), [navigate]);
+  // const navigateToAdsPage = useCallback(() => navigate('/'), [navigate]);
   const navigateBackToLogin = useCallback(() => navigate('/login'), [navigate]);
   const hideCloseHandler = useCallback(() => setIsErrorDialogOpen(false), []);
 
@@ -50,12 +52,24 @@ function MenuBar() {
   return (
     <div>
       <header className={classes.header}>
-        {isLoggedIn && <button type="button" className={classes.logo} onClick={navigateToAdsPage}>CraigsAdList</button>}
-        {!isLoggedIn && <div className={classes.logo}>CraigsAdList</div>}
+        <span className={classes.menu}>
+          <Navbar.Brand href="/" style={{ color: 'black' }}>CraigsAdList</Navbar.Brand>
+          {isLoggedIn && (
+          <Nav className="me-auto" activeKey="/ads">
+            <Nav.Item>
+              <Nav.Link href="/ads" style={{ color: 'black' }}>Find Ads</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link href="/channels" style={{ color: 'black' }}>Find Channels</Nav.Link>
+            </Nav.Item>
+          </Nav>
+          )}
 
+        </span>
         <div>
           <span className={classes.menu}>
-            <a href="/new_add">+</a>
+            <Button variant="outline-secondary" href="/new_add" style={{ fontWeight: 'bold' }}>+</Button>
+
             <DropdownButton title="Menu" variant="secondary">
               {!isLoggedIn && (
                 <div>

@@ -106,13 +106,16 @@ function ListOfChannels(props) {
   }
 
   useEffect(() => { getChannels(query); }, [props]);
-  if (channels.length === 0) {
-    return (
-      <h2 className="text-muted" align="center">
-        No channels are found. Try different filters?
-      </h2>
-    );
+  if (channels !== null) {
+    if (channels.length === 0 || channels === null) {
+      return (
+        <h2 className="text-muted" align="center">
+          No channels are found. Try different filters?
+        </h2>
+      );
+    }
   }
+
   const listOfChannels = channels.map((channel) => <ChannelItem channel={channel} />);
   return (
     <Row xs={1} md={2} className="g-4">
