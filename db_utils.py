@@ -1,15 +1,16 @@
 # pylint: disable=no-member
 # pylint can't handle db.session
 """ Fuctions for extracting data from database """
-from models import Account, Ad, Channel, db
 from flask_login import current_user
+from models import Account, Ad, Channel, db
 
 
-def getAllAccounts():
+def get_all_accounts():
+    """Returns all accounts stored in database"""
     accounts = Account.query.all()
-    accountList = []
+    account_list = []
     for i in accounts:
-        accountList.append(
+        account_list.append(
             {
                 "id": i.id,
                 "username": i.username,
@@ -19,25 +20,29 @@ def getAllAccounts():
             }
         )
 
-    return accountList
+    return account_list
 
 
-def createAd(title, topics="", text="", reward=0, show_in_list=True):
+def create_ad(title, topics="", text="", reward=0, show_in_list=True):
+    """Creates new ad"""
+    # there is an error here, current_user.id arg prolly should not be among the args
     new_ad = Ad(current_user.id, title, topics, text, reward, show_in_list)
 
     db.session.add(new_ad)
     db.session.commit()
-    return doesAdExist(title)
+    return does_ad_exist(title)
 
 
-def doesAdExist(ad_title):
-    ad = Ad.query.filter_by(title=ad_title).first()
-    return ad != None
+def does_ad_exist(ad_title):
+    """Check if the ad with the given title exists in the database"""
+    advertisement = Ad.query.filter_by(title=ad_title).first()
+    return advertisement is not None
 
 
-def createChannel(
+def create_channel(
     channel_name, topics, preferred_reward, subscribers=0, show_channel=True
 ):
+    """Creates channel based on given args"""
     new_channel = Channel(
         current_user.id,
         show_channel,
@@ -49,12 +54,13 @@ def createChannel(
 
     db.session.add(new_channel)
     db.session.commit()
-    return doesChannelExist(channel_name)
+    return does_channel_exist(channel_name)
 
 
-def doesChannelExist(channelname):
+def does_channel_exist(channelname):
+    """Check if the channel with the given name exists in the database"""
     channel = Channel.query.filter_by(channel_name=channelname).first()
-    return channel != None
+    return channel is not None
 
 
 def map_usernames(raw_accounts):
@@ -138,11 +144,12 @@ def get_channels(args):
     return None
 
 
-def getAllChannels():  ## returns JSON of all channels on site.
+def get_all_channels():
+    """Returns JSON of all channels on site"""
     channels = Channel.query.all()
-    channelList = []
+    channel_list = []
     for i in channels:
-        channelList.append(
+        channel_list.append(
             {
                 "owner_id": i.owner_id,
                 "show_channel": i.show_channel,
@@ -153,18 +160,19 @@ def getAllChannels():  ## returns JSON of all channels on site.
             }
         )
 
-    return channelList
+    return channel_list
 
 
-def getChannelsbyTopic(topic):
+def get_channels_by_topic(topic):
+    """Returns channels with given topic"""
     channels = Channel.query.all()
-    channelList = []
+    channel_list = []
     for i in channels:
         topic_list = i.topics.split(
             ","
-        )  ## assumes topics are seperated by a single comment(no spaces) e.g. "Tech,Fashion,Misc,..."
+        )  ## assumes topics are seperated by a single comment(no spaces) e.g. "Tech,Fashion,Misc"
         if topic in topic_list:
-            channelList.append(
+            channel_list.append(
                 {
                     "owner_id": i.owner_id,
                     "show_channel": i.show_channel,
@@ -175,20 +183,21 @@ def getChannelsbyTopic(topic):
                 }
             )
 
-    return channelList
+    return channel_list
 
 
-def getChannelsBySubCount(
+def get_channels_by_sub_count(
     min_sub_count,
-):  ##returns all channels with subscriber count above or equal to a minimum subscriber count
+):
+    """returns all channels with subscriber count above or equal to a minimum subscriber count"""
     channels = Channel.query.all()
-    channelList = []
+    channel_list = []
     for i in channels:
         channel_sub_count = (
             i.subscribers
-        )  ## assumes topics are seperated by a single comment(no spaces) e.g. "Tech,Fashion,Misc,..."
+        )  ## assumes topics are seperated by a single comment(no spaces) e.g. "Tech,Fashion,Misc"
         if channel_sub_count >= min_sub_count:
-            channelList.append(
+            channel_list.append(
                 {
                     "owner_id": i.owner_id,
                     "show_channel": i.show_channel,
@@ -199,15 +208,16 @@ def getChannelsBySubCount(
                 }
             )
 
-    return channelList
+    return channel_list
 
 
-def getChannelsByOwnerUsername(ownername):
+def get_channels_by_owner_username(ownername):
+    """returns all channels owned by user with the given username"""
     user = Account.query.filter_by(username=ownername).first()
     channels = Channel.query.filter_by(owner_id=user.id).all()
-    channelList = []
+    channel_list = []
     for i in channels:
-        channelList.append(
+        channel_list.append(
             {
                 "owner_id": i.owner_id,
                 "show_channel": i.show_channel,
@@ -218,15 +228,16 @@ def getChannelsByOwnerUsername(ownername):
             }
         )
 
-    return channelList
+    return channel_list
 
 
-def getChannelsByOwnerEmail(owner_email):
+def get_channels_by_owner_email(owner_email):
+    """returns all channels owned by user with the given email"""
     user = Account.query.filter_by(username=owner_email).first()
     channels = Channel.query.filter_by(owner_id=user.id).all()
-    channelList = []
+    channel_list = []
     for i in channels:
-        channelList.append(
+        channel_list.append(
             {
                 "owner_id": i.owner_id,
                 "show_channel": i.show_channel,
@@ -237,7 +248,7 @@ def getChannelsByOwnerEmail(owner_email):
             }
         )
 
-    return channelList
+    return channel_list
 
 
 def get_ads(args):
@@ -315,11 +326,12 @@ def get_ads(args):
     return ads_data
 
 
-def getAllAds():
+def get_all_ads():
+    """Return all ads data"""
     ads = Ad.query.all()
-    adsList = []
+    ads_list = []
     for i in ads:
-        adsList.append(
+        ads_list.append(
             {
                 "creator_id": i.creator_id,
                 "title": i.title,
@@ -330,18 +342,19 @@ def getAllAds():
             }
         )
 
-    return adsList
+    return ads_list
 
 
-def getAdsByTopic(topic):
+def get_ads_by_topic(topic):
+    """Return ads with given topics"""
     ads = Ad.query.all()
-    adsList = []
+    ads_list = []
     for i in ads:
         topic_list = i.topics.split(
             ","
-        )  ## assumes topics are seperated by a single comment(no spaces) e.g. "Tech,Fashion,Misc,..."
+        )  ## assumes topics are seperated by a single comment(no spaces) e.g. "Tech,Fashion,Misc"
         if topic in topic_list:
-            adsList.append(
+            ads_list.append(
                 {
                     "creator_id": i.creator_id,
                     "title": i.title,
@@ -352,13 +365,16 @@ def getAdsByTopic(topic):
                 }
             )
 
+    return ads_list
 
-def getAdsByOwnerUsername(ownername):
+
+def get_ads_by_owner_username(ownername):
+    """Returns ads of the user with given username"""
     user = Account.query.filter_by(username=ownername).first()
     ads = Ad.query.filter_by(creator_id=user.id).all()
-    adsList = []
+    ads_list = []
     for i in ads:
-        adsList.append(
+        ads_list.append(
             {
                 "creator_id": i.creator_id,
                 "title": i.title,
@@ -369,15 +385,16 @@ def getAdsByOwnerUsername(ownername):
             }
         )
 
-    return adsList
+    return ads_list
 
 
-def getAdsByOwnerEmail(owner_email):
+def get_ads_by_owner_email(owner_email):
+    """Return ads of the user with given email"""
     user = Account.query.filter_by(username=owner_email).first()
     ads = Ad.query.filter_by(creator_id=user.id).all()
-    adsList = []
+    ads_list = []
     for i in ads:
-        adsList.append(
+        ads_list.append(
             {
                 "creator_id": i.creator_id,
                 "title": i.title,
@@ -388,28 +405,32 @@ def getAdsByOwnerEmail(owner_email):
             }
         )
 
-    return adsList
+    return ads_list
 
 
-def deleteAllAds():
+def delete_all_ads():
+    """Deletes all ads"""
     rows_deleted = Ad.query.delete()
     db.session.commit()
     return rows_deleted
 
 
-def deleteAllChannels():
+def delete_all_channels():
+    """Deletes all channels"""
     rows_deleted = Channel.query.delete()
     db.session.commit()
     return rows_deleted
 
 
-def deleteAllAccount():
+def delete_all_account():
+    """Deletes all accounts"""
     rows_deleted = Account.query.delete()
     db.session.commit()
     return rows_deleted
 
 
-def deleteAd(ad_id):
+def delete_ad(ad_id):
+    """Deletes the add with given id"""
     if ad_id is None:
         return -1
     rows_deleted = Ad.query.filter_by(id=ad_id).delete()
@@ -417,7 +438,8 @@ def deleteAd(ad_id):
     return rows_deleted
 
 
-def deleteChannel(channel_id):
+def delete_channel(channel_id):
+    """Deletes the channel with given id"""
     if channel_id is None:
         return -1
     rows_deleted = Channel.query.filter_by(id=channel_id).delete()
@@ -425,7 +447,8 @@ def deleteChannel(channel_id):
     return rows_deleted
 
 
-def deleteAccount(account_id):
+def delete_account(account_id):
+    """Deletes the account with given id"""
     if account_id is None:
         return -1
     rows_deleted = Account.query.filter_by(id=account_id).delete()

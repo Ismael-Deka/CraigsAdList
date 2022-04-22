@@ -1,32 +1,33 @@
-# pylint: disable=W0611, W0107, W0613
+# pylint: disable=W0611, W0107, W0613, E1101
 # first two warning are disabled for starter code, we should enable them later.
 # 3rd is about unused variable in 'def load_user(user_id):', maybe we can fix it
+# E1101: because pylint can't handle db
 
 """Module for running flask and setting up endpoints"""
 
 import os
-
 
 import flask
 
 from flask_login import current_user, login_user, logout_user, LoginManager
 
 from flask import Response, render_template, request
-from sqlalchemy import true
 
-from db_utils import (
-    createAd,
-    deleteAllAds,
-    getAdsByOwnerEmail,
-    getAllAccounts,
-    getAllAds,
-    get_ads,
-    get_channels,
-)
+from sqlalchemy import true
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from dotenv import load_dotenv, find_dotenv
+
+from db_utils import (
+    create_ad,
+    delete_all_ads,
+    get_ads_by_owner_email,
+    get_all_accounts,
+    get_all_ads,
+    get_ads,
+    get_channels,
+)
 
 from models import db, Account, Ad, Channel
 
@@ -87,7 +88,7 @@ def handle_login():
     """Handle login"""
     if flask.request.method == "POST":
         user = Account.query.filter_by(email=flask.request.json["email"]).first()
-        if user != None and check_password_hash(
+        if user is not None and check_password_hash(
             user.password, flask.request.json["password"]
         ):
             is_login_successful = login_user(user)
@@ -95,15 +96,15 @@ def handle_login():
                 {"is_login_successful": is_login_successful, "error_message": ""}
             )
         # if password is incorrect
-        elif user != None and not check_password_hash(
+        if user is not None and not check_password_hash(
             user.password, flask.request.json["password"]
         ):
             return flask.jsonify(
                 {"is_login_successful": False, "error_message": "Incorrect password"}
             )
-        # if the email is NOT present in the database, send a message saying “there is no user with this email”
-        # and give a link to sign up page
-        elif user == None:
+        # if the email is NOT present in the database, send a message saying
+        # “there is no user with this email” and give a link to sign up page
+        if user is None:
             return flask.jsonify(
                 {
                     "is_login_successful": False,
@@ -111,29 +112,33 @@ def handle_login():
                 }
             )
 
+    return flask.jsonify(
+        {"is_login_successful": False, "error_message": "Wrong method"}
+    )
+
 
 @bp.route("/handle_signup", methods=["POST"])
 def handle_signup():
     """Handle signup"""
     if flask.request.method == "POST":
-        u = Account.query.filter_by(username=flask.request.json["username"]).first()
-        if u is None:
-            user = Account(
+        user = Account.query.filter_by(username=flask.request.json["username"]).first()
+        if user is None:
+            new_user = Account(
                 username=flask.request.json["username"],
                 email=flask.request.json["email"],
                 password=generate_password_hash(flask.request.json["password"]),
                 channel_owner=flask.request.json["channel_owner"],
             )
-            db.session.add(user)
+            db.session.add(new_user)
             db.session.commit()
-            new_user = Account.query.filter_by(
+            check_new_user = Account.query.filter_by(
                 email=flask.request.json["email"]
             ).first()
-            is_signup_successful = new_user is not None
+            is_signup_successful = check_new_user is not None
             return flask.jsonify(
                 {"is_signup_successful": is_signup_successful, "error_message": ""}
             )
-        elif (
+        if (
             flask.request.json["username"] == ""
             or flask.request.json["email"] == ""
             or flask.request.json["password"] == ""
@@ -144,7 +149,7 @@ def handle_signup():
                     "error_message": "Fill in all the required data",
                 }
             )
-        elif u is not None:
+        if user is not None:
             return flask.jsonify(
                 {
                     "is_signup_successful": False,
@@ -152,9 +157,17 @@ def handle_signup():
                 }
             )
 
+    return flask.jsonify(
+        {
+            "is_signup_successful": False,
+            "error_message": "Wrong method",
+        }
+    )
+
 
 @bp.route("/handle_logout", methods=["POST"])
 def handle_logout():
+    """Handles logout"""
     logout_user()
     return is_logged_in()
 
@@ -166,23 +179,21 @@ def is_channel_owner():
 
 
 @app.route("/getaccounts", methods=["GET"])
-def getAccounts():
-    return flask.jsonify({"accounts": getAllAccounts()})
+def get_accounts():
+    """Returns all accounts"""
+    return flask.jsonify({"accounts": get_all_accounts()})
 
 
 @bp.route("/is_logged_in", methods=["GET"])
 def is_logged_in():
     """checks whether a user is logged in"""
-    if current_user.is_authenticated == True:
-        return flask.jsonify({"isuserloggedin": True})
-    else:
-        return flask.jsonify({"isuserloggedin": False})
+    return flask.jsonify({"isuserloggedin": current_user.is_authenticated})
+
 
 @bp.route("/get_current_user", methods=["GET"])
 def get_current_user():
     """returns current logged in user"""
-    return flask.jsonify({"current_user":current_user.username})
-
+    return flask.jsonify({"current_user": current_user.username})
 
 
 @bp.route("/account_info", methods=["GET", "POST"])
@@ -190,26 +201,26 @@ def account_info():
     """Return current user's JSON data"""
     current_account = current_user.username
     account = Account.query.filter_by(username=current_account).first()
-    adLog = Ad.query.filter_by(account_id=account.id).all()
-    channelLog = Channel.query.filter_by(account_id=account.id).all()
-    adList = []
-    for i in adLog:
-        adDict = {}
-        adDict["title"] = i.title
-        adDict["topics"] = i.topics
-        adDict["text"] = i.text
-        adDict["reward"] = i.reward
-        adList.append(adDict)
-    channelList = []
-    for i in channelLog:
-        channelDict = {}
-        channelDict["channel_name"] = i.channel_name
-        channelDict["subscribers"] = i.subscribers
-        channelDict["topics"] = i.topics
-        channelDict["preferred_reward"] = i.preferred_reward
-        channelList.append(channelDict)
+    ad_log = Ad.query.filter_by(account_id=account.id).all()
+    channel_log = Channel.query.filter_by(account_id=account.id).all()
+    ad_list = []
+    for i in ad_log:
+        ad_dict = {}
+        ad_dict["title"] = i.title
+        ad_dict["topics"] = i.topics
+        ad_dict["text"] = i.text
+        ad_dict["reward"] = i.reward
+        ad_list.append(ad_dict)
+    channel_list = []
+    for i in channel_log:
+        channel_dict = {}
+        channel_dict["channel_name"] = i.channel_name
+        channel_dict["subscribers"] = i.subscribers
+        channel_dict["topics"] = i.topics
+        channel_dict["preferred_reward"] = i.preferred_reward
+        channel_list.append(channel_dict)
     return flask.jsonify(
-        {"account": current_account, "ads": adList, "channels": channelList}
+        {"account": current_account, "ads": ad_list, "channels": channel_list}
     )
 
 
@@ -226,7 +237,8 @@ def return_ads():
                 "adsData": get_ads(args),
             }
         )
-    return flask.jsonify({"ads": getAllAds()})
+    return flask.jsonify({"ads": get_all_ads()})
+
 
 @bp.route("/return_selected_channel", methods=["GET"])
 def get_channels_by_id():
@@ -234,30 +246,33 @@ def get_channels_by_id():
     args = flask.request.args
     channel = Channel.query.filter_by(owner_id=args.get("id")).first()
     return flask.jsonify(
-            {
-                    "id": channel.id,
-                    "ownerName": Account.query.filter_by(id=channel.owner_id).first().username,
-                    "channelName": channel.channel_name,
-                    "subscribers": channel.subscribers,
-                    "topics": channel.topics,
-                    "preferredReward": channel.preferred_reward,
-                }
-        )
+        {
+            "id": channel.id,
+            "ownerName": Account.query.filter_by(id=channel.owner_id).first().username,
+            "channelName": channel.channel_name,
+            "subscribers": channel.subscribers,
+            "topics": channel.topics,
+            "preferredReward": channel.preferred_reward,
+        }
+    )
+
+
 @bp.route("/return_selected_ads", methods=["GET"])
 def get_ads_by_id():
     """get channels by id"""
     args = flask.request.args
-    ad = Ad.query.filter_by(owner_id=args.get("id")).first()
+    advertisement = Ad.query.filter_by(owner_id=args.get("id")).first()
     return flask.jsonify(
-                {
-                    "creator_id": ad.creator_id,
-                    "title": ad.title,
-                    "topics": ad.topics,
-                    "text": ad.text,
-                    "reward": ad.reward,
-                    "show_in_list": ad.show_in_list,
-                }
-        )
+        {
+            "creator_id": advertisement.creator_id,
+            "title": advertisement.title,
+            "topics": advertisement.topics,
+            "text": advertisement.text,
+            "reward": advertisement.reward,
+            "show_in_list": advertisement.show_in_list,
+        }
+    )
+
 
 @bp.route("/return_channels", methods=["GET"])
 def return_channels():
@@ -283,24 +298,25 @@ def add_channel():
 
 @bp.route("/add_Ad", methods=["POST"])
 def add_ad():
+    """Ads ad to the database"""
     if flask.request.method == "POST":
-        u = Ad.query.filter_by(title=flask.request.json["title"]).first()
-        if u is None:
-            ad = Ad(
+        user = Ad.query.filter_by(title=flask.request.json["title"]).first()
+        if user is None:
+            advertisement = Ad(
                 title=flask.request.json["title"],
                 topics=flask.request.json["topics"],
                 text=flask.request.json["text"],
                 reward=flask.request.json["reward"],
                 show_in_list=flask.request.json["show_in_list"],
             )
-            db.session.add(ad)
+            db.session.add(advertisement)
             db.session.commit()
-            new_Ad = Ad.query.filter_by(topics=flask.request.json["topics"]).first()
-            add_Ads_succesful = new_Ad is not None
+            new_ad = Ad.query.filter_by(topics=flask.request.json["topics"]).first()
+            add_ads_succesful = new_ad is not None
             return flask.jsonify(
-                {"add_Ads_succesful": add_Ads_succesful, "error_message": ""}
+                {"add_Ads_succesful": add_ads_succesful, "error_message": ""}
             )
-        elif (
+        if (
             flask.request.json["title"] == ""
             or flask.request.json["topics"] == ""
             or flask.request.json["text"] == ""
@@ -313,29 +329,35 @@ def add_ad():
                     "error_message": "Fill in all the required data",
                 }
             )
-        elif u is not None:
+        if user is not None:
             return flask.jsonify(
                 {
                     "add_Ads_succesful": False,
                     "error_message": "An Ad with such title already exists",
                 }
             )
+    return flask.jsonify(
+        {
+            "add_Ads_succesful": False,
+            "error_message": "Unknown error",
+        }
+    )
 
 
 @bp.route("/get_Ad", methods=["GET", "POST"])
 def get_ad():
-
+    """Returns ad with the required title"""
     ad_log = Ad.query.filter_by(title=Ad.title).all()
     ad_log_data = []
-    for ad in ad_log:
+    for advertisement in ad_log:
         ad_log_data.append(
             {
-                "id": ad.id,
-                "title": ad.title,
-                "topics": ad.topics,
-                "text": ad.text,
-                "reward": ad.reward,
-                "show_in_list": ad.show_in_list,
+                "id": advertisement.id,
+                "title": advertisement.title,
+                "topics": advertisement.topics,
+                "text": advertisement.text,
+                "reward": advertisement.reward,
+                "show_in_list": advertisement.show_in_list,
             }
         )
     return flask.jsonify({"ad": ad_log_data})
@@ -343,18 +365,19 @@ def get_ad():
 
 @bp.route("/make_response", methods=["POST"])
 def make_response():
+    """Handles responses"""
     if flask.request.method == "POST":
         current_user_id = current_user.id
         ad_log = Ad.query.filter_by(id=id).all()
         ad_log_data = []
-        for ad in ad_log:
+        for advertisement in ad_log:
             ad_log_data.append(
                 {
-                    "id": ad.id,
-                    "title": ad.title,
-                    "topics": ad.topics,
-                    "text": ad.text,
-                    "reward": ad.reward,
+                    "id": advertisement.id,
+                    "title": advertisement.title,
+                    "topics": advertisement.topics,
+                    "text": advertisement.text,
+                    "reward": advertisement.reward,
                 }
             )
         channel_log = Channel.query.filter_by(id=current_user_id).all()
@@ -370,14 +393,14 @@ def make_response():
                     "preferredReward": channel.preferred_reward,
                 }
             )
+            # there is an error here, be careful
             if channel_log_data["preferrerdReward"] < ad_log_data["reward"]:
                 return flask.jsonify(
                     {"make_response_succesful": True, "error_message": ""}
                 )
-            else:
-                return flask.jsonify(
-                    {"make_response_succesful": False, "error_message": ""}
-                )
+            return flask.jsonify(
+                {"make_response_succesful": False, "error_message": ""}
+            )
     return flask.jsomify(
         {"ad_log_data": ad_log_data, "channel_log_data": channel_log_data}
     )
@@ -385,6 +408,7 @@ def make_response():
 
 @bp.route("/ad_offers", methods=["POST"])
 def ad_offers():
+    """Handles offers"""
     if flask.request.method == "POST":
         current_user_id = current_user.id
         channel_log = Channel.query.filter_by(id=current_user_id).all()
@@ -401,24 +425,24 @@ def ad_offers():
             )
         ad_log = Ad.query.filter_by(id=current_user_id).all()
         ad_log_data = []
-        for ad in ad_log:
+        for advertisement in ad_log:
             ad_log_data.append(
                 {
-                    "id": ad.id,
-                    "title": ad.title,
-                    "topics": ad.topics,
-                    "text": ad.text,
-                    "reward": ad.reward,
+                    "id": advertisement.id,
+                    "title": advertisement.title,
+                    "topics": advertisement.topics,
+                    "text": advertisement.text,
+                    "reward": advertisement.reward,
                 }
             )
+            # there is an error here, be careful
             if channel_log_data["preferrerdReward"] > ad_log_data["reward"]:
                 return flask.jsonify(
                     {"make_response_succesful": True, "error_message": ""}
                 )
-            else:
-                return flask.jsonify(
-                    {"make_response_succesful": False, "error_message": ""}
-                )
+            return flask.jsonify(
+                {"make_response_succesful": False, "error_message": ""}
+            )
     return flask.jsonify(
         {"ad_log_data": ad_log_data, "channel_log_data": channel_log_data}
     )

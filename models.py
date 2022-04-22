@@ -1,6 +1,7 @@
-# pylint: disable=E1101, R0903
-# disabled SQLAlchemy warning, pylint does not understand it
-# R0903 -- too few public methods, we might consider fixing it?
+# pylint: disable=E1101, R0903, R0913
+# E1101 -- disabled SQLAlchemy warning, pylint does not understand it
+# R0903 -- too few public methods, not a porblem
+# R0913 -- too many arguments, not a problem
 """ Module for database models """
 
 from flask_sqlalchemy import SQLAlchemy
