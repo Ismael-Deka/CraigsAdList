@@ -1,5 +1,5 @@
 # pylint: disable=W0613, E1101
-# 3rd is about unused variable in 'def load_user(user_id):', maybe we can fix it
+# W0613 is about unused variable in 'def load_user(user_id):'
 # E1101: because pylint can't handle db
 
 """Module for running flask and setting up endpoints"""
