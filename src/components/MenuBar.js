@@ -46,7 +46,7 @@ function MenuBar() {
       setIsLoggedIn(data.isuserloggedin);
       if (!data.isuserloggedin && location.pathname !== '/' && location.pathname !== '/login'
         && location.pathname !== '/signup' && location.pathname !== '/ads' && location.pathname !== '/channels') {
-        setErrorMessage('User is Logged out');
+        setErrorMessage('Please log in.');
         setRedirectFunction(navigateBackToLogin);
         setIsErrorDialogOpen(true);
       } else {
