@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import LoginErrorDialog from '../components/ui/js/LoginErrorDialog';
 import Card from '../components/ui/js/Card';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function LoginPage() {
   const [IsErrorDialogOpen, setIsErrorDialogOpen] = useState(false);

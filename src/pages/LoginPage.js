@@ -1,7 +1,9 @@
+import Button from 'react-bootstrap/Button';
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import Card from '../components/ui/js/Card';
 import LoginErrorDialog from '../components/ui/js/LoginErrorDialog';
+import classes from './css/LoginPage.module.css';
 
 function LoginPage() {
   const [IsErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
@@ -49,15 +51,18 @@ function LoginPage() {
     }
   }
 
+  const doLogin = useCallback(() => logIn(), []);
+
   return (
     <div>
       <Card>
         <div>
-          Welcome to the LoginPage!
+          <div className={classes.welcome_logo}>Log-In</div>
 
-          <div><input type="text" onChange={setEmail} placeholder="Enter Username" /></div>
-          <div><input type="password" onChange={setPassword} placeholder="Enter Password" /></div>
-          <button type="submit" onClick={logIn}>Submit</button>
+          <div><input className={classes.username} type="text" onChange={setEmail} placeholder="Enter Username" /></div>
+          <div><input className={classes.password} type="password" onChange={setPassword} placeholder="Enter Password" /></div>
+          <Button variant="outline-secondary" onClick={doLogin}>Submit</Button>
+
           <div>
             Login to your account or
             {' '}
