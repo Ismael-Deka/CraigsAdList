@@ -178,11 +178,11 @@ def is_logged_in():
     else:
         return flask.jsonify({"isuserloggedin": False})
 
+
 @bp.route("/get_current_user", methods=["GET"])
 def get_current_user():
     """returns current logged in user"""
-    return flask.jsonify({"current_user":current_user.username})
-
+    return flask.jsonify({"current_user": current_user.username})
 
 
 @bp.route("/account_info", methods=["GET", "POST"])
@@ -228,36 +228,40 @@ def return_ads():
         )
     return flask.jsonify({"ads": getAllAds()})
 
+
 @bp.route("/return_selected_channel", methods=["GET"])
 def get_channels_by_id():
     """get channels by id"""
     args = flask.request.args
     channel = Channel.query.filter_by(owner_id=args.get("id")).first()
     return flask.jsonify(
-            {
-                    "id": channel.id,
-                    "ownerName": Account.query.filter_by(id=channel.owner_id).first().username,
-                    "channelName": channel.channel_name,
-                    "subscribers": channel.subscribers,
-                    "topics": channel.topics,
-                    "preferredReward": channel.preferred_reward,
-                }
-        )
+        {
+            "id": channel.id,
+            "ownerName": Account.query.filter_by(id=channel.owner_id).first().username,
+            "channelName": channel.channel_name,
+            "subscribers": channel.subscribers,
+            "topics": channel.topics,
+            "preferredReward": channel.preferred_reward,
+        }
+    )
+
+
 @bp.route("/return_selected_ads", methods=["GET"])
 def get_ads_by_id():
     """get channels by id"""
     args = flask.request.args
     ad = Ad.query.filter_by(owner_id=args.get("id")).first()
     return flask.jsonify(
-                {
-                    "creator_id": ad.creator_id,
-                    "title": ad.title,
-                    "topics": ad.topics,
-                    "text": ad.text,
-                    "reward": ad.reward,
-                    "show_in_list": ad.show_in_list,
-                }
-        )
+        {
+            "creator_id": ad.creator_id,
+            "title": ad.title,
+            "topics": ad.topics,
+            "text": ad.text,
+            "reward": ad.reward,
+            "show_in_list": ad.show_in_list,
+        }
+    )
+
 
 @bp.route("/return_channels", methods=["GET"])
 def return_channels():
@@ -325,7 +329,7 @@ def add_ad():
 @bp.route("/get_Ad", methods=["GET", "POST"])
 def get_ad():
 
-    ad_log = Ad.query.filter_by(title=Ad.title).all()
+    ad_log = Ad.query.filter_by(id=Ad.id).all()
     ad_log_data = []
     for ad in ad_log:
         ad_log_data.append(
@@ -343,9 +347,10 @@ def get_ad():
 
 @bp.route("/make_response", methods=["POST"])
 def make_response():
+
     if flask.request.method == "POST":
         current_user_id = current_user.id
-        ad_log = Ad.query.filter_by(id=id).all()
+        ad_log = Ad.query.filter_by(id=Ad.id).all()
         ad_log_data = []
         for ad in ad_log:
             ad_log_data.append(
@@ -357,7 +362,7 @@ def make_response():
                     "reward": ad.reward,
                 }
             )
-        channel_log = Channel.query.filter_by(id=current_user_id).all()
+        channel_log = Channel.query.filter_by(id=Channel.id).all()
         channel_log_data = []
         for channel in channel_log:
 
@@ -370,7 +375,7 @@ def make_response():
                     "preferredReward": channel.preferred_reward,
                 }
             )
-            if channel_log_data["preferrerdReward"] < ad_log_data["reward"]:
+            if Channel["preferrerdReward"] < Ad["reward"]:
                 return flask.jsonify(
                     {"make_response_succesful": True, "error_message": ""}
                 )
@@ -387,7 +392,7 @@ def make_response():
 def ad_offers():
     if flask.request.method == "POST":
         current_user_id = current_user.id
-        channel_log = Channel.query.filter_by(id=current_user_id).all()
+        channel_log = Channel.query.filter_by(id=Channel.id).all()
         channel_log_data = []
         for channel in channel_log:
             channel_log_data.append(
@@ -399,7 +404,7 @@ def ad_offers():
                     "preferredReward": channel.preferred_reward,
                 }
             )
-        ad_log = Ad.query.filter_by(id=current_user_id).all()
+        ad_log = Ad.query.filter_by(id=Ad.id).all()
         ad_log_data = []
         for ad in ad_log:
             ad_log_data.append(
@@ -411,7 +416,7 @@ def ad_offers():
                     "reward": ad.reward,
                 }
             )
-            if channel_log_data["preferrerdReward"] > ad_log_data["reward"]:
+            if Channel["preferrerdReward"] > Ad["reward"]:
                 return flask.jsonify(
                     {"make_response_succesful": True, "error_message": ""}
                 )
