@@ -1,6 +1,8 @@
 import { useNavigate, useLocation } from 'react-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Dropdown, DropdownButton } from 'react-bootstrap';
+import {
+  Nav, Navbar, Dropdown, DropdownButton, Button,
+} from 'react-bootstrap';
 import classes from './css/MenuBar.module.css';
 import LoginErrorDialog from './ui/js/LoginErrorDialog';
 import MenuNavigation from './MenuNavigation';
@@ -11,11 +13,14 @@ function MenuBar() {
 
   const [IsErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [currentUser, setCurrentUser] = useState(false);
   const [RedirectFunction, setRedirectFunction] = useState({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const navigateToAdsPage = useCallback(() => navigate('/'), [navigate]);
-  const navigateBackToLogin = useCallback(() => navigate('/login'), [navigate]);
+  // const navigateToAdsPage = useCallback(() => navigate('/'), [navigate]);
+  function navigateBackToLogin() {
+    navigate('/login');
+  }
   const hideCloseHandler = useCallback(() => setIsErrorDialogOpen(false), []);
 
   const logOut = useCallback(() => {
@@ -39,10 +44,17 @@ function MenuBar() {
       method: 'GET',
     }).then((reponse) => reponse.json().then((data) => {
       setIsLoggedIn(data.isuserloggedin);
-      if (!data.isuserloggedin && location.pathname !== '/login' && location.pathname !== '/signup') {
-        setErrorMessage('User is Logged out');
+      if (!data.isuserloggedin && location.pathname !== '/' && location.pathname !== '/login'
+        && location.pathname !== '/signup' && location.pathname !== '/ads' && location.pathname !== '/channels') {
+        setErrorMessage('Please log in.');
         setRedirectFunction(navigateBackToLogin);
         setIsErrorDialogOpen(true);
+      } else {
+        fetch('/get_current_user', {
+          method: 'GET',
+        }).then((userreponse) => userreponse.json().then((userdata) => {
+          setCurrentUser(userdata.current_user);
+        }));
       }
     }));
   });
@@ -50,13 +62,23 @@ function MenuBar() {
   return (
     <div>
       <header className={classes.header}>
-        {isLoggedIn && <button type="button" className={classes.logo} onClick={navigateToAdsPage}>CraigsAdList</button>}
-        {!isLoggedIn && <div className={classes.logo}>CraigsAdList</div>}
+        <span className={classes.menu}>
+          <Navbar.Brand href="/" style={{ color: 'black' }}>CraigsAdList</Navbar.Brand>
+          <Nav className="me-auto" activeKey="/ads">
+            <Nav.Item>
+              <Nav.Link href="/ads" style={{ color: 'black' }}>Find Ads</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link href="/channels" style={{ color: 'black' }}>Find Channels</Nav.Link>
+            </Nav.Item>
+          </Nav>
 
+        </span>
         <div>
           <span className={classes.menu}>
-            <a href="/new_add">+</a>
-            <DropdownButton title="Menu" variant="secondary">
+            {isLoggedIn && (<Button variant="outline-secondary" href="/new_add" style={{ fontWeight: 'bold' }}>+</Button>)}
+
+            <DropdownButton title="Settings" variant="secondary">
               {!isLoggedIn && (
                 <div>
                   <Dropdown.Item>Not Logged In</Dropdown.Item>
@@ -67,8 +89,22 @@ function MenuBar() {
               )}
               {isLoggedIn && (
                 <div>
+
                   <MenuNavigation />
                   <Dropdown.Divider />
+
+                  <Dropdown.ItemText>
+                    Signed in as:
+                    {' '}
+                    <a href="/acount">{currentUser}</a>
+                  </Dropdown.ItemText>
+                  <Dropdown.Item href="/acount">
+                    {location.pathname === '/acount' && <text>✓</text>}
+                    {' '}
+                    My Account
+
+                  </Dropdown.Item>
+
                   <Dropdown.Item onClick={logOut}>Log out</Dropdown.Item>
                 </div>
               )}

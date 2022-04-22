@@ -1,7 +1,11 @@
+/* eslint-disable react/jsx-no-bind */
+import Button from 'react-bootstrap/Button';
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
+import { Form } from 'react-bootstrap';
 import Card from '../components/ui/js/Card';
 import LoginErrorDialog from '../components/ui/js/LoginErrorDialog';
+import classes from './css/LoginPage.module.css';
 
 function LoginPage() {
   const [IsErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
@@ -53,11 +57,21 @@ function LoginPage() {
     <div>
       <Card>
         <div>
-          Welcome to the LoginPage!
+          <div className={classes.welcome_logo}>Log-In</div>
+          <Form className="d-flex justify-content-center">
+            <div>
+              <Form.Group className="m-3" controlId="formBasicEmail">
+                <Form.Control type="email" placeholder="Enter email" onChange={setEmail} />
+              </Form.Group>
+              <Form.Group className="m-3" controlId="formBasicPassword">
+                <Form.Control type="password" placeholder="Password" onChange={setPassword} />
+              </Form.Group>
+            </div>
 
-          <div><input type="text" onChange={setEmail} placeholder="Enter Email" /></div>
-          <div><input type="password" onChange={setPassword} placeholder="Enter Password" /></div>
-          <button type="submit" onClick={logIn}>Submit</button>
+          </Form>
+
+          <Button variant="outline-secondary" onClick={logIn}>Submit</Button>
+
           <div>
             Login to your account or
             {' '}

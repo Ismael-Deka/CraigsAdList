@@ -9,44 +9,45 @@ function MenuNavigation() {
       <Dropdown.Item href="/">
         {location.pathname === '/' && <text>✓</text>}
         {' '}
-        Go to LandingPage
+        Landing Page
 
       </Dropdown.Item>
       <Dropdown.Item href="/ads">
         {location.pathname === '/ads' && <text>✓</text>}
         {' '}
-        Go to AdsPage
+        Find Ads
 
       </Dropdown.Item>
       <Dropdown.Item href="/channels">
         {location.pathname === '/channels' && <text>✓</text>}
         {' '}
-        Go to ChannelsPage
+        Find Channels
 
       </Dropdown.Item>
-      <Dropdown.Item href="/acount">
-        {location.pathname === '/acount' && <text>✓</text>}
+
+      <Dropdown.Item href="/new_channel">
+        {location.pathname === '/new_channel' && <text>✓</text>}
         {' '}
-        Go to UserAccountPage
+        Create New Channel
 
       </Dropdown.Item>
       <Dropdown.Item href="/new_add">
         {location.pathname === '/new_add' && <text>✓</text>}
         {' '}
-        Go to NewAdPage
+        Create New Ad
 
       </Dropdown.Item>
 
       <Dropdown.Item href="/new_response">
         {location.pathname === '/new_response' && <text>✓</text>}
         {' '}
-        Go to NewResponsePage
+        Respond to Offers
 
       </Dropdown.Item>
       <Dropdown.Item href="/new_offer">
         {location.pathname === '/new_offer' && <text>✓</text>}
         {' '}
-        Go to NewOfferPage
+        Create New Offer
 
       </Dropdown.Item>
     </div>
