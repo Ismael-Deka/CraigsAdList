@@ -1,5 +1,4 @@
-# pylint: disable=W0611, W0107, W0613, E1101
-# first two warning are disabled for starter code, we should enable them later.
+# pylint: disable=W0613, E1101
 # 3rd is about unused variable in 'def load_user(user_id):', maybe we can fix it
 # E1101: because pylint can't handle db
 
@@ -11,18 +10,11 @@ import flask
 
 from flask_login import current_user, login_user, logout_user, LoginManager
 
-from flask import Response, render_template, request
-
-from sqlalchemy import true
-
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from dotenv import load_dotenv, find_dotenv
 
 from db_utils import (
-    create_ad,
-    delete_all_ads,
-    get_ads_by_owner_email,
     get_all_accounts,
     get_all_ads,
     get_ads,
@@ -293,6 +285,7 @@ def return_channels():
 @bp.route("/add_channel", methods=["POST"])
 def add_channel():
     """Add channel info to database (in the first sprint it can be done only on signup)"""
+    # did we implement adding new channels?
     pass
 
 
