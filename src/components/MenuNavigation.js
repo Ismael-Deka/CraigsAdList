@@ -30,10 +30,16 @@ function MenuNavigation() {
         Go to UserAccountPage
 
       </Dropdown.Item>
+      <Dropdown.Item href="/new_channel">
+        {location.pathname === '/new_channel' && <text>✓</text>}
+        {' '}
+        New Channels
+
+      </Dropdown.Item>
       <Dropdown.Item href="/new_add">
         {location.pathname === '/new_add' && <text>✓</text>}
         {' '}
-        Go to NewAdPage
+        My Ads
 
       </Dropdown.Item>
 

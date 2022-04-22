@@ -1,134 +1,14 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 // Should probably enable later, for now it is just useless
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
-import Card from 'react-bootstrap/Card';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
-import Badge from 'react-bootstrap/Badge';
-
-function ChannelItem(props) {
-  const { channel } = props;
-  const {
-    id, ownerName, channelName, subscribers, topics, preferredReward,
-  } = channel;
-  const navigate = useNavigate();
-
-  function makeOffer() {
-    navigate('/new_offer', { state: id });
-  }
-
-  return (
-    <Col>
-      <Card>
-        <Card.Body>
-          <Card.Title><h4><Badge pill bg="light" text="dark">{channelName}</Badge></h4></Card.Title>
-          <Card.Text>
-            <p>
-              Topics:
-              <br />
-              {topics}
-            </p>
-
-            <p>
-              Subscribers:
-              <br />
-              {subscribers}
-            </p>
-
-            <p>
-              <b style={{ float: 'left' }}>
-                Reward: $
-                {preferredReward}
-              </b>
-              <b style={{ float: 'right' }}><Button variant="primary" onClick={() => makeOffer()}>Make offer</Button></b>
-            </p>
-          </Card.Text>
-        </Card.Body>
-        <Card.Footer>
-          <small className="text-muted" style={{ float: 'left' }}>
-            #
-            {id}
-          </small>
-          <small className="text-muted" style={{ float: 'right' }}>
-            by
-            {' '}
-            {ownerName}
-          </small>
-        </Card.Footer>
-      </Card>
-    </Col>
-  );
-}
-ChannelItem.defaultProps = {
-  channel: PropTypes.shape({
-    id: 0,
-    ownerName: '',
-    channelName: '',
-    subscribers: 0,
-    topics: '',
-    preferredReward: 0,
-  }),
-};
-ChannelItem.propTypes = {
-  channel: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    ownerName: PropTypes.string.isRequired,
-    channelName: PropTypes.string.isRequired,
-    subscribers: PropTypes.number.isRequired,
-    topics: PropTypes.string,
-    preferredReward: PropTypes.number,
-  }),
-};
-
-function ListOfChannels(props) {
-  const { query } = props;
-  const [channels, setChannels] = useState(Array(0));
-
-  function getChannels(newQuery) {
-    // fetch channels from database
-    fetch(`/return_channels?for=channelsPage${newQuery}`, {
-      method: 'GET',
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          setChannels(data.channelsData);
-        } else {
-          throw new Error('Error while fetching channels data');
-        }
-      });
-  }
-
-  useEffect(() => { getChannels(query); }, [props]);
-  if (channels !== null) {
-    if (channels.length === 0 || channels === null) {
-      return (
-        <h2 className="text-muted" align="center">
-          No channels are found. Try different filters?
-        </h2>
-      );
-    }
-  }
-
-  const listOfChannels = channels.map((channel) => <ChannelItem channel={channel} />);
-  return (
-    <Row xs={1} md={2} className="g-4">
-      {listOfChannels}
-    </Row>
-  );
-}
-ListOfChannels.defaultProps = {
-  query: '',
-};
-ListOfChannels.propTypes = {
-  query: PropTypes.string,
-};
+import ListOfChannels from '../components/ListofChannels';
 
 function SearchBar(props) {
   const { setQuery } = props;
