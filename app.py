@@ -12,6 +12,7 @@ import flask
 from flask_login import current_user, login_user, logout_user, LoginManager
 
 from flask import Response, render_template, request
+from sqlalchemy import true
 
 from db_utils import (
     createAd,
@@ -171,10 +172,17 @@ def getAccounts():
 
 @bp.route("/is_logged_in", methods=["GET"])
 def is_logged_in():
+    """checks whether a user is logged in"""
     if current_user.is_authenticated == True:
         return flask.jsonify({"isuserloggedin": True})
     else:
         return flask.jsonify({"isuserloggedin": False})
+
+@bp.route("/get_current_user", methods=["GET"])
+def get_current_user():
+    """returns current logged in user"""
+    return flask.jsonify({"current_user":current_user.username})
+
 
 
 @bp.route("/account_info", methods=["GET", "POST"])
@@ -220,6 +228,36 @@ def return_ads():
         )
     return flask.jsonify({"ads": getAllAds()})
 
+@bp.route("/return_selected_channel", methods=["GET"])
+def get_channels_by_id():
+    """get channels by id"""
+    args = flask.request.args
+    channel = Channel.query.filter_by(owner_id=args.get("id")).first()
+    return flask.jsonify(
+            {
+                    "id": channel.id,
+                    "ownerName": Account.query.filter_by(id=channel.owner_id).first().username,
+                    "channelName": channel.channel_name,
+                    "subscribers": channel.subscribers,
+                    "topics": channel.topics,
+                    "preferredReward": channel.preferred_reward,
+                }
+        )
+@bp.route("/return_selected_ads", methods=["GET"])
+def get_ads_by_id():
+    """get channels by id"""
+    args = flask.request.args
+    ad = Ad.query.filter_by(owner_id=args.get("id")).first()
+    return flask.jsonify(
+                {
+                    "creator_id": ad.creator_id,
+                    "title": ad.title,
+                    "topics": ad.topics,
+                    "text": ad.text,
+                    "reward": ad.reward,
+                    "show_in_list": ad.show_in_list,
+                }
+        )
 
 @bp.route("/return_channels", methods=["GET"])
 def return_channels():
@@ -303,7 +341,7 @@ def get_ad():
     return flask.jsonify({"ad": ad_log_data})
 
 
-@bp.route("/make_responsse", methods=["POST"])
+@bp.route("/make_response", methods=["POST"])
 def make_response():
     if flask.request.method == "POST":
         current_user_id = current_user.id
@@ -381,7 +419,7 @@ def ad_offers():
                 return flask.jsonify(
                     {"make_response_succesful": False, "error_message": ""}
                 )
-    return flask.jsomify(
+    return flask.jsonify(
         {"ad_log_data": ad_log_data, "channel_log_data": channel_log_data}
     )
 

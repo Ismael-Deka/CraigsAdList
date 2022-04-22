@@ -98,6 +98,12 @@ function MenuBar() {
                     {' '}
                     <a href="/acount">{currentUser}</a>
                   </Dropdown.ItemText>
+                  <Dropdown.Item href="/acount">
+                    {location.pathname === '/acount' && <text>✓</text>}
+                    {' '}
+                    My Account
+
+                  </Dropdown.Item>
 
                   <Dropdown.Item onClick={logOut}>Log out</Dropdown.Item>
                 </div>
