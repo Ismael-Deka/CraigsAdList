@@ -346,8 +346,9 @@ def add_ad():
 
 @bp.route("/get_Ad", methods=["GET", "POST"])
 def get_ad():
-    """Returns ad with the required title"""
-    ad_log = Ad.query.filter_by(title=Ad.title).all()
+    """Returns ad with the required id"""
+    # there is an error here, be careful
+    ad_log = Ad.query.filter_by(id=Ad.id).all()
     ad_log_data = []
     for advertisement in ad_log:
         ad_log_data.append(
@@ -368,7 +369,8 @@ def make_response():
     """Handles responses"""
     if flask.request.method == "POST":
         current_user_id = current_user.id
-        ad_log = Ad.query.filter_by(id=id).all()
+        # there is an error here, be careful
+        ad_log = Ad.query.filter_by(id=Ad.id).all()
         ad_log_data = []
         for advertisement in ad_log:
             ad_log_data.append(
@@ -380,7 +382,7 @@ def make_response():
                     "reward": advertisement.reward,
                 }
             )
-        channel_log = Channel.query.filter_by(id=current_user_id).all()
+        channel_log = Channel.query.filter_by(id=Channel.id).all()
         channel_log_data = []
         for channel in channel_log:
 
@@ -394,7 +396,7 @@ def make_response():
                 }
             )
             # there is an error here, be careful
-            if channel_log_data["preferrerdReward"] < ad_log_data["reward"]:
+            if Channel["preferrerdReward"] < Ad["reward"]:
                 return flask.jsonify(
                     {"make_response_succesful": True, "error_message": ""}
                 )
@@ -411,7 +413,8 @@ def ad_offers():
     """Handles offers"""
     if flask.request.method == "POST":
         current_user_id = current_user.id
-        channel_log = Channel.query.filter_by(id=current_user_id).all()
+        # there is an error here, be careful
+        channel_log = Channel.query.filter_by(id=Channel.id).all()
         channel_log_data = []
         for channel in channel_log:
             channel_log_data.append(
@@ -423,7 +426,7 @@ def ad_offers():
                     "preferredReward": channel.preferred_reward,
                 }
             )
-        ad_log = Ad.query.filter_by(id=current_user_id).all()
+        ad_log = Ad.query.filter_by(id=Ad.id).all()
         ad_log_data = []
         for advertisement in ad_log:
             ad_log_data.append(
@@ -436,7 +439,7 @@ def ad_offers():
                 }
             )
             # there is an error here, be careful
-            if channel_log_data["preferrerdReward"] > ad_log_data["reward"]:
+            if Channel["preferrerdReward"] > Ad["reward"]:
                 return flask.jsonify(
                     {"make_response_succesful": True, "error_message": ""}
                 )
