@@ -21,4 +21,5 @@ https://sprint2-test.herokuapp.com/
 
 ### Globally surpressed linting
 `"react/react-in-jsx-scope": "off",` -- nothing really important, but quite annoying
+
 `"react/jsx-filename-extension": ...*.js, .jsx *...` -- same
