@@ -293,9 +293,10 @@ def add_channel():
 def add_ad():
     """Ads ad to the database"""
     if flask.request.method == "POST":
-        user = Ad.query.filter_by(title=flask.request.json["title"]).first()
-        if user is None:
+        advertisement = Ad.query.filter_by(title=flask.request.json["title"]).first()
+        if advertisement is None:
             advertisement = Ad(
+                creator_id=current_user.id,
                 title=flask.request.json["title"],
                 topics=flask.request.json["topics"],
                 text=flask.request.json["text"],
@@ -322,7 +323,7 @@ def add_ad():
                     "error_message": "Fill in all the required data",
                 }
             )
-        if user is not None:
+        if advertisement is not None:
             return flask.jsonify(
                 {
                     "add_Ads_succesful": False,
