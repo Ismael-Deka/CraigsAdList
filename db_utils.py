@@ -1,5 +1,7 @@
 # pylint: disable=no-member
 # pylint can't handle db.session
+# pylint: disable=W0703
+# W0703 -- too general exception -- don't really care
 """ Fuctions for extracting data from database """
 from flask_login import current_user
 from models import Account, Ad, Channel, db
@@ -79,17 +81,21 @@ def get_channels(args):
         accounts = map_usernames(Account.query.all())
         channels_data = []
         for channel in channels:
-            channel.topics = channel.topics.split(",")
-            channels_data.append(
-                {
-                    "id": channel.id,
-                    "ownerName": accounts[channel.owner_id],
-                    "channelName": channel.channel_name,
-                    "subscribers": channel.subscribers,
-                    "topics": channel.topics,
-                    "preferredReward": channel.preferred_reward,
-                }
-            )
+            try:
+                channel.topics = channel.topics.split(",")
+                channels_data.append(
+                    {
+                        "id": channel.id,
+                        "ownerName": accounts[channel.owner_id],
+                        "channelName": channel.channel_name,
+                        "subscribers": channel.subscribers,
+                        "topics": channel.topics,
+                        "preferredReward": channel.preferred_reward,
+                    }
+                )
+            except Exception:
+                continue
+
         if args.get("id") is not None:
             searched_id = int(args.get("id"))
             channels_data = list(
@@ -258,17 +264,20 @@ def get_ads(args):
         ads = Ad.query.filter_by(show_in_list=True).all()
         accounts = map_usernames(Account.query.all())
         for advertisement in ads:
-            advertisement.topics = advertisement.topics.split(",")
-            ads_data.append(
-                {
-                    "id": advertisement.id,
-                    "creatorName": accounts[advertisement.creator_id],
-                    "title": advertisement.title,
-                    "topics": advertisement.topics,
-                    "text": advertisement.text,
-                    "reward": advertisement.reward,
-                }
-            )
+            try:
+                advertisement.topics = advertisement.topics.split(",")
+                ads_data.append(
+                    {
+                        "id": advertisement.id,
+                        "creatorName": accounts[advertisement.creator_id],
+                        "title": advertisement.title,
+                        "topics": advertisement.topics,
+                        "text": advertisement.text,
+                        "reward": advertisement.reward,
+                    }
+                )
+            except Exception:
+                continue
         if args.get("id") is not None:
             searched_id = int(args.get("id"))
             ads_data = list(
