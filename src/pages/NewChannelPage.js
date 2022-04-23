@@ -39,31 +39,36 @@ function NewChannelPage() {
     }
   }
   function makeChannel() {
-    const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        channel_name: name,
-        topic_list: topics,
-        sub_count: subs,
-        preferred_price: price,
-        show_channel: showChannel,
-      }),
-    };
-    fetch(
-      '/create_channel',
-      requestOptions,
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          setErrorMessage('Channel created Successful!');
-          setIsErrorDialogOpen(true);
-        } else {
-          setErrorMessage('Error occured while creating channels');
-          setIsErrorDialogOpen(true);
-        }
-      });
+    if (name === '' || topics === '' || subs === '' || price === '') {
+      setErrorMessage('Please enter all required fields correctly and fully');
+      setIsErrorDialogOpen(true);
+    } else {
+      const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channel_name: name,
+          topic_list: topics,
+          sub_count: subs,
+          preferred_price: price,
+          show_channel: showChannel,
+        }),
+      };
+      fetch(
+        '/create_channel',
+        requestOptions,
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            setErrorMessage('Channel created Successful!');
+            setIsErrorDialogOpen(true);
+          } else {
+            setErrorMessage('Error occured while creating channels');
+            setIsErrorDialogOpen(true);
+          }
+        });
+    }
   }
 
   return (

@@ -8,6 +8,10 @@
     
 }
 
+#dropdown-basic::after {
+    display: none;
+}
+
 .logo {
     font-size: 1.7rem;
     font: Helvetica, sans-serif;

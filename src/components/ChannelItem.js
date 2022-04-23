@@ -17,7 +17,9 @@ function ChannelItem(props) {
     if (location.pathname !== '/new_offer') {
       navigate('/new_offer', { state: { selectedId: id } });
     } else {
-      location.state.selectedId = id;
+      if (location.state !== null) {
+        location.state.selectedId = id;
+      }
 
       onReload();
       console.log(location.state);
