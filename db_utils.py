@@ -4,7 +4,7 @@
 # W0703 -- too general exception -- don't really care
 """ Fuctions for extracting data from database """
 from flask_login import current_user
-from models import Account, Ad, Channel, db
+from models import Account, Ad, Channel, Offers, Responses, db
 
 
 def get_all_accounts():
@@ -33,6 +33,35 @@ def create_ad(title, topics="", text="", reward=0, show_in_list=True):
     db.session.add(new_ad)
     db.session.commit()
     return does_ad_exist(title)
+
+def create_offer(creator_id, channel_id, owner_id , reward, message=""):
+    """Creates new ad"""
+    # there is an error here, current_user.id arg prolly should not be among the args
+    new_offer = Offers(creator_id, channel_id, owner_id , reward, message)
+
+    db.session.add(new_offer)
+    db.session.commit()
+    return does_offer_exist(new_offer.id)
+
+def create_response(creator_id, ad_id, owner_id , accepted, message=""):
+    """Creates new ad"""
+    # there is an error here, current_user.id arg prolly should not be among the args
+    new_response = Responses(creator_id, ad_id, owner_id , accepted, message)
+
+    db.session.add(new_response)
+    db.session.commit()
+    return does_response_exist(new_response.id)
+
+
+def does_offer_exist(offer_id):
+    """Check if the ad with the given title exists in the database"""
+    offer = Offers.query.filter_by(id=offer_id).first()
+    return offer is not None
+
+def does_response_exist(response_id):
+    """Check if the ad with the given title exists in the database"""
+    response = Responses.query.filter_by(id=response_id).first()
+    return response is not None
 
 
 def does_ad_exist(ad_title):

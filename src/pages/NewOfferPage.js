@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-bind */
 import {
   useState, useEffect, useCallback,
 } from 'react';
@@ -12,25 +13,72 @@ import LoginErrorDialog from '../components/ui/js/LoginErrorDialog';
 import ListOfChannels from '../components/ListofChannels';
 
 function NewOfferPage() {
+  let selectedId;
+
   const { state } = useLocation();
-  const { selectedId } = state;
+  if (state !== null) {
+    selectedId = state.selectedId;
+  } else {
+    selectedId = -1;
+  }
 
   const [IsErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const [ChannelName, setChannelName] = useState('');
+  const [ownerId, setOwnerId] = useState(0);
   const [subscribers, setSubscibers] = useState('');
   const [price, setPrice] = useState('');
+  const [message, setMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const hideCloseHandler = useCallback(() => setIsErrorDialogOpen(false), []);
-  const showCloseHandler = useCallback(() => setIsErrorDialogOpen(true), []);
 
-  useEffect(() => {
+  function updateOffer() {
+    if (state !== null) {
+      selectedId = state.selectedId;
+    } else {
+      selectedId = -1;
+    }
     fetch(`/return_selected_channel?id=${selectedId}`, {
       method: 'GET',
     }).then((reponse) => reponse.json().then((data) => {
-      setChannelName(data.channelName);
-      setSubscibers(data.channels_data[0].subscribers);
-      setPrice(data.preferredReward);
+      if (data.success === true) {
+        setOwnerId(data.id);
+        setChannelName(data.channelName);
+        setSubscibers(data.subscribers);
+        setPrice(data.preferredReward);
+      }
     }));
+  }
+
+  function sendOffer() {
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        channel_name: ChannelName,
+        owner_id: ownerId,
+        price,
+        message,
+      }),
+    };
+    fetch(
+      '/ad_offers',
+      requestOptions,
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          setErrorMessage('Offer created Successful!');
+          setIsErrorDialogOpen(true);
+        } else {
+          setErrorMessage('Error occured while creating offer');
+          setIsErrorDialogOpen(true);
+        }
+      });
+  }
+
+  useEffect(() => {
+    updateOffer();
   }, []);
 
   return (
@@ -57,7 +105,7 @@ function NewOfferPage() {
                 Preferred price of ads:
                 <InputGroup className="mb-3">
                   <InputGroup.Text id="basic-addon1">$</InputGroup.Text>
-                  <Form.Control name="maxReward" type="text" pattern="[0-9]*" value={price} />
+                  <Form.Control name="maxReward" type="text" pattern="[0-9]*" value={price} onChange={(text) => setPrice(text.target.value)} />
                 </InputGroup>
                 / 1k subscribers
 
@@ -65,21 +113,21 @@ function NewOfferPage() {
 
               <Card.Text>Message (optional):</Card.Text>
               <Form>
-                <Form.Control as="textarea" rows={3} />
+                <Form.Control as="textarea" rows={3} onChange={(text) => { setMessage(text.target.value); }} />
 
               </Form>
 
-              <Button variant="outline-secondary" onClick={showCloseHandler}>Make an Offer</Button>
+              <Button variant="outline-secondary" onClick={sendOffer}>Make an Offer</Button>
             </Card>
           </div>
         </Col>
         <Col className="m-4">
-          <ListOfChannels />
+          <ListOfChannels onReload={updateOffer} />
         </Col>
       </Row>
       {IsErrorDialogOpen && (
       <LoginErrorDialog
-        message="Placeholder. Will complete when Email processing is implemented"
+        message={errorMessage}
         onCancel={hideCloseHandler}
       />
       )}

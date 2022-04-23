@@ -25,6 +25,36 @@ class Account(UserMixin, db.Model):
         self.email = email
         self.channel_owner = channel_owner
 
+class Offers(db.Model):
+     """Model for offers"""
+     id = db.Column(db.Integer, primary_key=True)
+     creator_id = db.Column(db.Integer, db.ForeignKey("account.id"))
+     channel_id = db.Column(db.Integer, db.ForeignKey("channel.id"))
+     owner_id = db.Column(db.Integer, db.ForeignKey("account.id"))
+     reward = db.Column(db.Integer)
+     message = db.Column(db.String(128))
+     def __init__(self, creator_id, channel_id, owner_id , reward, message):
+        self.creator_id = creator_id
+        self.channel_id = channel_id
+        self.owner_id  = owner_id 
+        self.reward = reward
+        self.message = message
+    
+class Responses(db.Model):
+     """Model for responses"""
+     id = db.Column(db.Integer, primary_key=True)
+     creator_id = db.Column(db.Integer, db.ForeignKey("account.id"))
+     ad_id = db.Column(db.Integer, db.ForeignKey("ad.id"))
+     owner_id = db.Column(db.Integer, db.ForeignKey("account.id"))
+     accepted = db.Column(db.Boolean, default=False)
+     message = db.Column(db.String(128))
+
+     def __init__(self, creator_id, ad_id, owner_id , accepted, message):
+        self.creator_id = creator_id
+        self.ad_id = ad_id
+        self.owner_id  = owner_id 
+        self.accepted = accepted
+        self.message = message
 
 class Ad(db.Model):
     """Model for ads"""
@@ -55,7 +85,7 @@ class Channel(db.Model):
     channel_name = db.Column(db.String(128), index=True, unique=True)
     subscribers = db.Column(db.Integer, default=0)
     topics = db.Column(db.String(128), index=True)  # CSV
-    preferred_reward = db.Column(db.Integer, index=True)
+    preferred_reward = db.Column(db.Integer, index=True) 
 
     def __init__(
         self,

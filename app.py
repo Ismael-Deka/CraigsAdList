@@ -9,12 +9,15 @@ import os
 import flask
 
 from flask_login import current_user, login_user, logout_user, LoginManager
+from sqlalchemy import true
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from dotenv import load_dotenv, find_dotenv
 
 from db_utils import (
+    create_channel,
+    create_offer,
     get_all_accounts,
     get_all_ads,
     get_ads,
@@ -236,18 +239,35 @@ def return_ads():
 def get_channels_by_id():
     """get channels by id"""
     args = flask.request.args
-    channel = Channel.query.filter_by(owner_id=args.get("id")).first()
-    return flask.jsonify(
-        {
-            "id": channel.id,
-            "ownerName": Account.query.filter_by(id=channel.owner_id).first().username,
-            "channelName": channel.channel_name,
-            "subscribers": channel.subscribers,
-            "topics": channel.topics,
-            "preferredReward": channel.preferred_reward,
-        }
-    )
+    channel = Channel.query.filter_by(id=args.get("id")).first()
+    if(channel != None):
+        return flask.jsonify(
+                {
+                    "success": True,
+                    "id": channel.id,
+                    "ownerName": Account.query.filter_by(id=channel.owner_id).first().username,
+                    "channelName": channel.channel_name,
+                    "subscribers": channel.subscribers,
+                    "topics": channel.topics,
+                    "preferredReward": channel.preferred_reward,
+                }
+            )
+    else:
+        return flask.jsonify(
+                {
+                    "success": False,
+                }
+            )
 
+@bp.route("/create_channel", methods=["POST"])
+def create_new_channel():
+    is_successful = create_channel(
+        channel_name=flask.request.json["channel_name"],
+        topics=flask.request.json["topic_list"],
+        subscribers=flask.request.json["sub_count"],
+        preferred_reward=flask.request.json["preferred_price"],
+        show_channel=flask.request.json["show_channel"])
+    return flask.jsonify({"success": is_successful})
 
 @bp.route("/return_selected_ads", methods=["GET"])
 def get_ads_by_id():
@@ -361,88 +381,28 @@ def get_ad():
 @bp.route("/make_response", methods=["POST"])
 def make_response():
     """Handles responses"""
-    if flask.request.method == "POST":
-        current_user_id = current_user.id
-        # there is an error here, be careful
-        ad_log = Ad.query.filter_by(id=Ad.id).all()
-        ad_log_data = []
-        for advertisement in ad_log:
-            ad_log_data.append(
-                {
-                    "id": advertisement.id,
-                    "title": advertisement.title,
-                    "topics": advertisement.topics,
-                    "text": advertisement.text,
-                    "reward": advertisement.reward,
-                }
-            )
-        channel_log = Channel.query.filter_by(id=Channel.id).all()
-        channel_log_data = []
-        for channel in channel_log:
-
-            channel_log_data.append(
-                {
-                    "id": channel.id,
-                    "channelName": channel.channel_name,
-                    "subscribers": channel.subscribers,
-                    "topics": channel.topics,
-                    "preferredReward": channel.preferred_reward,
-                }
-            )
-            # there is an error here, be careful
-            if Channel["preferrerdReward"] < Ad["reward"]:
-                return flask.jsonify(
-                    {"make_response_succesful": True, "error_message": ""}
-                )
-            return flask.jsonify(
-                {"make_response_succesful": False, "error_message": ""}
-            )
-    return flask.jsomify(
-        {"ad_log_data": ad_log_data, "channel_log_data": channel_log_data}
+    is_successful =create_response(
+        creator_id = current_user.id, 
+        ad_id= flask.request.json["ad_id"], 
+        owner_id =  flask.request.json["owner_id"], 
+        accepted = flask.request.json["accepted"], 
+        message= flask.request.json["message"]
     )
+
+    flask.jsonify({"success": is_successful})
 
 
 @bp.route("/ad_offers", methods=["POST"])
 def ad_offers():
-    """Handles offers"""
-    if flask.request.method == "POST":
-        current_user_id = current_user.id
-        # there is an error here, be careful
-        channel_log = Channel.query.filter_by(id=Channel.id).all()
-        channel_log_data = []
-        for channel in channel_log:
-            channel_log_data.append(
-                {
-                    "id": channel.id,
-                    "channelName": channel.channel_name,
-                    "subscribers": channel.subscribers,
-                    "topics": channel.topics,
-                    "preferredReward": channel.preferred_reward,
-                }
-            )
-        ad_log = Ad.query.filter_by(id=Ad.id).all()
-        ad_log_data = []
-        for advertisement in ad_log:
-            ad_log_data.append(
-                {
-                    "id": advertisement.id,
-                    "title": advertisement.title,
-                    "topics": advertisement.topics,
-                    "text": advertisement.text,
-                    "reward": advertisement.reward,
-                }
-            )
-            # there is an error here, be careful
-            if Channel["preferrerdReward"] > Ad["reward"]:
-                return flask.jsonify(
-                    {"make_response_succesful": True, "error_message": ""}
-                )
-            return flask.jsonify(
-                {"make_response_succesful": False, "error_message": ""}
-            )
-    return flask.jsonify(
-        {"ad_log_data": ad_log_data, "channel_log_data": channel_log_data}
+    is_successful =create_offer(
+        creator_id = current_user.id, 
+        channel_id= Channel.query.filter_by(channel_name=flask.request.json["channel_name"]).first().id, 
+        owner_id =  flask.request.json["owner_id"], 
+        reward = flask.request.json["price"], 
+        message= flask.request.json["message"]
     )
+
+    flask.jsonify({"success": is_successful})
 
 
 app.register_blueprint(bp)
