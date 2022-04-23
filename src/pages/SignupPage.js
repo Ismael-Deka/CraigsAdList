@@ -97,11 +97,7 @@ function LoginPage() {
           </div>
         </div>
         <Button variant="outline-secondary" onClick={signUp}>Submit</Button>
-        <div>
-          Already have an account?
-          {' '}
-          <a href="/login">Log in.</a>
-        </div>
+
         {IsErrorDialogOpen && (
         <LoginErrorDialog
           message={errorMessage}

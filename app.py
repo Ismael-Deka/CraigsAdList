@@ -15,11 +15,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv, find_dotenv
 
 from db_utils import (
+    create_channel,
     get_all_accounts,
     get_all_ads,
     get_ads,
     get_channels,
-    getAllChannels,
 )
 
 from models import db, Account, Ad, Channel
@@ -257,6 +257,15 @@ def get_channels_by_id():
                 }
             )
 
+@bp.route("/create_channel", methods=["POST"])
+def create_new_channel():
+    is_successful = create_channel(
+        channel_name=flask.request.json["channel_name"],
+        topics=flask.request.json["topic_list"],
+        subscribers=flask.request.json["sub_count"],
+        preferred_reward=flask.request.json["preferred_price"],
+        show_channel=flask.request.json["show_channel"])
+    return flask.jsonify({"success": is_successful})
 
 @bp.route("/return_selected_ads", methods=["GET"])
 def get_ads_by_id():
