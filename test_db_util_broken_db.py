@@ -84,16 +84,17 @@ for i in range(5):
     )
 
 
-class Database_test(unittest.TestCase):
+class Broken_database_test(unittest.TestCase):
     @patch("db_utils.Account")
     @patch("db_utils.Channel")
-    def test_get_channels(self, mock_Channel, mock_Account):
+    def test_get_channels_broken_db(self, mock_Channel, mock_Account):
         self.accounts = accounts
 
-        self.channels = channels
+        self.broken_channels = channels
+        self.broken_channels[0].owner_id = None
 
         expected_channels = []
-        for i in range(5):
+        for i in range(1, 5):
             expected_channels.append(
                 {
                     "id": i,
@@ -107,22 +108,23 @@ class Database_test(unittest.TestCase):
 
         mock_Account.query.all.return_value = self.accounts
 
-        mock_Channel.query.filter_by().all.return_value = self.channels
+        mock_Channel.query.filter_by().all.return_value = self.broken_channels
 
         valid_args = MultiDict({"for": "channelsPage"})
 
-        # get_channels is supposed to return expected_channels output
+        # in case of corrupted entry in the database get_channels should skip corrupted data
         self.assertEqual(get_channels(valid_args), expected_channels)
 
     @patch("db_utils.Account")
     @patch("db_utils.Ad")
-    def test_get_ads(self, mock_Ad, mock_Account):
+    def test_get_ads_broken_db(self, mock_Ad, mock_Account):
         self.accounts = accounts
 
-        self.ads = ads
+        self.broken_ads = ads
+        self.broken_ads[0].creator_id = None
 
         expected_ads = []
-        for i in range(5):
+        for i in range(1, 5):
             expected_ads.append(
                 {
                     "id": i,
@@ -136,9 +138,9 @@ class Database_test(unittest.TestCase):
 
         mock_Account.query.all.return_value = self.accounts
 
-        mock_Ad.query.filter_by().all.return_value = self.ads
+        mock_Ad.query.filter_by().all.return_value = self.broken_ads
 
-        # get_ads is supposed to return expected_ads output
+        # in case of corrupted entry in the database get_ads should skip corrupted data
         valid_args = MultiDict({"for": "adsPage"})
         self.assertEqual(get_ads(valid_args), expected_ads)
 
