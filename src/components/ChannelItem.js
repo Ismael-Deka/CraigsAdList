@@ -3,17 +3,25 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Badge from 'react-bootstrap/Badge';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function ChannelItem(props) {
-  const { channel } = props;
+  const { channel, onReload } = props;
   const {
     id, ownerName, channelName, subscribers, topics, preferredReward,
   } = channel;
   const navigate = useNavigate();
+  const location = useLocation();
 
   function makeOffer() {
-    navigate('/new_offer', { state: { selectedId: id } });
+    if (location.pathname !== '/new_offer') {
+      navigate('/new_offer', { state: { selectedId: id } });
+    } else {
+      location.state.selectedId = id;
+
+      onReload();
+      console.log(location.state);
+    }
   }
 
   return (
@@ -70,6 +78,7 @@ ChannelItem.defaultProps = {
     topics: '',
     preferredReward: 0,
   }),
+  onReload: () => { },
 };
 ChannelItem.propTypes = {
   channel: PropTypes.shape({
@@ -80,4 +89,5 @@ ChannelItem.propTypes = {
     topics: PropTypes.string,
     preferredReward: PropTypes.number,
   }),
+  onReload: PropTypes.func,
 };

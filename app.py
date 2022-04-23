@@ -16,12 +16,15 @@ from sqlalchemy import true
 
 from db_utils import (
     createAd,
+    createChannel,
     deleteAllAds,
+    doesAdExist,
     getAdsByOwnerEmail,
     getAllAccounts,
     getAllAds,
     get_ads,
     get_channels,
+    getAllChannels,
 )
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -232,9 +235,11 @@ def return_ads():
 def get_channels_by_id():
     """get channels by id"""
     args = flask.request.args
-    channel = Channel.query.filter_by(owner_id=args.get("id")).first()
-    return flask.jsonify(
-            {
+    channel = Channel.query.filter_by(id=args.get("id")).first()
+    if(channel != None):
+        return flask.jsonify(
+                {
+                    "success": True,
                     "id": channel.id,
                     "ownerName": Account.query.filter_by(id=channel.owner_id).first().username,
                     "channelName": channel.channel_name,
@@ -242,7 +247,15 @@ def get_channels_by_id():
                     "topics": channel.topics,
                     "preferredReward": channel.preferred_reward,
                 }
-        )
+            )
+    else:
+        return flask.jsonify(
+                {
+                    "success": False,
+                }
+            )
+
+
 @bp.route("/return_selected_ads", methods=["GET"])
 def get_ads_by_id():
     """get channels by id"""

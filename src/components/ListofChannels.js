@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import ChannelItem from './ChannelItem';
 
 function ListOfChannels(props) {
-  const { query } = props;
+  const { query, onReload } = props;
   const [channels, setChannels] = useState(Array(0));
 
   function getChannels(newQuery) {
@@ -33,7 +33,9 @@ function ListOfChannels(props) {
     }
   }
 
-  const listOfChannels = channels.map((channel) => <ChannelItem channel={channel} />);
+  const listOfChannels = channels.map(
+    (channel) => <ChannelItem channel={channel} onReload={onReload} />,
+  );
   return (
     <Row xs={1} md={2} className="g-4">
       {listOfChannels}
@@ -45,7 +47,9 @@ export default ListOfChannels;
 
 ListOfChannels.defaultProps = {
   query: '',
+  onReload: () => { },
 };
 ListOfChannels.propTypes = {
   query: PropTypes.string,
+  onReload: PropTypes.func,
 };

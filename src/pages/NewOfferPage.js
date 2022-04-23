@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-bind */
 import {
   useState, useEffect, useCallback,
 } from 'react';
@@ -12,8 +13,14 @@ import LoginErrorDialog from '../components/ui/js/LoginErrorDialog';
 import ListOfChannels from '../components/ListofChannels';
 
 function NewOfferPage() {
+  let selectedId;
+
   const { state } = useLocation();
-  const { selectedId } = state;
+  if (state !== null) {
+    selectedId = state.selectedId;
+  } else {
+    selectedId = -1;
+  }
 
   const [IsErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const [ChannelName, setChannelName] = useState('');
@@ -23,14 +30,26 @@ function NewOfferPage() {
   const hideCloseHandler = useCallback(() => setIsErrorDialogOpen(false), []);
   const showCloseHandler = useCallback(() => setIsErrorDialogOpen(true), []);
 
-  useEffect(() => {
+  function updateOffer() {
+    if (state !== null) {
+      selectedId = state.selectedId;
+    } else {
+      selectedId = -1;
+    }
     fetch(`/return_selected_channel?id=${selectedId}`, {
       method: 'GET',
     }).then((reponse) => reponse.json().then((data) => {
-      setChannelName(data.channelName);
-      setSubscibers(data.channels_data[0].subscribers);
-      setPrice(data.preferredReward);
+      if (data.success === true) {
+        console.log(selectedId);
+        setChannelName(data.channelName);
+        setSubscibers(data.subscribers);
+        setPrice(data.preferredReward);
+      }
     }));
+  }
+
+  useEffect(() => {
+    updateOffer();
   }, []);
 
   return (
@@ -74,7 +93,7 @@ function NewOfferPage() {
           </div>
         </Col>
         <Col className="m-4">
-          <ListOfChannels />
+          <ListOfChannels onReload={updateOffer} />
         </Col>
       </Row>
       {IsErrorDialogOpen && (
