@@ -3,9 +3,7 @@
 # pylint: disable=W0703
 # W0703 -- too general exception -- don't really care
 """ Fuctions for extracting data from database """
-from urllib import response
 from flask_login import current_user
-from httplib2 import Response
 from models import Account, Ad, Channel, Offers, Responses, db
 
 
