@@ -6,7 +6,6 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Badge from 'react-bootstrap/Badge';
 import { useNavigate } from 'react-router';
-import { BrowserRouter } from 'react-router-dom';
 import background from '../images/background.webp';
 import picardia from '../images/picardia.png';
 import picardiaMirrored from '../images/picardiaMirrored.png';
