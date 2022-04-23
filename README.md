@@ -1,4 +1,4 @@
-## Heroku link TEMPORARY
+## Heroku link
 
 https://sprint2-test.herokuapp.com/
 
@@ -18,3 +18,7 @@ https://sprint2-test.herokuapp.com/
 
 
 **Then run `python app.py` or `gunicorn app:app` in the terminal to launch**
+
+### Globally surpressed linting
+`"react/react-in-jsx-scope": "off",` -- nothing really important, but quite annoying
+`"react/jsx-filename-extension": ...*.js, .jsx *...` -- same
