@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import App from './App';
 import AdsPage from './pages/AdsPage';
 import ChannelsPage from './pages/ChannelsPage';
 import LandingPage from './pages/LandingPage';
