@@ -407,4 +407,5 @@ def ad_offers():
 
 app.register_blueprint(bp)
 
-app.run(debug=true)
+if __name__ == "__main__":
+    app.run()
