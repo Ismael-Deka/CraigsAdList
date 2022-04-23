@@ -22,7 +22,6 @@ function ChannelItem(props) {
       }
 
       onReload();
-      console.log(location.state);
     }
   }
 
