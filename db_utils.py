@@ -1,5 +1,7 @@
 # pylint: disable=no-member
 # pylint can't handle db.session
+# pylint: disable=W0703
+# W0703 -- too general exception -- don't really care
 """ Fuctions for extracting data from database """
 from flask_login import current_user
 from models import Account, Ad, Channel, db
@@ -91,7 +93,7 @@ def get_channels(args):
                         "preferredReward": channel.preferred_reward,
                     }
                 )
-            except KeyError:
+            except Exception:
                 continue
 
         if args.get("id") is not None:
@@ -274,7 +276,7 @@ def get_ads(args):
                         "reward": advertisement.reward,
                     }
                 )
-            except KeyError:
+            except Exception:
                 continue
         if args.get("id") is not None:
             searched_id = int(args.get("id"))
