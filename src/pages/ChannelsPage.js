@@ -8,7 +8,7 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
-import ListOfChannels from '../components/ListofChannels';
+import ListOfChannels from '../components/ui/js/ListofChannels';
 
 function SearchBar(props) {
   const { setQuery } = props;

@@ -10,7 +10,7 @@ import NewAdPage from './pages/NewAdPage';
 import NewChannelPage from './pages/NewChannelPage';
 import NewResponsePage from './pages/NewResponsePage';
 import NewOfferPage from './pages/NewOfferPage';
-import MenuBar from './components/MenuBar';
+import MenuBar from './components/ui/js/MenuBar';
 
 function App() {
   return (

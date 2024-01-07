@@ -14,9 +14,9 @@ class Account(UserMixin, db.Model):
     """Model for user account"""
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(128), index=True, unique=True)
-    password = db.Column(db.String(128), index=True)
-    email = db.Column(db.String(128), index=True, unique=True)
+    username = db.Column(db.String(256), index=True, unique=True)
+    password = db.Column(db.String(256), index=True)
+    email = db.Column(db.String(256), index=True, unique=True)
     channel_owner = db.Column(db.Boolean, default=False)
 
     def __init__(self, username, password, email, channel_owner):

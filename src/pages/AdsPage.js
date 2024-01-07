@@ -6,7 +6,7 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
-import ListOfAds from '../components/ListofAds';
+import ListOfAds from '../components/ui/js/ListofAds';
 
 function SearchBar(props) {
   const { setQuery } = props;

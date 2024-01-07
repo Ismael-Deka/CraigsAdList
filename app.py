@@ -196,8 +196,8 @@ def account_info():
     """Return current user's JSON data"""
     current_account = current_user.username
     account = Account.query.filter_by(username=current_account).first()
-    ad_log = Ad.query.filter_by(account_id=account.id).all()
-    channel_log = Channel.query.filter_by(account_id=account.id).all()
+    ad_log = Ad.query.filter_by(id=account.id).all()
+    channel_log = Channel.query.filter_by(id=account.id).all()
     ad_list = []
     for i in ad_log:
         ad_dict = {}
@@ -215,7 +215,7 @@ def account_info():
         channel_dict["preferred_reward"] = i.preferred_reward
         channel_list.append(channel_dict)
     return flask.jsonify(
-        {"account": current_account, "ads": ad_list, "channels": channel_list}
+        {"account": {"username": account.username, "email":account.email, }, "ads": ad_list, "channels": channel_list}
     )
 
 
@@ -408,4 +408,5 @@ def ad_offers():
 app.register_blueprint(bp)
 
 if __name__ == "__main__":
+    app.debug=True
     app.run()

@@ -40,7 +40,7 @@ function ChannelItem(props) {
             <p>
               Subscribers:
               <br />
-              {subscribers}
+              {subscribers.toLocaleString()}
             </p>
 
             <p>

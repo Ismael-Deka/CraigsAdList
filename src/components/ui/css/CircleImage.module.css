@@ -1,0 +1,16 @@
+.circleImage {
+  border-radius: 50%; /* This creates the circular crop effect */
+  object-fit: cover;  /* Ensures the image fills the circle without stretching */
+  overflow: hidden;   /* Ensures that any overflowing content (e.g., shadows) is hidden */
+  display: block;     /* Ensures the image behaves as a block element */
+}
+
+.circleImage.small{
+    width: 3rem;       /* Adjust width as needed */
+    height: 3rem;      /* Adjust height as needed */
+}
+
+.circleImage.large{
+    width: 10rem;       /* Adjust width as needed */
+    height: 10rem;      /* Adjust height as needed */
+}
