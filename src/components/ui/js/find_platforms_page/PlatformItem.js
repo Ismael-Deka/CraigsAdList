@@ -1,35 +1,22 @@
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
-import Button from 'react-bootstrap/Button';
+
 import Badge from 'react-bootstrap/Badge';
 import PropTypes from 'prop-types';
-import { useNavigate, useLocation } from 'react-router-dom';
 
-function ChannelItem(props) {
-  const { channel, onReload } = props;
+import OfferModal from '../OfferModal';
+
+function PlatformItem(props) {
+  const { platform } = props;
   const {
-    id, ownerName, channelName, subscribers, topics, preferredReward,
-  } = channel;
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  function makeOffer() {
-    if (location.pathname !== '/new_offer') {
-      navigate('/new_offer', { state: { selectedId: id } });
-    } else {
-      if (location.state !== null) {
-        location.state.selectedId = id;
-      }
-
-      onReload();
-    }
-  }
+    id, ownerId, ownerName, platformName, subscribers, topics, preferredReward,
+  } = platform;
 
   return (
     <Col>
       <Card>
         <Card.Body>
-          <Card.Title><h4><Badge pill bg="light" text="dark">{channelName}</Badge></h4></Card.Title>
+          <Card.Title><h4><Badge pill bg="light" text="dark">{platformName}</Badge></h4></Card.Title>
           <Card.Text>
             <p>
               Topics:
@@ -48,8 +35,9 @@ function ChannelItem(props) {
                 Reward: $
                 {preferredReward}
               </b>
-              <b style={{ float: 'right' }}><Button variant="primary" onClick={() => makeOffer()}>Make offer</Button></b>
+              <OfferModal platformId={platform.id} />
             </p>
+
           </Card.Text>
         </Card.Body>
         <Card.Footer>
@@ -60,7 +48,7 @@ function ChannelItem(props) {
           <small className="text-muted" style={{ float: 'right' }}>
             by
             {' '}
-            {ownerName}
+            <a href={`/profile/${ownerId}`}>{ownerName}</a>
           </small>
         </Card.Footer>
       </Card>
@@ -68,27 +56,29 @@ function ChannelItem(props) {
   );
 }
 
-export default ChannelItem;
+export default PlatformItem;
 
-ChannelItem.defaultProps = {
-  channel: PropTypes.shape({
+PlatformItem.defaultProps = {
+  platform: PropTypes.shape({
     id: 0,
+    ownerId: 0,
     ownerName: '',
-    channelName: '',
+    platformName: '',
     subscribers: 0,
     topics: '',
     preferredReward: 0,
   }),
-  onReload: () => { },
+
 };
-ChannelItem.propTypes = {
-  channel: PropTypes.shape({
+PlatformItem.propTypes = {
+  platform: PropTypes.shape({
     id: PropTypes.number.isRequired,
+    ownerId: PropTypes.number.isRequired,
     ownerName: PropTypes.string.isRequired,
-    channelName: PropTypes.string.isRequired,
+    platformName: PropTypes.string.isRequired,
     subscribers: PropTypes.number.isRequired,
     topics: PropTypes.string,
     preferredReward: PropTypes.number,
   }),
-  onReload: PropTypes.func,
+
 };

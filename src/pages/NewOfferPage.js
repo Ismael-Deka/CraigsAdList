@@ -10,7 +10,7 @@ import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import LoginErrorDialog from '../components/ui/js/LoginErrorDialog';
-import ListOfChannels from '../components/ui/js/ListofChannels';
+import ListOfChannels from '../components/ui/js/find_platforms_page/ListofPlatforms';
 
 function NewOfferPage() {
   let selectedId;

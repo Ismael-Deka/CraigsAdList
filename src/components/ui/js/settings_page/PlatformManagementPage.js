@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import PlatformListItem from '../PlatformListItem';
+import PlatformListItem from './PlatformListItem';
 
 function PlatformManagementPage() {
   // Sample platform data (replace with your actual data)

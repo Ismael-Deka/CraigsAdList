@@ -66,12 +66,13 @@ bp = flask.Blueprint(
 @bp.route("/channels")
 @bp.route("/login")
 @bp.route("/signup")
-@bp.route("/acount")
 @bp.route("/new_add")
 @bp.route("/new_channel")
 @bp.route("/new_response")
 @bp.route("/new_offer")
-def index():
+@bp.route("/profile/<int:user_id>")
+@bp.route("/settings")
+def index(user_id=-1):
     """Root endpoint"""
     # NB: DO NOT add an "index.html" file in your normal templates folder
     # Flask will stop serving this React page correctly
@@ -218,6 +219,31 @@ def account_info():
         {"account": {"username": account.username, "email":account.email, }, "ads": ad_list, "channels": channel_list}
     )
 
+@bp.route("/get_profile", methods=["GET"])
+def get_profile():
+    user_id = flask.request.args.get("id")
+    if user_id is None:
+        return flask.jsonify(
+            {
+                "success": False
+            }
+        )
+    else:
+        account = Account.query.filter_by(id=user_id).first()
+        if account is None:
+            return flask.jsonify(
+                {
+                    "success": False
+                }
+            )
+        return flask.jsonify(
+            {
+                "success": True,
+                "username": account.username,
+                "email": account.email
+            }
+        )
+        
 
 @bp.route("/return_ads", methods=["GET"])
 def return_ads():
@@ -259,6 +285,35 @@ def get_channels_by_id():
                 }
             )
 
+@bp.route("/edit_profile", methods=["POST"])
+def edit_profile():
+    username = flask.request.json["username"],
+    email = flask.request.json["email"]
+    success = False
+    account = Account.query.filter_by(id=current_user.id).first()
+    if account:
+
+        account.username = username
+        account.email = email 
+        try:
+            db.session.commit()
+            success = True
+        except Exception as e:
+            db.session.rollback()
+            success = False
+        
+        return flask.jsonify(
+                {
+                    "success": success,
+                }
+            )
+    else:
+        return flask.jsonify(
+            {
+                 "success": success,
+            }
+        )
+
 @bp.route("/create_channel", methods=["POST"])
 def create_new_channel():
     is_successful = create_channel(
@@ -290,13 +345,13 @@ def get_ads_by_id():
 def return_channels():
     """Returns JSON with channels"""
     args = flask.request.args
-    if args.get("for") == "channelsPage":
+    if args.get("for") == "platformsPage":
         # return channels for channels page, filtered acording to args
         # trying to jsonify a list of channel objects gives an error
         return flask.jsonify(
             {
                 "success": True,
-                "channelsData": get_channels(args),
+                "platformsData": get_channels(args),
             }
         )
     return flask.jsonify({"success": False})

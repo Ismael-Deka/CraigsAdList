@@ -104,7 +104,7 @@ def map_usernames(raw_accounts):
 
 def get_channels(args):
     """Return ads data filtered according to the query"""
-    if args.get("for") == "channelsPage":
+    if args.get("for") == "platformsPage":
         # return channels for channels page
         channels = Channel.query.filter_by(show_channel=True).all()
         accounts = map_usernames(Account.query.all())
@@ -115,8 +115,9 @@ def get_channels(args):
                 channels_data.append(
                     {
                         "id": channel.id,
+                        "ownerId":channel.owner_id,
                         "ownerName": accounts[channel.owner_id],
-                        "channelName": channel.channel_name,
+                        "platformName": channel.channel_name,
                         "subscribers": channel.subscribers,
                         "topics": channel.topics,
                         "preferredReward": channel.preferred_reward,

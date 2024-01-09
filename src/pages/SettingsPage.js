@@ -4,9 +4,9 @@
 import {
   Container, Row, Col,
 } from 'react-bootstrap';
-import UserTabs from '../components/ui/js/user_accounts/UserTabs';
+import UserTabs from '../components/ui/js/settings_page/UserTabs';
 
-function UserAccountPage() {
+function SettingsPage() {
   // const [account, setAccount] = useState({});
   // const [ads, setAds] = useState([]);
   // const [channels, setChannels] = useState([]);
@@ -46,4 +46,4 @@ function UserAccountPage() {
   );
 }
 
-export default UserAccountPage;
+export default SettingsPage;

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
 import UserAccountForm from './UserAccountForm';
-import PlatformManagementPage from './PlatformManagementPage.js';
+import PlatformManagementPage from './PlatformManagementPage';
 
 function UserTabs() {
   const [activeTab, setActiveTab] = useState('account');

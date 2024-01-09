@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import {
   Form, Button, Modal, Container, Row, Col,
 } from 'react-bootstrap';
 import CircleImage from '../CircleImage';
 
-function UserAccountForm({
-  username, email, password, onSubmit,
-}) {
-  const [localUsername, setLocalUsername] = useState(username);
-  const [localEmail, setLocalEmail] = useState(email);
+function UserAccountForm() {
+  const [localUsername, setLocalUsername] = useState('');
+  const [localEmail, setLocalEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -17,30 +14,41 @@ function UserAccountForm({
 
   const handleShowConfirmation = () => setShowConfirmation(true);
   const handleCloseConfirmation = () => setShowConfirmation(false);
+  // Confirmation Modal State
+  const [submittingForm, setSubmittingForm] = useState(null);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleConfirmSubmit = (formType) => {
+    setSubmittingForm(formType); // Set the form type that is about to be submitted
     handleShowConfirmation();
   };
 
-  const handleConfirmSubmit = () => {
-    // You can perform validation here before submitting
-    // For example, checking if the original password matches the entered one
-    if (originalPassword !== password) {
-      alert("Original password doesn't match!");
-      return;
+  const handleFinalSubmit = () => {
+    if (submittingForm === 'profile') {
+      const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: localUsername,
+          email: localEmail,
+        }),
+      };
+      fetch('/edit_profile', requestOptions).then((reponse) => reponse.json().then(
+        (data) => {
+          console.log(data.success);
+        },
+      ));
+    } else if (submittingForm === 'password') {
+      if (originalPassword !== '') {
+        // alert("Original password doesn't match!");
+        return;
+      }
+
+      if (newPassword !== confirmNewPassword) {
+        // alert("New passwords don't match!");
+        return;
+      }
     }
 
-    if (newPassword !== confirmNewPassword) {
-      alert("New passwords don't match!");
-      return;
-    }
-
-    onSubmit({
-      username: localUsername,
-      email: localEmail,
-      password: newPassword,
-    });
     handleCloseConfirmation();
   };
 
@@ -85,7 +93,11 @@ function UserAccountForm({
             accept="image/*"
             onChange={handleProfilePictureChange}
           />
-          <Form onSubmit={handleSubmit}>
+          <Form onSubmit={(e) => {
+            e.preventDefault();
+            handleConfirmSubmit('profile');
+          }}
+          >
             <h4 className="mt-5">Edit Profile</h4>
             <hr className="hr hr-blurry" />
             <Form.Group className="mb-3 mt-3" controlId="username">
@@ -111,9 +123,14 @@ function UserAccountForm({
             </Form.Group>
 
             <Button className="mb-5" variant="primary" type="submit">
-              Save Changes
+              Save Profile Changes
             </Button>
-
+          </Form>
+          <Form onSubmit={(e) => {
+            e.preventDefault();
+            handleConfirmSubmit('password');
+          }}
+          >
             <h4 className="mt-5">Change Password</h4>
             <hr className="hr hr-blurry" />
             <Form.Group className="mb-3" controlId="originalPassword">
@@ -150,7 +167,7 @@ function UserAccountForm({
             </Form.Group>
 
             <Button className="mb-5" variant="primary" type="submit">
-              Save Changes
+              Save Password Changes
             </Button>
           </Form>
 
@@ -159,12 +176,12 @@ function UserAccountForm({
             <Modal.Header closeButton>
               <Modal.Title>Confirmation</Modal.Title>
             </Modal.Header>
-            <Modal.Body>Are you sure you want to submit the form?</Modal.Body>
+            <Modal.Body>Are you sure you want to submit these changes?</Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseConfirmation}>
                 Cancel
               </Button>
-              <Button variant="primary" onClick={handleConfirmSubmit}>
+              <Button variant="primary" onClick={handleFinalSubmit}>
                 Confirm
               </Button>
             </Modal.Footer>
@@ -174,19 +191,5 @@ function UserAccountForm({
     </Container>
   );
 }
-
-UserAccountForm.propTypes = {
-  username: PropTypes.string,
-  email: PropTypes.string,
-  password: PropTypes.string,
-  onSubmit: PropTypes.func,
-};
-
-UserAccountForm.defaultProps = {
-  username: '',
-  email: '',
-  password: '',
-  onSubmit: 4,
-};
 
 export default UserAccountForm;

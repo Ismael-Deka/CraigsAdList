@@ -1,14 +1,14 @@
-// ChannelListItem.js
+// PlatformListItem.js
 
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function ChannelListItem({
-  channelName, subCount, topics, pricePerAdView, currency,
+function PlatformListItem({
+  platformName, subCount, topics, pricePerAdView, currency,
 }) {
   return (
-    <div className="channel-list-item">
-      <h4>{channelName}</h4>
+    <div className="platform-list-item">
+      <h4>{platformName}</h4>
       <p>
         Subscribers:
         {subCount}
@@ -28,12 +28,12 @@ function ChannelListItem({
   );
 }
 
-ChannelListItem.propTypes = {
-  channelName: PropTypes.string.isRequired,
+PlatformListItem.propTypes = {
+  platformName: PropTypes.string.isRequired,
   subCount: PropTypes.number.isRequired,
   topics: PropTypes.string.isRequired,
   pricePerAdView: PropTypes.number.isRequired,
   currency: PropTypes.string.isRequired,
 };
 
-export default ChannelListItem;
+export default PlatformListItem;

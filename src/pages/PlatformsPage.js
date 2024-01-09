@@ -8,7 +8,7 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
-import ListOfChannels from '../components/ui/js/ListofChannels';
+import ListOfPlatforms from '../components/ui/js/find_platforms_page/ListofPlatforms';
 
 function SearchBar(props) {
   const { setQuery } = props;
@@ -66,7 +66,7 @@ function SearchBar(props) {
   return (
     <Form>
       <p><b>Filter by:</b></p>
-      <Form.Label htmlFor="id">Channel`s #</Form.Label>
+      <Form.Label htmlFor="id">Platform`s #</Form.Label>
       <Form.Control name="id" type="text" pattern="[0-9]*" placeholder="100, 101" value={id} onChange={(e) => (isValidNumbericInput(e.target.value) ? setID(e.target.value) : null)} />
 
       <Form.Label htmlFor="owner">Owned by</Form.Label>
@@ -101,7 +101,7 @@ SearchBar.propTypes = {
   setQuery: PropTypes.func,
 };
 
-function ChannelsPage() {
+function PlatformsPage() {
   const [query, setQuery] = useState('');
   return (
     <div>
@@ -114,7 +114,7 @@ function ChannelsPage() {
             </div>
           </Col>
           <Col>
-            <ListOfChannels query={query} />
+            <ListOfPlatforms query={query} />
           </Col>
         </Row>
       </Container>
@@ -122,4 +122,4 @@ function ChannelsPage() {
   );
 }
 
-export default ChannelsPage;
+export default PlatformsPage;

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import AdsPage from './pages/AdsPage';
-import ChannelsPage from './pages/ChannelsPage';
+import ChannelsPage from './pages/PlatformsPage';
 import LandingPage from './pages/LandingPage';
 
 it('renders filter on ads page', () => {
