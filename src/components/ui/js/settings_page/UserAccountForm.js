@@ -7,6 +7,7 @@ import CircleImage from '../CircleImage';
 function UserAccountForm() {
   const [localUsername, setLocalUsername] = useState('');
   const [localEmail, setLocalEmail] = useState('');
+  const [localPfp, setLocalPfp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -63,6 +64,7 @@ function UserAccountForm() {
       .then((data) => {
         setLocalEmail(data.account.email);
         setLocalUsername(data.account.username);
+        setLocalPfp(data.account.pfp);
       });
   }, []);
 
@@ -82,7 +84,7 @@ function UserAccountForm() {
           {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
           <label htmlFor="profilePictureInput">
             <CircleImage
-              src="https://lh3.googleusercontent.com/a/AATXAJyAoyxAHlPxYfdjPzbDWlo3nGAwjXr1qnwJ2ZST=s96-c"
+              src={localPfp}
               onClick={() => document.getElementById('profilePictureInput').click()}
             />
           </label>

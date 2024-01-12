@@ -5,15 +5,15 @@
 """Module for running flask and setting up endpoints"""
 
 import os
-
 import flask
+import ibm_boto3
+import base64
 
 from flask_login import current_user, login_user, logout_user, LoginManager
-from sqlalchemy import true
-
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from ibm_botocore.client import Config
 from dotenv import load_dotenv, find_dotenv
+
 
 from db_utils import (
     create_channel,
@@ -22,6 +22,7 @@ from db_utils import (
     get_all_ads,
     get_ads,
     get_channels,
+    get_profile_pic
 )
 
 from models import db, Account, Ad, Channel
@@ -32,6 +33,13 @@ app = flask.Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = os.getenv("SECRET_KEY")
+
+cos = ibm_boto3.client('s3',
+                         ibm_api_key_id=os.getenv("IBM_API_KEY_ID"),
+                         ibm_service_instance_id=os.getenv('IBM_SERVICE_ID'),
+                         ibm_auth_endpoint=os.getenv('IBM_AUTH_ENDPOINT'),
+                         config=Config(signature_version='oauth'),
+                         endpoint_url=os.getenv('ENDPOINT'))
 
 db.init_app(app)
 with app.app_context():
@@ -189,7 +197,16 @@ def is_logged_in():
 @bp.route("/get_current_user", methods=["GET"])
 def get_current_user():
     """returns current logged in user"""
-    return flask.jsonify({"current_user": current_user.username})
+    if current_user is not None:
+        return flask.jsonify({
+            "success":True,
+            "current_user": current_user.username,
+            "id": current_user.id,
+            "pfp": get_profile_pic(cos, current_user.profile_pic)})
+    else:
+        return flask.jsonify({
+            "success":False,
+        })
 
 
 @bp.route("/account_info", methods=["GET", "POST"])
@@ -216,7 +233,7 @@ def account_info():
         channel_dict["preferred_reward"] = i.preferred_reward
         channel_list.append(channel_dict)
     return flask.jsonify(
-        {"account": {"username": account.username, "email":account.email, }, "ads": ad_list, "channels": channel_list}
+        {"account": {"username": account.username, "email":account.email, "pfp":get_profile_pic(cos, account.profile_pic) }, "ads": ad_list, "channels": channel_list}
     )
 
 @bp.route("/get_profile", methods=["GET"])
@@ -236,13 +253,24 @@ def get_profile():
                     "success": False
                 }
             )
-        return flask.jsonify(
-            {
-                "success": True,
-                "username": account.username,
-                "email": account.email
-            }
-        )
+        try:
+            pfp = get_profile_pic(cos, account.profile_pic)
+            return flask.jsonify(
+                {
+                    "success": True,
+                    "username": account.username,
+                    "email": account.email,
+                    "id": account.id,
+                    "pfp": pfp
+                })
+        except Exception as e:
+            print(f"An error occurred: {e.with_traceback()}")
+            return flask.jsonify(
+                {
+                    "success": False
+                }
+            ) 
+        
         
 
 @bp.route("/return_ads", methods=["GET"])

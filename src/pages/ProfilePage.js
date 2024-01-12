@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, useEffect } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   Container, Row, Col, Image, ListGroup,
 } from 'react-bootstrap';
@@ -7,6 +7,7 @@ import {
 function ProfilePage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [decodedPfp, setDecodedPfp] = useState('');
   const params = useParams();
   const userId = params.id;
 
@@ -18,6 +19,8 @@ function ProfilePage() {
           if (data.success) {
             setUsername(data.username);
             setEmail(data.email);
+            const decodedImage = data.pfp;
+            setDecodedPfp(decodedImage);
           }
         })
         .catch((error) => {
@@ -32,7 +35,7 @@ function ProfilePage() {
         <Col md={4}>
           {/* Profile Picture */}
           <Image
-            src="https://lh3.googleusercontent.com/a/AATXAJyAoyxAHlPxYfdjPzbDWlo3nGAwjXr1qnwJ2ZST=s96-c"
+            src={decodedPfp}
             alt="Profile"
             fluid
             roundedCircle

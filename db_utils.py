@@ -5,7 +5,13 @@
 """ Fuctions for extracting data from database """
 from flask_login import current_user
 from models import Account, Ad, Channel, Offers, Responses, db
+import base64
+import os
 
+def get_profile_pic(cos, pfp_index):
+            response = cos.get_object(Bucket=os.getenv("COS_BUCKET_NAME"), Key=f"pfp/{pfp_index}.png")
+            encoded_pfp = base64.b64encode(response['Body'].read()).decode("utf-8")
+            return f"data:image/png;base64,{encoded_pfp}"
 
 def get_all_accounts():
     """Returns all accounts stored in database"""

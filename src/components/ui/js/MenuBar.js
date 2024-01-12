@@ -13,7 +13,9 @@ function MenuBar() {
 
   const [IsErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [currentUser, setCurrentUser] = useState(false);
+  const [currentUser, setCurrentUser] = useState('');
+  const [currentUserId, setCurrentUserId] = useState('');
+  const [currentUserPfp, setCurrentUserPfp] = useState('');
   const [RedirectFunction, setRedirectFunction] = useState({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -37,7 +39,11 @@ function MenuBar() {
         fetch('/get_current_user', {
           method: 'GET',
         }).then((userreponse) => userreponse.json().then((userdata) => {
-          setCurrentUser(userdata.current_user);
+          if (userdata.success) {
+            setCurrentUser(userdata.current_user);
+            setCurrentUserId(userdata.id);
+            setCurrentUserPfp(userdata.pfp);
+          }
         }));
       }
     }));
@@ -60,7 +66,12 @@ function MenuBar() {
         </span>
         <div>
           <span className={classes.menu}>
-            <ProfileButton profileName={currentUser} profilePictureUrl="https://lh3.googleusercontent.com/a/AATXAJyAoyxAHlPxYfdjPzbDWlo3nGAwjXr1qnwJ2ZST=s96-c" isLoggedIn={isLoggedIn} />
+            <ProfileButton
+              profileName={currentUser}
+              profilePictureUrl={currentUserPfp}
+              isLoggedIn={isLoggedIn}
+              id={currentUserId}
+            />
           </span>
         </div>
       </header>

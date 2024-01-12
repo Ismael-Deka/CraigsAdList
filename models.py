@@ -18,12 +18,14 @@ class Account(UserMixin, db.Model):
     password = db.Column(db.String(256), index=True)
     email = db.Column(db.String(256), index=True, unique=True)
     channel_owner = db.Column(db.Boolean, default=False)
+    profile_pic =db.Column(db.Integer)
 
     def __init__(self, username, password, email, channel_owner):
         self.username = username
         self.password = password
         self.email = email
         self.channel_owner = channel_owner
+        self.profile_pic=-1
 
 class Offers(db.Model):
      """Model for offers"""

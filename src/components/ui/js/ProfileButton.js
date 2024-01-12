@@ -9,7 +9,7 @@ import CircleImage from './CircleImage';
 import MenuNavigation from './MenuNavigation';
 
 function ProfileButton({
-  profileName, profilePictureUrl, isLoggedIn, logOut,
+  profileName, profilePictureUrl, isLoggedIn, logOut, id,
 }) {
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
@@ -53,7 +53,7 @@ function ProfileButton({
             <Dropdown.ItemText>
               Signed in as:
               {' '}
-              <a href="/settings">{profileName}</a>
+              <a href={`/profile/${id}`}>{profileName}</a>
             </Dropdown.ItemText>
             <Dropdown.Item href="/settings">
               {location.pathname === '/settings' && <text>✓</text>}
@@ -80,6 +80,7 @@ ProfileButton.propTypes = {
   profilePictureUrl: PropTypes.string.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   logOut: PropTypes.func.isRequired,
+  id: PropTypes.number.isRequired,
 };
 
 export default ProfileButton;
