@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Form, Button, Modal, Container, Row, Col,
+  Form, Button, Modal, Container, Row, Col, Stack,
 } from 'react-bootstrap';
 import CircleImage from '../CircleImage';
 
@@ -81,20 +81,18 @@ function UserAccountForm() {
         <Col md={{ span: 8, offset: 2 }}>
           <h2>My Account</h2>
           {/* Profile Picture */}
-          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-          <label htmlFor="profilePictureInput">
+          <h4 className="mt-5">Change Profile Picture</h4>
+          <hr className="hr hr-blurry" />
+          <Stack gap={5} style={{ alignItems: 'center' }}>
             <CircleImage
               src={localPfp}
-              onClick={() => document.getElementById('profilePictureInput').click()}
             />
-          </label>
-          <input
-            type="file"
-            id="profilePictureInput"
-            style={{ display: 'none' }}
-            accept="image/*"
-            onChange={handleProfilePictureChange}
-          />
+            <Form onSubmit={handleProfilePictureChange}>
+              <Form.Group controlId="formFile" className="mb-3">
+                <Form.Control type="file" />
+              </Form.Group>
+            </Form>
+          </Stack>
           <Form onSubmit={(e) => {
             e.preventDefault();
             handleConfirmSubmit('profile');

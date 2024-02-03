@@ -7,6 +7,10 @@ function CircleImage({ src, alt, size }) {
     return (
       <img src={src} alt={alt} className={`${classes.circleImage} ${classes.small}`} />
     );
+  } if (size === 'medium') {
+    return (
+      <img src={src} alt={alt} className={`${classes.circleImage} ${classes.medium}`} />
+    );
   }
   return (
     <img src={src} alt={alt} className={`${classes.circleImage} ${classes.large}`} />

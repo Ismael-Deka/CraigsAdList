@@ -1,0 +1,56 @@
+
+
+
+.ellipsisText {       
+    overflow: hidden;           /* Hides any content that overflows the container */
+    text-overflow: ellipsis;    /* Displays an ellipsis (...) to indicate truncated text */      
+}
+
+
+.infoCardTitle{
+    white-space: nowrap
+}
+
+
+#infoCardLeft,
+#infoCardRight {
+  height: fit-content;  /* Allow cards to expand based on content height */
+  margin: 0;  /* Remove margin for no space between the cards */
+}
+
+#infoCardLeft {
+        border-top-right-radius: 0rem;
+        border-bottom-right-radius: 0rem;
+        border-top-left-radius: 1rem;
+        border-bottom-left-radius: 1rem;
+}
+
+#infoCardRight {
+        border-top-right-radius: 1rem;
+        border-bottom-right-radius: 1rem;
+        border-top-left-radius: 0rem;
+        border-bottom-left-radius: 0rem;
+}
+
+@media (min-width: 1200px){  
+    #infoCardLeft {
+        width: calc(2 * 14vw); 
+
+}}
+  
+@media (min-width: 1200px){  
+    #infoCardRight {
+        width: 6vw;
+}}
+
+@media (max-width: 1199.98px){  
+    #infoCardLeft {
+        width: calc(4 * 14vw); 
+
+}}
+  
+@media (max-width: 1199.98px){  
+    #infoCardRight {
+        width: 14vw;
+
+}}

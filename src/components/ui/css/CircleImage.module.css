@@ -10,7 +10,12 @@
     height: 3rem;      /* Adjust height as needed */
 }
 
+.circleImage.medium{
+    width: 7rem;       /* Adjust width as needed */
+    height: 7rem;      /* Adjust height as needed */
+}
+
 .circleImage.large{
-    width: 10rem;       /* Adjust width as needed */
-    height: 10rem;      /* Adjust height as needed */
+    width: 20rem;       /* Adjust width as needed */
+    height: 20rem;      /* Adjust height as needed */
 }

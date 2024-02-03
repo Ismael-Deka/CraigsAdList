@@ -29,13 +29,13 @@ function OfferModal({ platformId }) {
 
   return (
     <>
-      <Button style={{ float: 'right' }} variant="primary" onClick={handleShow}>
-        Make Offer
+      <Button size="sm" style={{ float: 'left' }} variant="primary" onClick={handleShow}>
+        Make an Offer
       </Button>
 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Make Offer</Modal.Title>
+          <Modal.Title>Make an Offer</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form.Group controlId="message">

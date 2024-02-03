@@ -15,6 +15,17 @@ class AppTestCase(unittest.TestCase):
     def tearDown(self):
         self.ctx.pop()
 
+    def test_user_login(self):
+        response = self.client.post(
+            '/handle_login',
+            json={"email": "test@example.com", "password": "testpassword"}
+        )
+        data = response.get_json()
+
+        # Add assertions based on expected 
+        self.assertTrue(data["is_login_successful"])
+        self.assertEqual(response.status_code, 200)
+
     def test_ads_page(self):
         # check that request for ads page returns valid data
         response = json.loads(

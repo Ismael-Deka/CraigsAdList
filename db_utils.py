@@ -112,9 +112,24 @@ def get_channels(args):
     """Return ads data filtered according to the query"""
     if args.get("for") == "platformsPage":
         # return channels for channels page
+        page_number = int(args.get("page"))
+        results_per_page = int(args.get("perPage"))
         channels = Channel.query.filter_by(show_channel=True).all()
         accounts = map_usernames(Account.query.all())
         channels_data = []
+
+        result_count = len(channels)
+
+        if result_count > results_per_page:
+            if page_number==1 :
+                channels = channels[:results_per_page]
+            else:
+                start_index = page_number*results_per_page
+                end_index = start_index+results_per_page
+                if end_index > result_count: end_index=result_count
+                channels = channels[start_index:end_index]
+
+
         for channel in channels:
             try:
                 channel.topics = channel.topics.split(",")
@@ -181,7 +196,7 @@ def get_channels(args):
         for channel in channels_data:
             channel["topics"] = (", ").join(channel["topics"])
 
-        return channels_data
+        return channels_data, result_count
 
     return None
 

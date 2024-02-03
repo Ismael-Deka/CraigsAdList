@@ -50,6 +50,12 @@ function MenuNavigation() {
         Create New Offer
 
       </Dropdown.Item>
+      <Dropdown.Item href="/messages/inbox">
+        {(/^\/messages.*/).test(location.pathname) && <text>✓</text>}
+        {' '}
+        Messages
+
+      </Dropdown.Item>
     </div>
   );
 }

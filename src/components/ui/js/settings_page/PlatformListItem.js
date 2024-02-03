@@ -27,8 +27,14 @@ function PlatformListItem({
   const handleCloseEditModal = () => setShowEditModal(false);
 
   const handleUpdatePlatform = () => {
-    onUpdate(id, updatedPlatformName, updatedSubCount, updatedTopics, updatedPricePerAdView);
-    handleCloseEditModal();
+    // Validate inputs before updating
+    if (!Number.isNaN(updatedSubCount) && !Number.isNaN(updatedPricePerAdView)) {
+      onUpdate(id, updatedPlatformName, updatedSubCount, updatedTopics, updatedPricePerAdView);
+      handleCloseEditModal();
+    } else {
+      // Handle invalid inputs (optional)
+      alert('Please enter valid numbers for Subscribers and Price per Ad View.');
+    }
   };
 
   const handleDeletePlatform = () => {
@@ -42,7 +48,7 @@ function PlatformListItem({
         <Card.Subtitle className="mb-2 text-muted">
           Subscribers:
         </Card.Subtitle>
-        <Card.Text>{subCount.toLocaleString()}</Card.Text>
+        <Card.Text>{subCount}</Card.Text>
         <Card.Subtitle className="mb-2 text-muted">
           Topics:
         </Card.Subtitle>
@@ -55,12 +61,16 @@ function PlatformListItem({
           {' '}
           {currency}
         </Card.Text>
-        <Button variant="primary" onClick={handleShowEditModal}>
-          Edit
-        </Button>
-        <Button variant="danger" className="ml-2" onClick={handleDeletePlatform}>
-          Delete
-        </Button>
+        {onDelete && (
+        <div>
+          <Button variant="primary" onClick={handleShowEditModal}>
+            Edit
+          </Button>
+          <Button variant="danger" className="ml-2" onClick={handleDeletePlatform}>
+            Delete
+          </Button>
+        </div>
+        )}
       </Card.Body>
 
       {/* Edit Modal */}

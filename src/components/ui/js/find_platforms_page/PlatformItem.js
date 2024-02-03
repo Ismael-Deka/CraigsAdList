@@ -1,10 +1,16 @@
-import Card from 'react-bootstrap/Card';
-import Col from 'react-bootstrap/Col';
+import {
+  Card, Col, Stack, Tooltip, OverlayTrigger,
+} from 'react-bootstrap';
 
-import Badge from 'react-bootstrap/Badge';
+import { useNavigate } from 'react-router';
+import React, { useState, useEffect, useRef } from 'react';
+
 import PropTypes from 'prop-types';
 
 import OfferModal from '../OfferModal';
+
+import classes from '../../css/PlatformItem.module.css';
+// import CircleImage from '../CircleImage';
 
 function PlatformItem(props) {
   const { platform } = props;
@@ -12,39 +18,110 @@ function PlatformItem(props) {
     id, ownerId, ownerName, platformName, subscribers, topics, preferredReward,
   } = platform;
 
+  const navigate = useNavigate();
+  const navigateToPlatformPage = () => {
+    navigate(`/platform/${id}`);
+  };
+
+  const infoCardRef = useRef(null);
+  const infoCardTitleRef = useRef(null);
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [cardWidth, setCardWidth] = useState(0);
+
+  useEffect(() => {
+    const handleCardTitleResize = () => {
+      if (infoCardTitleRef.current) {
+        const infoCardTitle = infoCardTitleRef.current;
+        setShowTooltip(infoCardTitle.offsetWidth < infoCardTitle.scrollWidth);
+        console.log(showTooltip);
+      }
+    };
+
+    const handleCardResize = () => {
+      if (infoCardRef.current && cardWidth !== infoCardRef.current.clientWidth) {
+        const infoCard = infoCardRef.current;
+        setCardWidth(infoCard.clientWidth - 240);
+      }
+    };
+    const handleWindowResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleCardResize();
+    handleCardTitleResize();
+
+    window.addEventListener('resize', handleWindowResize);
+    window.addEventListener('resize', handleCardResize);
+    window.addEventListener('resize', handleCardTitleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleWindowResize);
+      window.removeEventListener('resize', handleCardResize);
+      window.removeEventListener('resize', handleCardTitleResize);
+    };
+  }, []);
+
+  const renderTooltip = ({ content, placement, delay }) => {
+    if (showTooltip) {
+      return (
+        <Tooltip id="button-tooltip" placement={placement} delay={delay}>
+          {content}
+        </Tooltip>
+      );
+    }
+    return (<span />);
+  };
+
   return (
     <Col>
-      <Card>
-        <Card.Body>
-          <Card.Title><h4><Badge pill bg="light" text="dark">{platformName}</Badge></h4></Card.Title>
-          <Card.Text>
-            <p>
-              Topics:
-              <br />
-              {topics}
-            </p>
+      <Card ref={infoCardRef} style={(isMobile) ? { width: 'max-content' } : {}}>
+        <Stack direction={(!isMobile) ? ('horizontal') : ('vertical')}>
+          {isMobile && (<Card.Img width={230} variant="top" src="https://i.pinimg.com/474x/21/d2/9f/21d29f70c61cdfc6a90cf1e53004d22e.jpg" />)}
+          {!isMobile && (<Card.Img width={230} variant="left" src="https://i.pinimg.com/474x/21/d2/9f/21d29f70c61cdfc6a90cf1e53004d22e.jpg" />)}
 
-            <p>
-              Subscribers:
-              <br />
-              {subscribers.toLocaleString()}
-            </p>
+          <Card.Body style={(!isMobile) ? { padding: '0', paddingLeft: '10px' } : {}}>
+            <Card.Title onClick={navigateToPlatformPage} style={{ cursor: 'pointer' }}>
+              <OverlayTrigger
+                placement="top"
+                delay={{ show: 250, hide: 400 }}
+                overlay={renderTooltip}
+              >
+                <h4 ref={infoCardTitleRef} className={classes.ellipsisText} style={(!isMobile) ? { whiteSpace: 'nowrap', maxWidth: cardWidth } : {}}>
+                  {platformName.replace('_', ' ')}
+                </h4>
+              </OverlayTrigger>
+            </Card.Title>
+            <Card.Text>
+              <p className={classes.ellipsisText}>
+                Topics:
+                <br />
+                {topics}
+              </p>
 
-            <p>
-              <b style={{ float: 'left' }}>
-                Reward: $
-                {preferredReward}
-              </b>
-              <OfferModal platformId={platform.id} />
-            </p>
+              <p>
+                Subscribers:
+                <br />
+                {subscribers.toLocaleString()}
+              </p>
 
-          </Card.Text>
-        </Card.Body>
+              <p>
+                <b style={{ float: 'left' }}>
+                  Reward: $
+                  {preferredReward}
+                </b>
+
+              </p>
+
+            </Card.Text>
+          </Card.Body>
+
+        </Stack>
         <Card.Footer>
-          <small className="text-muted" style={{ float: 'left' }}>
-            #
-            {id}
-          </small>
+
+          <OfferModal style={{ float: 'left' }} platformId={platform.id} />
+
           <small className="text-muted" style={{ float: 'right' }}>
             by
             {' '}

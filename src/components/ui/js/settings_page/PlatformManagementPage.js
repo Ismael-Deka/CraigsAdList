@@ -2,28 +2,12 @@
 // PlatformManagementPage.js
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Container, Row, Col } from 'react-bootstrap';
 import PlatformListItem from './PlatformListItem';
 
-function PlatformManagementPage() {
+function PlatformManagementPage({ platforms }) {
   // Sample platform data (replace with your actual data)
-  const platforms = [
-    {
-      platformName: 'Platform A',
-      subCount: 1000000,
-      topics: 'Technology',
-      pricePerAdView: 0.25, // in dollars
-      currency: 'USD',
-    },
-    {
-      platformName: 'Platform B',
-      subCount: 500000,
-      topics: 'Gaming',
-      pricePerAdView: 15, // in cents
-      currency: 'cents',
-    },
-    // Add more platform data as needed
-  ];
 
   return (
     <Container>
@@ -41,3 +25,15 @@ function PlatformManagementPage() {
 }
 
 export default PlatformManagementPage;
+
+PlatformManagementPage.propTypes = {
+  platforms: PropTypes.arrayOf(PropTypes.shape({
+    index: PropTypes.number.isRequired,
+    id: PropTypes.string.isRequired,
+    platformName: PropTypes.string.isRequired,
+    subCount: PropTypes.number.isRequired,
+    topics: PropTypes.string.isRequired,
+    pricePerAdView: PropTypes.number.isRequired,
+  })).isRequired,
+
+};

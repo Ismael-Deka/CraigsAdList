@@ -9,7 +9,7 @@ import flask
 import ibm_boto3
 import base64
 
-from flask_login import current_user, login_user, logout_user, LoginManager
+from flask_login import current_user, login_required, login_user, logout_user, LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
 from ibm_botocore.client import Config
 from dotenv import load_dotenv, find_dotenv
@@ -56,7 +56,16 @@ def load_user(user_id):
     here, it is required by flask-login"""
     return Account.query.get(int(user_id))
 
+# Decorator to check authentication
+def require_auth(func):
+    @login_required
+    def auth_wrapper(*args, **kwargs):
+        if g.user:  # Assuming Flask-Login is used and g.user contains the current user
+            return func(*args, **kwargs)
+        else:
+            return flask.jsonify({"message": "Authentication required"}), 401
 
+    return auth_wrapper
 # set up a separate route to serve the index.html file generated
 # by create-react-app/npm run build.
 # By doing this, we make it so you can paste in all your old app routes
@@ -80,7 +89,9 @@ bp = flask.Blueprint(
 @bp.route("/new_offer")
 @bp.route("/profile/<int:user_id>")
 @bp.route("/settings")
-def index(user_id=-1):
+@bp.route('/platform/<int:platform_id>')
+@bp.route("/messages/<string:folder>")
+def index(user_id=-1,platform_id=-1,folder=""):
     """Root endpoint"""
     # NB: DO NOT add an "index.html" file in your normal templates folder
     # Flask will stop serving this React page correctly
@@ -168,7 +179,7 @@ def handle_signup():
         }
     )
 
-
+@require_auth
 @bp.route("/handle_logout", methods=["POST"])
 def handle_logout():
     """Handles logout"""
@@ -181,7 +192,7 @@ def is_channel_owner():
     """returns true if current user is a channel owner"""
     return flask.jsonify({"is_user_channel_owner": current_user.channel_owner})
 
-
+@require_auth
 @app.route("/getaccounts", methods=["GET"])
 def get_accounts():
     """Returns all accounts"""
@@ -193,32 +204,35 @@ def is_logged_in():
     """checks whether a user is logged in"""
     return flask.jsonify({"isuserloggedin": current_user.is_authenticated})
 
-
+@require_auth
 @bp.route("/get_current_user", methods=["GET"])
 def get_current_user():
     """returns current logged in user"""
     if current_user is not None:
         return flask.jsonify({
-            "success":True,
             "current_user": current_user.username,
             "id": current_user.id,
-            "pfp": get_profile_pic(cos, current_user.profile_pic)})
+            "pfp": get_profile_pic(cos, current_user.profile_pic)}),200
     else:
-        return flask.jsonify({
-            "success":False,
-        })
+        flask.abort(404)
 
-
-@bp.route("/account_info", methods=["GET", "POST"])
+@require_auth
+@bp.route("/account_info", methods=["GET"])
 def account_info():
     """Return current user's JSON data"""
-    current_account = current_user.username
-    account = Account.query.filter_by(username=current_account).first()
-    ad_log = Ad.query.filter_by(id=account.id).all()
-    channel_log = Channel.query.filter_by(id=account.id).all()
+    if(current_user.is_authenticated):
+        user_id = flask.request.args.get("id",default=current_user.id)
+    else:
+         user_id = flask.request.args.get("id")
+    if(user_id is None):
+        flask.abort(404)
+    account = Account.query.filter_by(id=user_id).first()
+    ad_log = Ad.query.filter_by(creator_id=user_id).all()
+    channel_log = Channel.query.filter_by(owner_id=user_id).all()
     ad_list = []
     for i in ad_log:
         ad_dict = {}
+        ad_dict["id"] = i.id
         ad_dict["title"] = i.title
         ad_dict["topics"] = i.topics
         ad_dict["text"] = i.text
@@ -226,52 +240,27 @@ def account_info():
         ad_list.append(ad_dict)
     channel_list = []
     for i in channel_log:
+        
         channel_dict = {}
-        channel_dict["channel_name"] = i.channel_name
-        channel_dict["subscribers"] = i.subscribers
+        channel_dict["id"]=i.id
+        channel_dict["platformName"] = i.channel_name
+        channel_dict["subCount"] = i.subscribers
         channel_dict["topics"] = i.topics
-        channel_dict["preferred_reward"] = i.preferred_reward
+        channel_dict["pricePerAdView"] = i.preferred_reward
         channel_list.append(channel_dict)
-    return flask.jsonify(
-        {"account": {"username": account.username, "email":account.email, "pfp":get_profile_pic(cos, account.profile_pic) }, "ads": ad_list, "channels": channel_list}
-    )
-
-@bp.route("/get_profile", methods=["GET"])
-def get_profile():
-    user_id = flask.request.args.get("id")
-    if user_id is None:
+    try:
         return flask.jsonify(
-            {
-                "success": False
-            }
-        )
-    else:
-        account = Account.query.filter_by(id=user_id).first()
-        if account is None:
-            return flask.jsonify(
-                {
-                    "success": False
-                }
-            )
-        try:
-            pfp = get_profile_pic(cos, account.profile_pic)
-            return flask.jsonify(
-                {
-                    "success": True,
-                    "username": account.username,
-                    "email": account.email,
-                    "id": account.id,
-                    "pfp": pfp
-                })
-        except Exception as e:
+            {"account": {
+                "username": account.username, 
+                "email":account.email, 
+                "pfp":get_profile_pic(cos, account.profile_pic) }, 
+             "ads": ad_list, 
+             "platforms": channel_list}
+        ), 200
+    except Exception as e:
             print(f"An error occurred: {e.with_traceback()}")
-            return flask.jsonify(
-                {
-                    "success": False
-                }
-            ) 
-        
-        
+            flask.abort(500)
+
 
 @bp.route("/return_ads", methods=["GET"])
 def return_ads():
@@ -297,22 +286,18 @@ def get_channels_by_id():
     if(channel != None):
         return flask.jsonify(
                 {
-                    "success": True,
                     "id": channel.id,
                     "ownerName": Account.query.filter_by(id=channel.owner_id).first().username,
-                    "channelName": channel.channel_name,
-                    "subscribers": channel.subscribers,
+                    "platformName": channel.channel_name,
+                    "subCount": '{:,}'.format(channel.subscribers),
                     "topics": channel.topics,
-                    "preferredReward": channel.preferred_reward,
+                    "pricePerAdView": channel.preferred_reward,
                 }
-            )
+            ),200
     else:
-        return flask.jsonify(
-                {
-                    "success": False,
-                }
-            )
+        flask.abort(404)
 
+@require_auth
 @bp.route("/edit_profile", methods=["POST"])
 def edit_profile():
     username = flask.request.json["username"],
@@ -330,18 +315,16 @@ def edit_profile():
             db.session.rollback()
             success = False
         
-        return flask.jsonify(
-                {
-                    "success": success,
-                }
-            )
+        return flask.jsonify({"success":True})
     else:
         return flask.jsonify(
             {
                  "success": success,
             }
         )
+    
 
+@require_auth
 @bp.route("/create_channel", methods=["POST"])
 def create_new_channel():
     is_successful = create_channel(
@@ -376,22 +359,24 @@ def return_channels():
     if args.get("for") == "platformsPage":
         # return channels for channels page, filtered acording to args
         # trying to jsonify a list of channel objects gives an error
+        platforms_data, total_results = get_channels(args)
         return flask.jsonify(
             {
                 "success": True,
-                "platformsData": get_channels(args),
+                "total_results": total_results,
+                "platformsData": platforms_data,
             }
         )
     return flask.jsonify({"success": False})
 
-
+@require_auth
 @bp.route("/add_channel", methods=["POST"])
 def add_channel():
     """Add channel info to database (in the first sprint it can be done only on signup)"""
     # did we implement adding new channels?
     pass
 
-
+@require_auth
 @bp.route("/add_Ad", methods=["POST"])
 def add_ad():
     """Ads ad to the database"""
@@ -460,7 +445,7 @@ def get_ad():
         )
     return flask.jsonify({"ad": ad_log_data})
 
-
+@require_auth
 @bp.route("/make_response", methods=["POST"])
 def make_response():
     """Handles responses"""
@@ -474,7 +459,7 @@ def make_response():
 
     flask.jsonify({"success": is_successful})
 
-
+@require_auth
 @bp.route("/ad_offers", methods=["POST"])
 def ad_offers():
     is_successful =create_offer(

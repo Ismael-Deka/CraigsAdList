@@ -1,15 +1,31 @@
+
 .header {
+    position: fixed;
     height: 3rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     background-color: #c4c4c4;
     padding: 2rem;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
     
 }
 
+
+
 #dropdown-basic::after {
     display: none;
+}
+
+#mobileSearchBar{
+    background: white;
+    color: #878787;
+    border: white;
+    border-radius: 20px;
+    width: 40vw;
+    display: flex;
 }
 
 .logo {
@@ -28,3 +44,39 @@
 .menu > *{
     margin: 0.5rem;
 }
+
+.navbar_btn{
+    color: #3D3D3D;
+}
+
+.navbar_icon{
+    color: #3D3D3D;
+}
+.navbar_btn:hover .navbar_icon {
+  color: white;
+  
+}
+
+.search_bar_clear{
+    background-color: white;
+    color: black;
+    border-color: white;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+.search_bar_clear:hover{
+    color:black;
+    border-color: white;
+    background-color:white;
+}
+
+.searchBar {
+        width: 35vw;
+        border-top-left-radius: 20px;
+        border-bottom-left-radius: 20px;
+        border-color: white;
+        /* Add any other styles for the search bar here */
+}
+
+

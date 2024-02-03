@@ -9,7 +9,7 @@ import CircleImage from './CircleImage';
 import MenuNavigation from './MenuNavigation';
 
 function ProfileButton({
-  profileName, profilePictureUrl, isLoggedIn, logOut, id,
+  profileName, profilePictureUrl, isLoggedIn, logOut, id, isMobile,
 }) {
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
@@ -29,11 +29,29 @@ function ProfileButton({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className={classes.profileSection}>
-        <CircleImage src={profilePictureUrl} size="small" />
-        {profileName}
-        <svg width="1em" height="1em" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg" className="arrow"><path d="M5.633 6.352L.775 1.089A.5.5 0 011.142.25h9.716a.5.5 0 01.367.84L6.367 6.351a.5.5 0 01-.734 0z" fill="#000000" /></svg>
-      </div>
+      {
+        isLoggedIn
+        && (
+        <div className={`${classes.profileSection} font-weight-bold`}>
+          <CircleImage src={profilePictureUrl} size="small" />
+          {!isMobile && (
+          <span>
+            {profileName}
+            <svg width="1em" height="1em" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg" className="arrow"><path d="M5.633 6.352L.775 1.089A.5.5 0 011.142.25h9.716a.5.5 0 01.367.84L6.367 6.351a.5.5 0 01-.734 0z" fill="#000000" /></svg>
+          </span>
+          )}
+        </div>
+        )
+}
+      {
+        !isLoggedIn
+        && (
+          <div className={classes.profileSection}>
+            <strong>Log-in</strong>
+            <svg width="1em" height="1em" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg" className="arrow"><path d="M5.633 6.352L.775 1.089A.5.5 0 011.142.25h9.716a.5.5 0 01.367.84L6.367 6.351a.5.5 0 01-.734 0z" fill="#000000" /></svg>
+          </div>
+        )
+      }
       {dropdownVisible && (
         <div className={classes.dropdownMenu}>
           {!isLoggedIn && (
@@ -80,6 +98,7 @@ ProfileButton.propTypes = {
   profilePictureUrl: PropTypes.string.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   logOut: PropTypes.func.isRequired,
+  isMobile: PropTypes.bool.isRequired,
   id: PropTypes.number.isRequired,
 };
 
