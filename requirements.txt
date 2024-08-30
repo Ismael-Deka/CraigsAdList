@@ -2,7 +2,9 @@ Flask
 requests
 python-dotenv
 flask-login
+flask-mail
 psycopg2-binary
 Flask-SQLAlchemy
+ibm-cos-sdk
 gunicorn==20.0.4
 psycopg2

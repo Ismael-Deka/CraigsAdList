@@ -18,10 +18,10 @@ function MenuNavigation() {
         Find Ads
 
       </Dropdown.Item>
-      <Dropdown.Item href="/channels">
-        {location.pathname === '/channels' && <text>✓</text>}
+      <Dropdown.Item href="/search">
+        {location.pathname === '/search' && <text>✓</text>}
         {' '}
-        Find Channels
+        Find Platforms
 
       </Dropdown.Item>
 

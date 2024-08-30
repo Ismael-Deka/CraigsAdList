@@ -40,8 +40,6 @@ function PlatformPage() {
     }
   }, []);
 
-  useEffect(() => { console.log(platform); }, [platform]);
-
   if (loading) {
     return (
       <div style={{

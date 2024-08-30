@@ -1,13 +1,8 @@
-# pylint: disable=W0613, E1101
-# W0613 is about unused variable in 'def load_user(user_id):'
-# E1101: because pylint can't handle db
-
 """Module for running flask and setting up endpoints"""
 
 import os
 import flask
 import ibm_boto3
-import base64
 
 from flask_login import current_user, login_required, login_user, logout_user, LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -21,8 +16,9 @@ from db_utils import (
     get_all_accounts,
     get_all_ads,
     get_ads,
-    get_channels,
-    get_profile_pic
+    get_results,
+    get_profile_pic,
+    upload_profile_pic
 )
 
 from models import db, Account, Ad, Channel
@@ -60,7 +56,7 @@ def load_user(user_id):
 def require_auth(func):
     @login_required
     def auth_wrapper(*args, **kwargs):
-        if g.user:  # Assuming Flask-Login is used and g.user contains the current user
+        if flask.g.user:  # Assuming Flask-Login is used and g.user contains the current user
             return func(*args, **kwargs)
         else:
             return flask.jsonify({"message": "Authentication required"}), 401
@@ -80,7 +76,7 @@ bp = flask.Blueprint(
 # route for serving React page
 @bp.route("/")
 @bp.route("/ads")
-@bp.route("/channels")
+@bp.route("/search/<string:search_type>")
 @bp.route("/login")
 @bp.route("/signup")
 @bp.route("/new_add")
@@ -91,7 +87,7 @@ bp = flask.Blueprint(
 @bp.route("/settings")
 @bp.route('/platform/<int:platform_id>')
 @bp.route("/messages/<string:folder>")
-def index(user_id=-1,platform_id=-1,folder=""):
+def index(user_id=-1,platform_id=-1,folder="",search_type=""):
     """Root endpoint"""
     # NB: DO NOT add an "index.html" file in your normal templates folder
     # Flask will stop serving this React page correctly
@@ -102,7 +98,9 @@ def index(user_id=-1,platform_id=-1,folder=""):
 def handle_login():
     """Handle login"""
     if flask.request.method == "POST":
+        print(flask.request.json["email"])
         user = Account.query.filter_by(email=flask.request.json["email"]).first()
+        print(Account.query.all())
         if user is not None and check_password_hash(
             user.password, flask.request.json["password"]
         ):
@@ -298,28 +296,73 @@ def get_channels_by_id():
         flask.abort(404)
 
 @require_auth
+@bp.route("/change_pass", methods=["POST"])
+def change_pass():
+    original_pass = flask.request.form['original_pass']
+    new_pass = flask.request.form['new_pass']
+    error_message=""
+
+    if check_password_hash(
+            current_user.password, original_pass
+        ):
+        user = Account.query.filter_by(id=current_user.id).first()
+        user.password = generate_password_hash(new_pass)
+        try:
+            success=db.session.commit() is None
+            current_user.password = user.password
+        except Exception as e:
+            db.session.rollback()
+            success = False
+            error_message = "There was a problem when changing your password. Please try again."
+        
+    else:
+        success = False
+        error_message = 'Original password is incorrect'
+
+    return flask.jsonify(
+        {
+            "success": success,
+            "error": error_message,
+        }
+    )
+
+
+
+
+
+@require_auth
 @bp.route("/edit_profile", methods=["POST"])
 def edit_profile():
-    username = flask.request.json["username"],
-    email = flask.request.json["email"]
+    username = flask.request.form['username']
+    email = flask.request.form['email']
+    is_pfp_changed = flask.request.form['is_pfp_changed']
+    if is_pfp_changed == "true":
+        pfp = flask.request.files["pfp"]
+    user_id = current_user.id
     success = False
-    account = Account.query.filter_by(id=current_user.id).first()
+    account = Account.query.filter_by(id=user_id).first()
     if account:
 
         account.username = username
-        account.email = email 
+        account.email = email
+        if is_pfp_changed == "true":
+            is_pfp_upload_success = upload_profile_pic(cos, current_user.profile_pic, pfp)
+        else:
+            is_pfp_upload_success = False
         try:
-            db.session.commit()
-            success = True
+            
+            success = db.session.commit() is None
+            current_user.username = username
         except Exception as e:
             db.session.rollback()
             success = False
         
-        return flask.jsonify({"success":True})
+        return flask.jsonify({"success":True, "pfp_upload":is_pfp_upload_success})
     else:
         return flask.jsonify(
             {
                  "success": success,
+                 "pfp_upload": False,
             }
         )
     
@@ -352,21 +395,37 @@ def get_ads_by_id():
     )
 
 
-@bp.route("/return_channels", methods=["GET"])
-def return_channels():
+@bp.route("/return_results", methods=["GET"])
+def return_results():
     """Returns JSON with channels"""
     args = flask.request.args
-    if args.get("for") == "platformsPage":
-        # return channels for channels page, filtered acording to args
-        # trying to jsonify a list of channel objects gives an error
-        platforms_data, total_results = get_channels(args)
-        return flask.jsonify(
-            {
-                "success": True,
-                "total_results": total_results,
-                "platformsData": platforms_data,
-            }
-        )
+    results = get_results(cos, args)
+    if(results is not None):
+        if(args.get("for") == "platforms"):
+            return flask.jsonify(
+                {
+                    "success": True,
+                    "total_results": results['result_count'],
+                    "platformsData": results['results_data'],
+                }
+            )
+        elif(args.get("for") == "campaigns"):
+            return flask.jsonify(
+                {
+                    "success": True,
+                    "total_results": results['result_count'],
+                    "campaignsData": results['results_data'],
+                }
+            )
+        elif args.get("for") == "users":
+
+            return flask.jsonify(
+                {
+                    "success": True,
+                    "total_results": results['result_count'],
+                    "accountsData": results['results_data'],
+                }
+            )
     return flask.jsonify({"success": False})
 
 @require_auth
@@ -477,4 +536,4 @@ app.register_blueprint(bp)
 
 if __name__ == "__main__":
     app.debug=True
-    app.run()
+    app.run()## Add ssl after deployment -- ssl_context=('localhost.crt', 'localhost.key'))

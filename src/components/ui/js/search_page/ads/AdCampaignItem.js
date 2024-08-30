@@ -7,20 +7,19 @@ import React, { useState, useEffect, useRef } from 'react';
 
 import PropTypes from 'prop-types';
 
-import OfferModal from '../OfferModal';
+import OfferModal from '../../OfferModal';
 
-import classes from '../../css/PlatformItem.module.css';
-// import CircleImage from '../CircleImage';
+import classes from '../../../css/ListItem.module.css';
 
-function PlatformItem(props) {
-  const { platform } = props;
+function AdCampaignItem(props) {
+  const { campaign } = props;
   const {
-    id, ownerId, ownerName, platformName, subscribers, topics, preferredReward,
-  } = platform;
+    id, ownerId, ownerName, campaignName, topics, preferredReward,
+  } = campaign;
 
   const navigate = useNavigate();
-  const navigateToPlatformPage = () => {
-    navigate(`/platform/${id}`);
+  const navigateToCampaignPage = () => {
+    navigate(`/campaign/${id}`);
   };
 
   const infoCardRef = useRef(null);
@@ -35,7 +34,6 @@ function PlatformItem(props) {
       if (infoCardTitleRef.current) {
         const infoCardTitle = infoCardTitleRef.current;
         setShowTooltip(infoCardTitle.offsetWidth < infoCardTitle.scrollWidth);
-        console.log(showTooltip);
       }
     };
 
@@ -61,7 +59,7 @@ function PlatformItem(props) {
       window.removeEventListener('resize', handleCardResize);
       window.removeEventListener('resize', handleCardTitleResize);
     };
-  }, []);
+  }, [cardWidth]);
 
   const renderTooltip = ({ content, placement, delay }) => {
     if (showTooltip) {
@@ -71,25 +69,45 @@ function PlatformItem(props) {
         </Tooltip>
       );
     }
-    return (<span />);
+    return <span />;
   };
 
   return (
     <Col>
-      <Card ref={infoCardRef} style={(isMobile) ? { width: 'max-content' } : {}}>
-        <Stack direction={(!isMobile) ? ('horizontal') : ('vertical')}>
-          {isMobile && (<Card.Img width={230} variant="top" src="https://i.pinimg.com/474x/21/d2/9f/21d29f70c61cdfc6a90cf1e53004d22e.jpg" />)}
-          {!isMobile && (<Card.Img width={230} variant="left" src="https://i.pinimg.com/474x/21/d2/9f/21d29f70c61cdfc6a90cf1e53004d22e.jpg" />)}
+      <Card ref={infoCardRef} style={isMobile ? { width: 'max-content' } : {}}>
+        <Stack direction={isMobile ? 'vertical' : 'horizontal'}>
+          {isMobile && (
+            <Card.Img
+              width={230}
+              variant="top"
+              src="https://i.pinimg.com/474x/21/d2/9f/21d29f70c61cdfc6a90cf1e53004d22e.jpg"
+            />
+          )}
+          {!isMobile && (
+            <Card.Img
+              width={230}
+              variant="left"
+              src="https://i.pinimg.com/474x/21/d2/9f/21d29f70c61cdfc6a90cf1e53004d22e.jpg"
+            />
+          )}
 
-          <Card.Body style={(!isMobile) ? { padding: '0', paddingLeft: '10px' } : {}}>
-            <Card.Title onClick={navigateToPlatformPage} style={{ cursor: 'pointer' }}>
+          <Card.Body style={!isMobile ? { padding: '0', paddingLeft: '10px' } : {}}>
+            <Card.Title onClick={navigateToCampaignPage} style={{ cursor: 'pointer' }}>
               <OverlayTrigger
                 placement="top"
                 delay={{ show: 250, hide: 400 }}
-                overlay={renderTooltip}
+                overlay={renderTooltip({
+                  content: campaignName,
+                  placement: 'top',
+                  delay: { show: 250, hide: 400 },
+                })}
               >
-                <h4 ref={infoCardTitleRef} className={classes.ellipsisText} style={(!isMobile) ? { whiteSpace: 'nowrap', maxWidth: cardWidth } : {}}>
-                  {platformName.replace('_', ' ')}
+                <h4
+                  ref={infoCardTitleRef}
+                  className={classes.ellipsisText}
+                  style={!isMobile ? { whiteSpace: 'nowrap', maxWidth: cardWidth } : {}}
+                >
+                  {campaignName.replace('_', ' ')}
                 </h4>
               </OverlayTrigger>
             </Card.Title>
@@ -99,29 +117,17 @@ function PlatformItem(props) {
                 <br />
                 {topics}
               </p>
-
-              <p>
-                Subscribers:
-                <br />
-                {subscribers.toLocaleString()}
-              </p>
-
               <p>
                 <b style={{ float: 'left' }}>
-                  Reward: $
+                  Preferred Reward: $
                   {preferredReward}
                 </b>
-
               </p>
-
             </Card.Text>
           </Card.Body>
-
         </Stack>
         <Card.Footer>
-
-          <OfferModal style={{ float: 'left' }} platformId={platform.id} />
-
+          <OfferModal style={{ float: 'left' }} campaignId={campaign.id} />
           <small className="text-muted" style={{ float: 'right' }}>
             by
             {' '}
@@ -133,29 +139,26 @@ function PlatformItem(props) {
   );
 }
 
-export default PlatformItem;
+export default AdCampaignItem;
 
-PlatformItem.defaultProps = {
-  platform: PropTypes.shape({
+AdCampaignItem.defaultProps = {
+  campaign: PropTypes.shape({
     id: 0,
     ownerId: 0,
     ownerName: '',
-    platformName: '',
-    subscribers: 0,
+    campaignName: '',
     topics: '',
     preferredReward: 0,
   }),
-
 };
-PlatformItem.propTypes = {
-  platform: PropTypes.shape({
+
+AdCampaignItem.propTypes = {
+  campaign: PropTypes.shape({
     id: PropTypes.number.isRequired,
     ownerId: PropTypes.number.isRequired,
     ownerName: PropTypes.string.isRequired,
-    platformName: PropTypes.string.isRequired,
-    subscribers: PropTypes.number.isRequired,
+    campaignName: PropTypes.string.isRequired,
     topics: PropTypes.string,
     preferredReward: PropTypes.number,
   }),
-
 };

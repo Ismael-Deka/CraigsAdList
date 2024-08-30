@@ -27,3 +27,5 @@ yarn-error.log*
 .env
 .python-version
 __pycache__
+*crt
+*.key

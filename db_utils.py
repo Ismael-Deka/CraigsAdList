@@ -7,11 +7,25 @@ from flask_login import current_user
 from models import Account, Ad, Channel, Offers, Responses, db
 import base64
 import os
+import traceback
 
 def get_profile_pic(cos, pfp_index):
             response = cos.get_object(Bucket=os.getenv("COS_BUCKET_NAME"), Key=f"pfp/{pfp_index}.png")
             encoded_pfp = base64.b64encode(response['Body'].read()).decode("utf-8")
             return f"data:image/png;base64,{encoded_pfp}"
+
+def upload_profile_pic(cos, pfp_index, file):
+    if file is None or file == '':
+        return False
+
+    # Upload file to IBM COS
+    try:
+        cos.upload_fileobj(file, os.getenv("COS_BUCKET_NAME"), f"pfp/{pfp_index}.png")
+        return True
+    except Exception as e:
+        tb = traceback.TracebackException.from_exception(e)
+        print(e.with_traceback(tb))
+        return False
 
 def get_all_accounts():
     """Returns all accounts stored in database"""
@@ -108,97 +122,199 @@ def map_usernames(raw_accounts):
     return accounts
 
 
-def get_channels(args):
-    """Return ads data filtered according to the query"""
-    if args.get("for") == "platformsPage":
-        # return channels for channels page
+def get_results(cos, args):
+    """Return data filtered according to the query"""
+    results = None
+
+    if args.get("for") == "platforms":
+        results = get_platforms_results(args=args)
+        
+    
+    elif args.get("for") == "campaigns":
+       results = get_campaigns_results(args=args)
+       
+
+    elif args.get("for") == "users":
+        results = get_user_results(cos=cos, args=args)
+    return results
+
+def get_platforms_results(args):
         page_number = int(args.get("page"))
         results_per_page = int(args.get("perPage"))
-        channels = Channel.query.filter_by(show_channel=True).all()
+        sort_method = args.get("sortBy")
+        sort_order = args.get("sortOrder")
+        platforms= Channel.query.filter_by(show_channel=True).all()
         accounts = map_usernames(Account.query.all())
-        channels_data = []
+        platforms_data = []
 
-        result_count = len(channels)
-
-        if result_count > results_per_page:
-            if page_number==1 :
-                channels = channels[:results_per_page]
-            else:
-                start_index = page_number*results_per_page
-                end_index = start_index+results_per_page
-                if end_index > result_count: end_index=result_count
-                channels = channels[start_index:end_index]
-
-
-        for channel in channels:
+        for platform in platforms:
             try:
-                channel.topics = channel.topics.split(",")
-                channels_data.append(
+                platform.topics = platform.topics.split(",")
+                platforms_data.append(
                     {
-                        "id": channel.id,
-                        "ownerId":channel.owner_id,
-                        "ownerName": accounts[channel.owner_id],
-                        "platformName": channel.channel_name,
-                        "subscribers": channel.subscribers,
-                        "topics": channel.topics,
-                        "preferredReward": channel.preferred_reward,
+                        "id": platform.id,
+                        "ownerId":platform.owner_id,
+                        "ownerName": accounts[platform.owner_id],
+                        "platformName": platform.channel_name,
+                        "subscribers": platform.subscribers,
+                        "topics": platform.topics,
+                        "preferredReward": platform.preferred_reward,
                     }
                 )
             except Exception:
                 continue
 
-        if args.get("id") is not None:
-            searched_id = int(args.get("id"))
-            channels_data = list(
-                filter(lambda channel: channel["id"] == searched_id, channels_data)
-            )
-        if args.get("owner") is not None:
-            searched_owner = args.get("owner")
-            channels_data = list(
-                filter(
-                    lambda channel: searched_owner in channel["ownerName"],
-                    channels_data,
-                )
-            )
-        if args.get("name") is not None:
-            searched_name = args.get("name")
-            channels_data = list(
-                filter(
-                    lambda channel: searched_name in channel["channelName"],
-                    channels_data,
-                )
-            )
-        if args.get("subs") is not None:
-            min_subs = int(args.get("subs"))
-            channels_data = list(
-                filter(
-                    lambda channel: channel["subscribers"] >= min_subs,
-                    channels_data,
-                )
-            )
-        if args.get("topics") is not None:
-            topics = args.get("topics")
-            channels_data = list(
-                filter(
-                    lambda channel: topics in channel["topics"],
-                    channels_data,
-                )
-            )
-        if args.get("reward") is not None:
-            max_reward = int(args.get("reward"))
-            channels_data = list(
-                filter(
-                    lambda channel: channel["preferredReward"] <= max_reward,
-                    channels_data,
-                )
-            )
+        platforms_data = filter_results(args=args, data_list=platforms_data, arg_list=
+                                        ["id",
+                                         "ownerId",
+                                         "ownerName",
+                                         "platformName",
+                                         "subscribers",
+                                         "topics",
+                                         "preferredReward"
+                                         ])
+        
+        for platform in platforms_data:
+            platform["topics"] = (", ").join(platform["topics"])
+        
+        if(sort_method is not None):
+            platforms_data = sorted(platforms_data, key=lambda x: x[sort_method], reverse=( sort_order == 'desc'))
 
-        for channel in channels_data:
-            channel["topics"] = (", ").join(channel["topics"])
+        result_count = len(platforms_data)
 
-        return channels_data, result_count
+        platforms = paginate_results(platforms_data, results_per_page, page_number)
 
-    return None
+        results = {'results_data': platforms, 'result_count': result_count}
+
+        return results
+
+def get_campaigns_results(args):
+    page_number = int(args.get("page"))
+    results_per_page = int(args.get("perPage"))
+    sort_method = args.get("sortBy")
+    sort_order = args.get("sortOrder")
+    campaigns= Ad.query.filter_by(show_in_list=True).all()
+    accounts = map_usernames(Account.query.all())
+    campaigns_data = []
+    for campaign in campaigns:
+        try:
+            campaign.topics = campaign.topics.split(",")
+            campaigns_data.append(
+                {
+                    "id": campaign.id,
+                    "ownerId":campaign.creator_id,
+                    "ownerName": accounts[campaign.creator_id],
+                    "campaignName": campaign.title,
+                    "campaignDesc": campaign.text,
+                    "topics": campaign.topics,
+                    "preferredReward": campaign.reward,
+                }
+            )
+        except Exception:
+             continue
+        
+        campaign_data = filter_results(args=args, data_list=campaigns_data, arg_list=
+                                        ["id",
+                                         "ownerId",
+                                         "ownerName",
+                                         "campaignName",
+                                         "campaignDesc",
+                                         "topics",
+                                         "preferredReward"
+                                         ])
+        
+        for campaign in campaign_data:
+            campaign["topics"] = (", ").join(campaign["topics"])
+        
+        if(sort_method is not None):
+            campaign_data = sorted(campaign_data, key=lambda x: x[sort_method], reverse=( sort_order == 'desc'))
+
+        result_count = len(campaign_data)
+
+        campaigns = paginate_results(campaign_data, results_per_page, page_number)
+
+        results = {'results_data': campaigns, 'result_count': result_count}
+        
+        return results
+
+def get_user_results(cos, args):
+    page_number = int(args.get("page"))
+    results_per_page = int(args.get("perPage"))
+    sort_method = args.get("sortBy")
+    sort_order = args.get("sortOrder")
+    accounts = Account.query.all()
+    print(len(accounts))
+    accounts_data = []
+
+    for account in accounts:
+        try:
+            accounts_data.append(
+                {
+                    "id": account.id,
+                    "username":account.username,
+                    "email": account.email,
+                    "pfp": get_profile_pic(cos, account.profile_pic),
+               }
+            )
+        except Exception:
+            continue
+
+    accounts_data = filter_results(args=args, data_list=accounts_data, arg_list=
+                                        ["id",
+                                         "username",
+                                         "email",
+                                         "pfp",
+                                         
+                                         ])
+    if(sort_method is not None):
+        accounts_data = sorted(accounts_data, key=lambda x: x["username"], reverse=( sort_order == 'desc'))
+    
+    result_count = len(accounts_data)
+
+    accounts = paginate_results(accounts_data, results_per_page, page_number)
+    results = {'results_data': accounts_data, 'result_count': result_count}
+        
+    return results
+
+def paginate_results(data, results_per_page, page_number):
+    result_count = len(data)
+
+    if result_count > results_per_page:
+        if page_number==1 :
+            paginated_data = data[:results_per_page]
+        else:
+            start_index = page_number*results_per_page
+            end_index = start_index+results_per_page
+            if end_index > result_count: end_index=result_count
+            paginated_data = data[start_index:end_index]
+        return paginated_data
+    else:
+        return data
+    
+def filter_results(args, data_list, arg_list):
+    for arg_name in arg_list:
+        arg_value = args.get(arg_name)
+        if arg_value is not None:
+            data_list = list(
+                filter(lambda data: is_filter_matched(arg_name,arg_value,data), data_list)
+            )
+    return data_list
+
+def is_filter_matched(arg_name,arg_value, data ):
+    
+    if arg_name == "subscribers":
+        
+        return data[arg_name] >= int(arg_value)
+    elif arg_name == "reward" or arg_name == "preferred_reward":
+        return data[arg_name] <= int(arg_value)
+    elif arg_name == "id":
+        return data[arg_name] == int(arg_value)
+    elif arg_name == "topics":
+        matched_topics = list(filter(lambda topic: arg_value.lower() in topic.lower(), data[arg_name]))
+        return len(matched_topics) > 0
+    else:
+        return arg_value in data[arg_name]
+    
 
 
 def get_all_channels():

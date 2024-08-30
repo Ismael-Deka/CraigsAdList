@@ -10,7 +10,7 @@ import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import LoginErrorDialog from '../components/ui/js/LoginErrorDialog';
-import ListOfChannels from '../components/ui/js/find_platforms_page/ListofPlatforms';
+import PlatformList from '../components/ui/js/search_page/ResultsList';
 
 function NewOfferPage() {
   let selectedId;
@@ -122,7 +122,7 @@ function NewOfferPage() {
           </div>
         </Col>
         <Col className="m-4">
-          <ListOfChannels onReload={updateOffer} />
+          <PlatformList onReload={updateOffer} />
         </Col>
       </Row>
       {IsErrorDialogOpen && (

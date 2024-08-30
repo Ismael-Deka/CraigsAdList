@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import './App.css';
 import LandingPage from './pages/LandingPage';
 import AdsPage from './pages/AdsPage';
-import ChannelsPage from './pages/PlatformsPage';
+
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import SettingsPage from './pages/SettingsPage';
@@ -15,6 +15,7 @@ import ProfilePage from './pages/ProfilePage';
 import PlatformPage from './pages/PlatformPage';
 import InboxPage from './pages/InboxPage';
 import NewPlatformPage from './pages/NewPlatformPage';
+import SearchPage from './pages/SearchPage';
 
 function App() {
   return (
@@ -23,7 +24,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/ads" element={<AdsPage />} />
-        <Route path="/channels" element={<ChannelsPage />} />
+        <Route path="/search/:searchType" element={<SearchPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/settings" element={<SettingsPage />} />

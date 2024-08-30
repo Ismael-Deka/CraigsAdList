@@ -59,6 +59,7 @@ function MenuBar() {
         setState((prevState) => ({
           ...prevState, errorMessage: 'User Logged out Successfully', isLoggedIn: false, redirectFunction: navigateBackToLogin, isErrorDialogOpen: true,
         }));
+        window.location.reload();
       }
     }));
   }, [navigateBackToLogin]);
@@ -82,7 +83,6 @@ function MenuBar() {
   }, []);
 
   useEffect(() => {
-    console.log(location.pathname);
     const fetchData = async () => {
       try {
         const isLoggedInResponse = await fetch('/is_logged_in', { method: 'GET' });
@@ -94,6 +94,7 @@ function MenuBar() {
           setState((prevState) => ({
             ...prevState, errorMessage: 'Please log in.', redirectFunction: navigateBackToLogin, isErrorDialogOpen: true,
           }));
+          navigateBackToLogin();
         } else {
           const storedUserData = JSON.parse(localStorage.getItem('userData'));
 
@@ -138,7 +139,7 @@ function MenuBar() {
   </Navbar.Brand>,
     },
     { size: 830, component: <Nav.Link href="/ads" style={{ color: 'black' }}>Find Campaigns</Nav.Link> },
-    { size: 1003, component: <Nav.Link href="/channels" style={{ color: 'black' }}>Find Platforms</Nav.Link> },
+    { size: 1003, component: <Nav.Link href="/search" style={{ color: 'black' }}>Find Platforms</Nav.Link> },
   ];
 
   return (
