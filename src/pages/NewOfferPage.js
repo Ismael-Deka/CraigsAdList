@@ -9,7 +9,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
-import LoginErrorDialog from '../components/ui/js/LoginErrorDialog';
+import LoginErrorDialog from '../components/ui/js/misc/LoginErrorDialog';
 import PlatformList from '../components/ui/js/search_page/ResultsList';
 
 function NewOfferPage() {

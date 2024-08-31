@@ -28,80 +28,50 @@ function UserItem(props) {
   const [cardWidth, setCardWidth] = useState(0);
 
   useEffect(() => {
-    console.log(pfp);
-    const handleCardTitleResize = () => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+
+      if (infoCardRef.current) {
+        const infoCard = infoCardRef.current;
+        setCardWidth(infoCard.clientWidth);
+      }
+
       if (infoCardTitleRef.current) {
         const infoCardTitle = infoCardTitleRef.current;
         setShowTooltip(infoCardTitle.offsetWidth < infoCardTitle.scrollWidth);
       }
     };
 
-    const handleCardResize = () => {
-      if (infoCardRef.current && cardWidth !== infoCardRef.current.clientWidth) {
-        const infoCard = infoCardRef.current;
-        setCardWidth(infoCard.clientWidth - 240);
-      }
-    };
-    const handleWindowResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    handleResize();
 
-    handleCardResize();
-    handleCardTitleResize();
-
-    window.addEventListener('resize', handleWindowResize);
-    window.addEventListener('resize', handleCardResize);
-    window.addEventListener('resize', handleCardTitleResize);
+    window.addEventListener('resize', handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleWindowResize);
-      window.removeEventListener('resize', handleCardResize);
-      window.removeEventListener('resize', handleCardTitleResize);
+      window.removeEventListener('resize', handleResize);
     };
-  }, [cardWidth]);
-
-  const renderTooltip = ({ content, placement, delay }) => {
-    if (showTooltip) {
-      return (
-        <Tooltip id="button-tooltip" placement={placement} delay={delay}>
-          {content}
-        </Tooltip>
-      );
-    }
-    return <span />;
-  };
+  }, []);
 
   return (
     <Col>
-      <Card ref={infoCardRef} style={isMobile ? { width: 'max-content' } : {}}>
-        <Stack direction={isMobile ? 'vertical' : 'horizontal'}>
-          {isMobile && (
-            <Card.Img
-              width={230}
-              variant="top"
-              src={pfp}
-              alt={`${username}'s profile`}
-            />
-          )}
-          {!isMobile && (
-            <Card.Img
-              width={230}
-              variant="left"
-              src={pfp}
-              alt={`${username}'s profile`}
-            />
-          )}
+      <Card onClick={navigateToUserProfile} ref={infoCardRef} style={isMobile ? { width: 'max-content' } : {}}>
+        <Stack className="p-1" direction="horizontal">
+          <Card.Img
+            variant={isMobile ? 'top' : 'left'}
+            src={pfp}
+            alt={`${username}'s profile`}
+            className={classes.fixedImage}
+          />
 
-          <Card.Body style={!isMobile ? { padding: '0', paddingLeft: '10px' } : {}}>
-            <Card.Title onClick={navigateToUserProfile} style={{ cursor: 'pointer' }}>
+          <Card.Body className={!isMobile ? classes.horizontalPadding : ''}>
+            <Card.Title style={{ cursor: 'pointer' }}>
               <OverlayTrigger
                 placement="top"
                 delay={{ show: 250, hide: 400 }}
-                overlay={renderTooltip({
-                  content: username,
-                  placement: 'top',
-                  delay: { show: 250, hide: 400 },
-                })}
+                overlay={showTooltip ? (
+                  <Tooltip id="button-tooltip">
+                    {username}
+                  </Tooltip>
+                ) : <span />}
               >
                 <h4
                   ref={infoCardTitleRef}
@@ -121,11 +91,6 @@ function UserItem(props) {
             </Card.Text>
           </Card.Body>
         </Stack>
-        <Card.Footer>
-          <small className="text-muted" style={{ float: 'right' }}>
-            <a href={`/profile/${id}`}>View Profile</a>
-          </small>
-        </Card.Footer>
       </Card>
     </Col>
   );

@@ -1,5 +1,7 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-nested-ternary */
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Spinner, Col, Collapse, Row, OverlayTrigger, Button, Tooltip,
 } from 'react-bootstrap';
@@ -13,11 +15,11 @@ import FilterUsersForm from './users/FilterUsersForm';
 function ResultsList({ resultType }) {
   const [query, setQuery] = useState('');
 
+  const [params] = useSearchParams();
+
   const [open, setOpen] = useState(false);
   const [platforms, setPlatforms] = useState(Array(0));
-  // eslint-disable-next-line no-unused-vars
   const [campaigns, setCampaigns] = useState(Array(0));
-  // eslint-disable-next-line no-unused-vars
   const [users, setUsers] = useState(Array(0));
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -58,6 +60,22 @@ function ResultsList({ resultType }) {
   function getResults(newQuery, page, perPage) {
     // fetch platforms from database with pagination parameters
     setLoading(true);
+
+    if (params.get('keyword') !== null) {
+      switch (resultType) {
+        case 'platforms':
+          newQuery = `${newQuery}&platformName=${params.get('keyword')}`;
+          break;
+        case 'campaigns':
+          newQuery = `${newQuery}&campaignName=${params.get('keyword')}`;
+          break;
+        case 'users':
+          newQuery = `${newQuery}&username=${params.get('keyword')}`;
+          break;
+        default:
+          break;
+      }
+    }
 
     fetch(`/return_results?for=${resultType + newQuery}&page=${page}&perPage=${perPage}`, {
       method: 'GET',

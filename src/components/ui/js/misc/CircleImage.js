@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classes from '../css/CircleImage.module.css';
+import classes from '../../css/CircleImage.module.css';
 
 function CircleImage({ src, alt, size }) {
   if (size === 'small') {

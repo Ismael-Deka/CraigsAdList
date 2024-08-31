@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-no-bind */
 import { useState, useCallback } from 'react';
 import { Form, Button } from 'react-bootstrap';
-import LoginErrorDialog from '../components/ui/js/LoginErrorDialog';
-import Card from '../components/ui/js/Card';
+import LoginErrorDialog from '../components/ui/js/misc/LoginErrorDialog';
+import Card from '../components/ui/js/misc/Card';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import classes from './css/LoginPage.module.css';
 

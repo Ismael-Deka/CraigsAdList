@@ -3,7 +3,7 @@ import {
   Form, Button, Modal, Container, Row, Col, Stack, Toast,
 } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import CircleImage from '../CircleImage';
+import CircleImage from '../misc/CircleImage';
 
 // eslint-disable-next-line no-unused-vars
 function UserAccountForm({ account }) {

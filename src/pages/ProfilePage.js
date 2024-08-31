@@ -4,7 +4,7 @@ import {
   Container, Row, Col, ListGroup, Spinner, Button, Modal, Form,
 } from 'react-bootstrap';
 import PlatformListItem from '../components/ui/js/settings_page/PlatformListItem';
-import CircleImage from '../components/ui/js/CircleImage';
+import CircleImage from '../components/ui/js/misc/CircleImage';
 
 function ProfilePage() {
   const [username, setUsername] = useState('');

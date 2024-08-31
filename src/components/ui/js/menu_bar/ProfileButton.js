@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import {
   Dropdown,
 } from 'react-bootstrap';
-import classes from '../css/ProfileButton.module.css'; // Assuming you have some styles for the component
-import CircleImage from './CircleImage';
+import classes from '../../css/ProfileButton.module.css'; // Assuming you have some styles for the component
+import CircleImage from '../misc/CircleImage';
 import MenuNavigation from './MenuNavigation';
 
 function ProfileButton({

@@ -3,8 +3,8 @@ import Button from 'react-bootstrap/Button';
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { Form } from 'react-bootstrap';
-import Card from '../components/ui/js/Card';
-import LoginErrorDialog from '../components/ui/js/LoginErrorDialog';
+import Card from '../components/ui/js/misc/Card';
+import LoginErrorDialog from '../components/ui/js/misc/LoginErrorDialog';
 import classes from './css/LoginPage.module.css';
 
 function LoginPage() {

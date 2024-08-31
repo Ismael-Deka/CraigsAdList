@@ -1,0 +1,69 @@
+/* SearchField.module.css */
+
+.searchFieldContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 40vw;
+}
+
+.searchBar {
+    width: 35vw;
+    border-color: white;
+    padding: 0.5rem;
+    /* Add any other styles for the search bar here */
+}
+
+.searchBar:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.search_bar_clear {
+    background-color: white;
+    color: black;
+    border-color: white;
+    padding: 0.5rem;
+}
+
+.search_bar_clear:hover {
+    color: black;
+    border-color: white;
+    background-color: white;
+}
+
+.dropdownContainer {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: white;
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dropdownItem {
+    padding: 0.5rem 1rem;
+    border: none;
+    background-color: white;
+    color: black;
+    cursor: pointer;
+}
+
+.dropdownItem:hover {
+    background-color: #f0f0f0;
+}
+
+/* If you want to style the FormCheck (radio buttons) specifically */
+.formCheckLabel {
+    margin-left: 0.5rem;
+    font-weight: normal;
+    color: black;
+}
+
+.formCheckInput {
+    margin-right: 0.5rem;
+}

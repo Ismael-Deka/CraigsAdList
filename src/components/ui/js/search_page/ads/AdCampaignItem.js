@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 import PropTypes from 'prop-types';
 
-import OfferModal from '../../OfferModal';
+import OfferModal from '../../misc/OfferModal';
 
 import classes from '../../../css/ListItem.module.css';
 
@@ -40,7 +40,7 @@ function AdCampaignItem(props) {
     const handleCardResize = () => {
       if (infoCardRef.current && cardWidth !== infoCardRef.current.clientWidth) {
         const infoCard = infoCardRef.current;
-        setCardWidth(infoCard.clientWidth - 240);
+        setCardWidth(infoCard.clientWidth);
       }
     };
     const handleWindowResize = () => {

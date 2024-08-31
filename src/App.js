@@ -10,7 +10,7 @@ import NewAdPage from './pages/NewAdPage';
 
 import NewResponsePage from './pages/NewResponsePage';
 import NewOfferPage from './pages/NewOfferPage';
-import MenuBar from './components/ui/js/MenuBar';
+import MenuBar from './components/ui/js/menu_bar/MenuBar';
 import ProfilePage from './pages/ProfilePage';
 import PlatformPage from './pages/PlatformPage';
 import InboxPage from './pages/InboxPage';

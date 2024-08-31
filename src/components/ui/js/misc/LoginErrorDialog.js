@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import classes from '../css/LoginErrorDialog.module.css';
+import classes from '../../css/LoginErrorDialog.module.css';
 
 function LoginErrorDialog({
   message, onCancel, onRedirect,

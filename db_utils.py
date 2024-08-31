@@ -271,7 +271,7 @@ def get_user_results(cos, args):
     
     result_count = len(accounts_data)
 
-    accounts = paginate_results(accounts_data, results_per_page, page_number)
+    accounts_data = paginate_results(accounts_data, results_per_page, page_number)
     results = {'results_data': accounts_data, 'result_count': result_count}
         
     return results
@@ -313,7 +313,7 @@ def is_filter_matched(arg_name,arg_value, data ):
         matched_topics = list(filter(lambda topic: arg_value.lower() in topic.lower(), data[arg_name]))
         return len(matched_topics) > 0
     else:
-        return arg_value in data[arg_name]
+        return arg_value.lower() in data[arg_name].lower()
     
 
 

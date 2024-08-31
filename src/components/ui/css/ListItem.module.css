@@ -32,6 +32,13 @@
         border-bottom-left-radius: 0rem;
 }
 
+.fixedImage {
+  width: 100px; /* Set the fixed width */
+  height: 100px; /* Set the fixed height */
+  object-fit: cover; /* This ensures the image maintains its aspect ratio while filling the box */
+  border-radius: 50%; /* Optional: makes the image circular */
+}
+
 @media (min-width: 1200px){  
     #infoCardLeft {
         width: calc(2 * 14vw); 
