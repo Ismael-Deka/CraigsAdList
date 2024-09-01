@@ -1,5 +1,3 @@
-// PlatformListItem.js
-
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -14,6 +12,7 @@ function PlatformListItem({
   const [updatedTopics, setUpdatedTopics] = useState(topics);
   const [updatedPricePerAdView, setUpdatedPricePerAdView] = useState(pricePerAdView);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
 
   // Update state when prop values change
   useEffect(() => {
@@ -25,6 +24,8 @@ function PlatformListItem({
 
   const handleShowEditModal = () => setShowEditModal(true);
   const handleCloseEditModal = () => setShowEditModal(false);
+  const handleShowWarningModal = () => setShowWarningModal(true);
+  const handleCloseWarningModal = () => setShowWarningModal(false);
 
   const handleUpdatePlatform = () => {
     // Validate inputs before updating
@@ -32,8 +33,8 @@ function PlatformListItem({
       onUpdate(id, updatedPlatformName, updatedSubCount, updatedTopics, updatedPricePerAdView);
       handleCloseEditModal();
     } else {
-      // Handle invalid inputs (optional)
-      alert('Please enter valid numbers for Subscribers and Price per Ad View.');
+      // Show warning modal for invalid inputs
+      handleShowWarningModal();
     }
   };
 
@@ -62,14 +63,14 @@ function PlatformListItem({
           {currency}
         </Card.Text>
         {onDelete && (
-        <div>
-          <Button variant="primary" onClick={handleShowEditModal}>
-            Edit
-          </Button>
-          <Button variant="danger" className="ml-2" onClick={handleDeletePlatform}>
-            Delete
-          </Button>
-        </div>
+          <div>
+            <Button variant="primary" onClick={handleShowEditModal}>
+              Edit
+            </Button>
+            <Button variant="danger" className="ml-2" onClick={handleDeletePlatform}>
+              Delete
+            </Button>
+          </div>
         )}
       </Card.Body>
 
@@ -120,6 +121,21 @@ function PlatformListItem({
           </Button>
           <Button variant="primary" onClick={handleUpdatePlatform}>
             Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Warning Modal */}
+      <Modal show={showWarningModal} onHide={handleCloseWarningModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Invalid Input</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Please enter valid numbers for Subscribers and Price per Ad View.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseWarningModal}>
+            Close
           </Button>
         </Modal.Footer>
       </Modal>

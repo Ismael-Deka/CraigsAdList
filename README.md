@@ -1,12 +1,12 @@
-## Heroku link
+## Read-Only Demo link
 
-https://sprint2-test.herokuapp.com/
+https://craigsadlist.onrender.com/
 
 ## Step to run for first time
 
 ### `pip install -r requirements.txt` - install python packages
 
-### `npm ci` - install node modules
+### `npm install` - install node modules
 
 ### `npm run build` - build frontend side
 
@@ -17,9 +17,5 @@ https://sprint2-test.herokuapp.com/
 `SECRET_KEY=<your secret key>`
 
 
-**Then run `python app.py` or `gunicorn app:app` in the terminal to launch**
+**Then run `python app.py` in the terminal to launch**
 
-### Globally surpressed linting
-`"react/react-in-jsx-scope": "off",` -- nothing really important, but quite annoying
-
-`"react/jsx-filename-extension": ...*.js, .jsx *...` -- same

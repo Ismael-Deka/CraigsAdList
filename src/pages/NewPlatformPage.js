@@ -59,6 +59,7 @@ function NewPlatformPage() {
       targetingOptions,
       billingInfo,
     };
+    // eslint-disable-next-line no-console
     console.log(formData);
     // You can add additional logic here to handle form data as needed
   };

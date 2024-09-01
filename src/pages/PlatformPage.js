@@ -32,6 +32,7 @@ function PlatformPage() {
           handlePlatformInfo(data);
         })
         .catch((error) => {
+          // eslint-disable-next-line no-console
           console.error('Error fetching platform details:', error);
         })
         .finally(() => {

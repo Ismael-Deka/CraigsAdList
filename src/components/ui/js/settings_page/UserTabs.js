@@ -21,7 +21,6 @@ function UserTabs() {
       ...prevAccount,
       ...newAccount,
     }));
-    console.log(account);
   };
 
   useEffect(() => {
@@ -43,6 +42,7 @@ function UserTabs() {
         // setAdProps(data.ads);
       })
       .catch((error) => {
+        // eslint-disable-next-line no-console
         console.error('Error fetching account info:', error);
       })
       .finally(

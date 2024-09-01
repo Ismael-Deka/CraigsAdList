@@ -105,6 +105,7 @@ function MenuBar() {
           }
         }
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Error fetching user data:', error);
       }
     };
