@@ -12,10 +12,6 @@ from dotenv import load_dotenv, find_dotenv
 
 from db_utils import (
     create_channel,
-    create_offer,
-    get_all_accounts,
-    get_all_ads,
-    get_ads,
     get_results,
     get_profile_pic,
     upload_profile_pic
@@ -190,13 +186,6 @@ def is_channel_owner():
     """returns true if current user is a channel owner"""
     return flask.jsonify({"is_user_channel_owner": current_user.channel_owner})
 
-@require_auth
-@app.route("/getaccounts", methods=["GET"])
-def get_accounts():
-    """Returns all accounts"""
-    return flask.jsonify({"accounts": get_all_accounts()})
-
-
 @bp.route("/is_logged_in", methods=["GET"])
 def is_logged_in():
     """checks whether a user is logged in"""
@@ -258,22 +247,6 @@ def account_info():
     except Exception as e:
             print(f"An error occurred: {e.with_traceback()}")
             flask.abort(500)
-
-
-@bp.route("/return_ads", methods=["GET"])
-def return_ads():
-    """Returns JSON with ads"""
-    args = flask.request.args
-    if args.get("for") == "adsPage":
-        # return ads for ads page, filtered according to args
-        # trying to jsonify a list of channel objects gives an error
-        return flask.jsonify(
-            {
-                "success": True,
-                "adsData": get_ads(args),
-            }
-        )
-    return flask.jsonify({"ads": get_all_ads()})
 
 
 @bp.route("/return_selected_channel", methods=["GET"])
@@ -378,23 +351,6 @@ def create_new_channel():
         show_channel=flask.request.json["show_channel"])
     return flask.jsonify({"success": is_successful})
 
-@bp.route("/return_selected_ads", methods=["GET"])
-def get_ads_by_id():
-    """get channels by id"""
-    args = flask.request.args
-    advertisement = Ad.query.filter_by(owner_id=args.get("id")).first()
-    return flask.jsonify(
-        {
-            "creator_id": advertisement.creator_id,
-            "title": advertisement.title,
-            "topics": advertisement.topics,
-            "text": advertisement.text,
-            "reward": advertisement.reward,
-            "show_in_list": advertisement.show_in_list,
-        }
-    )
-
-
 @bp.route("/return_results", methods=["GET"])
 def return_results():
     """Returns JSON with channels"""
@@ -428,108 +384,6 @@ def return_results():
             )
     return flask.jsonify({"success": False})
 
-@require_auth
-@bp.route("/add_channel", methods=["POST"])
-def add_channel():
-    """Add channel info to database (in the first sprint it can be done only on signup)"""
-    # did we implement adding new channels?
-    pass
-
-@require_auth
-@bp.route("/add_Ad", methods=["POST"])
-def add_ad():
-    """Ads ad to the database"""
-    if flask.request.method == "POST":
-        advertisement = Ad.query.filter_by(title=flask.request.json["title"]).first()
-        if advertisement is None:
-            advertisement = Ad(
-                creator_id=current_user.id,
-                title=flask.request.json["title"],
-                topics=flask.request.json["topics"],
-                text=flask.request.json["text"],
-                reward=flask.request.json["reward"],
-                show_in_list=flask.request.json["show_in_list"],
-            )
-            db.session.add(advertisement)
-            db.session.commit()
-            new_ad = Ad.query.filter_by(topics=flask.request.json["topics"]).first()
-            add_ads_succesful = new_ad is not None
-            return flask.jsonify(
-                {"add_Ads_succesful": add_ads_succesful, "error_message": ""}
-            )
-        if (
-            flask.request.json["title"] == ""
-            or flask.request.json["topics"] == ""
-            or flask.request.json["text"] == ""
-            or flask.request.json["reward"] == ""
-            or flask.request.json["show_in_list"] == ""
-        ):
-            return flask.jsonify(
-                {
-                    "add_Ads_succesful": False,
-                    "error_message": "Fill in all the required data",
-                }
-            )
-        if advertisement is not None:
-            return flask.jsonify(
-                {
-                    "add_Ads_succesful": False,
-                    "error_message": "An Ad with such title already exists",
-                }
-            )
-    return flask.jsonify(
-        {
-            "add_Ads_succesful": False,
-            "error_message": "Unknown error",
-        }
-    )
-
-
-@bp.route("/get_Ad", methods=["GET", "POST"])
-def get_ad():
-    """Returns ad with the required id"""
-    # there is an error here, be careful
-    ad_log = Ad.query.filter_by(id=Ad.id).all()
-    ad_log_data = []
-    for advertisement in ad_log:
-        ad_log_data.append(
-            {
-                "id": advertisement.id,
-                "title": advertisement.title,
-                "topics": advertisement.topics,
-                "text": advertisement.text,
-                "reward": advertisement.reward,
-                "show_in_list": advertisement.show_in_list,
-            }
-        )
-    return flask.jsonify({"ad": ad_log_data})
-
-@require_auth
-@bp.route("/make_response", methods=["POST"])
-def make_response():
-    """Handles responses"""
-    is_successful =create_response(
-        creator_id = current_user.id, 
-        ad_id= flask.request.json["ad_id"], 
-        owner_id =  flask.request.json["owner_id"], 
-        accepted = flask.request.json["accepted"], 
-        message= flask.request.json["message"]
-    )
-
-    flask.jsonify({"success": is_successful})
-
-@require_auth
-@bp.route("/ad_offers", methods=["POST"])
-def ad_offers():
-    is_successful =create_offer(
-        creator_id = current_user.id, 
-        channel_id= Channel.query.filter_by(channel_name=flask.request.json["channel_name"]).first().id, 
-        owner_id =  flask.request.json["owner_id"], 
-        reward = flask.request.json["price"], 
-        message= flask.request.json["message"]
-    )
-
-    flask.jsonify({"success": is_successful})
 
 
 app.register_blueprint(bp)

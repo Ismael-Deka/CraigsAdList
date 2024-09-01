@@ -198,7 +198,7 @@ function ResultsList({ resultType }) {
         </div>
       ) : (
         !isResultFound ? (
-          <h2 className="text-muted" align="center">
+          <h2 className="text-muted" style={{ textAlign: 'center' }}>
             No
             {' '}
             {resultType}
