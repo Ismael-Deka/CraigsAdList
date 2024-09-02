@@ -203,7 +203,9 @@ function ResultsList({ resultType }) {
             {' '}
             {resultType}
             {' '}
-            are found. Try a different filter?
+            are found.
+            {' '}
+            <a href={`/search/${resultType}`}>Clear search query.</a>
           </h2>
         ) : (
           <Col>

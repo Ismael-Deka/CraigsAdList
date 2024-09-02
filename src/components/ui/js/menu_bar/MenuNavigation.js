@@ -12,44 +12,32 @@ function MenuNavigation() {
         Landing Page
 
       </Dropdown.Item>
-      <Dropdown.Item href="/ads">
-        {location.pathname === '/ads' && <text>✓</text>}
-        {' '}
-        Find Ads
-
-      </Dropdown.Item>
-      <Dropdown.Item href="/search">
-        {location.pathname === '/search' && <text>✓</text>}
+      <Dropdown.Item href="/search/platforms">
+        {location.pathname.startsWith('/search/platforms') && <text>✓</text>}
         {' '}
         Find Platforms
 
       </Dropdown.Item>
-
-      <Dropdown.Item href="/new_channel">
-        {location.pathname === '/new_channel' && <text>✓</text>}
+      <Dropdown.Item href="/search/campaigns">
+        {location.pathname.startsWith('/search/campaigns') && <text>✓</text>}
         {' '}
-        Create New Channel
-
-      </Dropdown.Item>
-      <Dropdown.Item href="/new_add">
-        {location.pathname === '/new_add' && <text>✓</text>}
-        {' '}
-        Create New Ad
+        Find Ad Campaigns
 
       </Dropdown.Item>
 
-      <Dropdown.Item href="/new_response">
-        {location.pathname === '/new_response' && <text>✓</text>}
+      <Dropdown.Item href="/search/users">
+        {location.pathname.startsWith('/search/users') && <text>✓</text>}
         {' '}
-        Respond to Offers
+        Find Users
 
       </Dropdown.Item>
-      <Dropdown.Item href="/new_offer">
-        {location.pathname === '/new_offer' && <text>✓</text>}
+      <Dropdown.Item href="/new_platforms">
+        {location.pathname === '/new_platforms' && <text>✓</text>}
         {' '}
-        Create New Offer
+        Create New Platform
 
       </Dropdown.Item>
+
       <Dropdown.Item href="/messages/inbox">
         {(/^\/messages.*/).test(location.pathname) && <text>✓</text>}
         {' '}

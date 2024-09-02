@@ -85,6 +85,7 @@ function SearchField() {
         <ListGroup
           onFocus={handleDropdownFocus}
           onBlur={handleDropdownBlur}
+          onKeyPress={handleKeyPress}
           className="position-absolute mt-1"
           style={{ zIndex: 1000, ...dropdownStyle }}
         >

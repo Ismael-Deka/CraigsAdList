@@ -390,4 +390,4 @@ app.register_blueprint(bp)
 
 if __name__ == "__main__":
     app.debug=True
-    app.run()## Add ssl after deployment -- ssl_context=('localhost.crt', 'localhost.key'))
+    app.run("0.0.0.0")## Add ssl after deployment -- ssl_context=('localhost.crt', 'localhost.key'))

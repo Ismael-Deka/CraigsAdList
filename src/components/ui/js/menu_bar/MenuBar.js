@@ -71,7 +71,7 @@ function MenuBar() {
         const isLoggedInData = await isLoggedInResponse.json();
         setState((prevState) => ({ ...prevState, isLoggedIn: isLoggedInData.isuserloggedin }));
 
-        if (!isLoggedInData.isuserloggedin && !['/', '/login', '/signup', '/ads', '/channels'].includes(location.pathname)) {
+        if (!isLoggedInData.isuserloggedin && !['/', '/login', '/signup', '/search', '/profile', '/platform'].some((path) => location.pathname.startsWith(path))) {
           setState((prevState) => ({
             ...prevState,
             errorMessage: 'Please log in.',
@@ -123,8 +123,8 @@ function MenuBar() {
         </Navbar.Brand>
       ),
     },
-    { size: 1003, component: <Nav.Link href="/search/platforms" style={{ color: 'black' }}>Find Platforms</Nav.Link> },
-    { size: 830, component: <Nav.Link href="/search/campaigns" style={{ color: 'black' }}>Find Campaigns</Nav.Link> },
+    { size: 830, component: <Nav.Link href="/search/platforms" style={{ color: 'black' }}>Find Platforms</Nav.Link> },
+    { size: 1003, component: <Nav.Link href="/search/campaigns" style={{ color: 'black' }}>Find Campaigns</Nav.Link> },
   ], [state.screenSize]);
 
   return (
