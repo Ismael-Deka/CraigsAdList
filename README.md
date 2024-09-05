@@ -1,4 +1,4 @@
-## Read-Only Demo link
+## Demo link
 
 https://craigsadlist.onrender.com/
 

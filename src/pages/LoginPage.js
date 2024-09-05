@@ -17,7 +17,7 @@ function LoginPage() {
   const navigate = useNavigate();
 
   const hideErrorDialog = useCallback(() => setIsErrorDialogOpen(false), []);
-  const navigateToAdsPage = useCallback(() => navigate('/'), [navigate]);
+  const navigateToHomePage = useCallback(() => navigate('/'), [navigate]);
 
   function setEmail(text) {
     setemailText(text.target.value);
@@ -40,7 +40,7 @@ function LoginPage() {
       fetch('/handle_login', requestOptions).then((reponse) => reponse.json().then((data) => {
         if (data.is_login_successful === true) {
           setErrorMessage('Log In Successful!');
-          setRedirectFunction(navigateToAdsPage);
+          setRedirectFunction(navigateToHomePage);
           setIsErrorDialogOpen(true);
         } else if (data.error_message === '') {
           setErrorMessage('Unable to login. Please Try again.');

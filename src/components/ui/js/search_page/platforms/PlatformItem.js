@@ -15,7 +15,7 @@ import classes from '../../../css/ListItem.module.css';
 function PlatformItem(props) {
   const { platform } = props;
   const {
-    id, ownerId, ownerName, platformName, subscribers, topics, preferredReward,
+    id, ownerId, ownerName, platformName, impressions, topics, preferredPrice,
   } = platform;
 
   const navigate = useNavigate();
@@ -77,8 +77,8 @@ function PlatformItem(props) {
     <Col>
       <Card ref={infoCardRef} style={(isMobile) ? { width: 'max-content' } : {}}>
         <Stack direction={(!isMobile) ? ('horizontal') : ('vertical')}>
-          {isMobile && (<Card.Img width={230} variant="top" src="https://i.pinimg.com/474x/21/d2/9f/21d29f70c61cdfc6a90cf1e53004d22e.jpg" />)}
-          {!isMobile && (<Card.Img width={230} variant="left" src="https://i.pinimg.com/474x/21/d2/9f/21d29f70c61cdfc6a90cf1e53004d22e.jpg" />)}
+          {isMobile && (<Card.Img width={230} variant="top" src={platform.pfp} />)}
+          {!isMobile && (<Card.Img width={230} variant="left" src={platform.pfp} />)}
 
           <Card.Body style={(!isMobile) ? { padding: '0', paddingLeft: '10px' } : {}}>
             <Card.Title onClick={navigateToPlatformPage} style={{ cursor: 'pointer' }}>
@@ -100,15 +100,15 @@ function PlatformItem(props) {
               </p>
 
               <p>
-                Subscribers:
+                Impressions:
                 <br />
-                {subscribers.toLocaleString()}
+                {impressions.toLocaleString()}
               </p>
 
               <p>
                 <b style={{ float: 'left' }}>
                   Preferred Price: $
-                  {preferredReward}
+                  {preferredPrice}
                 </b>
 
               </p>
@@ -140,9 +140,10 @@ PlatformItem.defaultProps = {
     ownerId: 0,
     ownerName: '',
     platformName: '',
-    subscribers: 0,
+    impressions: 0,
     topics: '',
-    preferredReward: 0,
+    preferredPrice: 0,
+    pfp: '',
   }),
 
 };
@@ -152,9 +153,10 @@ PlatformItem.propTypes = {
     ownerId: PropTypes.number.isRequired,
     ownerName: PropTypes.string.isRequired,
     platformName: PropTypes.string.isRequired,
-    subscribers: PropTypes.number.isRequired,
+    impressions: PropTypes.number.isRequired,
     topics: PropTypes.string,
-    preferredReward: PropTypes.number,
+    preferredPrice: PropTypes.number,
+    pfp: PropTypes.string,
   }),
 
 };

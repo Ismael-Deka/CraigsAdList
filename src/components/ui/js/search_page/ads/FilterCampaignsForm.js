@@ -11,7 +11,7 @@ function FilterCampaignsForm(props) {
   const [isScreenSmall, setSmallScreen] = useState(window.innerWidth < 1024);
   const [ownerName, setOwnerName] = useState('');
   const [topics, setTopics] = useState('');
-  const [preferredReward, setPreferredReward] = useState('');
+  const [budget, setBudget] = useState('');
 
   useEffect(() => {
     const handleWindowResize = () => {
@@ -33,8 +33,8 @@ function FilterCampaignsForm(props) {
     if (topics.trim() !== '') {
       query += `&topics=${topics}`;
     }
-    if (preferredReward.toString().trim() !== '') {
-      query += `&preferredReward=${preferredReward}`;
+    if (budget.toString().trim() !== '') {
+      query += `&budget=${budget}`;
     }
     if (sortOption !== 'default') {
       query += `&sortBy=${sortOption}&sortOrder=${sortOrder}`;
@@ -50,7 +50,7 @@ function FilterCampaignsForm(props) {
   const clearFilters = () => {
     setOwnerName('');
     setTopics('');
-    setPreferredReward('');
+    setBudget('');
     setSortOption('default');
     setSortOrder('asc');
 
@@ -119,12 +119,12 @@ function FilterCampaignsForm(props) {
             />
             <FormCheck
               inline
-              label="Preferred Reward"
+              label="Budget"
               type="radio"
               name="sortRadio"
-              id="preferredReward"
-              value="preferredReward"
-              checked={sortOption === 'preferredReward'}
+              id="budget"
+              value="budget"
+              checked={sortOption === 'budget'}
               onChange={handleSortOptionChange}
             />
           </div>
@@ -172,10 +172,10 @@ function FilterCampaignsForm(props) {
             </Row>
             <Row>
               <Col>
-                <Form.Label htmlFor="preferredReward" style={{ whiteSpace: 'nowrap' }}>Max Reward</Form.Label>
+                <Form.Label htmlFor="budget" style={{ whiteSpace: 'nowrap' }}>Max Budget</Form.Label>
                 <InputGroup className="mb-3">
                   <InputGroup.Text id="basic-addon1">$</InputGroup.Text>
-                  <Form.Control name="preferredReward" type="text" pattern="[0-9]*" value={preferredReward} onChange={(e) => (isValidNumericInput(e.target.value) ? setPreferredReward(e.target.value) : null)} />
+                  <Form.Control name="budget" type="text" pattern="[0-9]*" value={budget} onChange={(e) => (isValidNumericInput(e.target.value) ? setBudget(e.target.value) : null)} />
                 </InputGroup>
               </Col>
             </Row>
@@ -205,8 +205,8 @@ function FilterCampaignsForm(props) {
               </FloatingLabel>
             </Col>
             <Col>
-              <FloatingLabel htmlFor="preferredReward" controlId="floatingInput" label="Max Reward">
-                <Form.Control name="preferredReward" type="text" pattern="[0-9]*" placeholder="" value={preferredReward} onKeyDown={handleKeyDown} onChange={(e) => (isValidNumericInput(e.target.value) ? setPreferredReward(e.target.value) : null)} />
+              <FloatingLabel htmlFor="budget" controlId="floatingInput" label="Max Budget">
+                <Form.Control name="budget" type="text" pattern="[0-9]*" placeholder="" value={budget} onKeyDown={handleKeyDown} onChange={(e) => (isValidNumericInput(e.target.value) ? setBudget(e.target.value) : null)} />
               </FloatingLabel>
             </Col>
             <Col className="mb-3" style={{ alignSelf: 'flex-end' }}>

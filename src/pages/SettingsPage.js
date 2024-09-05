@@ -8,26 +8,26 @@ import UserTabs from '../components/ui/js/settings_page/UserTabs';
 
 function SettingsPage() {
   // const [account, setAccount] = useState({});
-  // const [ads, setAds] = useState([]);
-  // const [channels, setChannels] = useState([]);
+  // const [campaigns, setCampaigns] = useState([]);
+  // const [platforms, setPlatforms] = useState([]);
 
   /* useEffect(() => {
     fetch('/account_info', {
       method: 'GET',
-      headers: {
+      hecampaigners: {
         'Content-Type': 'application/json',
       },
     })
       .then((res) => res.json())
       .then((data) => {
         setAccount(data.account);
-        // setAds(data.ads);
-        // setChannels(data.channels);
+        // setCampaigns(data.campaigns);
+        // setPlatforms(data.platforms);
       });
   }, []); */
 
-  /* function handleAdDelete(i) {
-    setAds([...ads.slice(0, i), ...ads.slice(i + 1)]);
+  /* function handleCampaignDelete(i) {
+    setCampaigns([...campaigns.slice(0, i), ...campaigns.slice(i + 1)]);
   } */
 
   return (

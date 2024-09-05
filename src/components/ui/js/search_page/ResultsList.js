@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-nested-ternary */
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import {
   Spinner, Col, Collapse, Row, OverlayTrigger, Button, Tooltip,
 } from 'react-bootstrap';
@@ -28,6 +28,8 @@ function ResultsList({ resultType }) {
   const [isResultFound, setIsResultsFound] = useState(false);
   const [sortOrder, setSortOrder] = useState('asc');
   const [sortOption, setSortOption] = useState('default');
+
+  const location = useLocation();
 
   function areResultsFound(data) {
     let resultFound = true;
@@ -95,7 +97,7 @@ function ResultsList({ resultType }) {
 
   useEffect(() => {
     getResults(query, currentPage, itemsPerPage);
-  }, [query, currentPage, resultType]);
+  }, [query, currentPage, resultType, location.pathname]);
 
   const renderTooltip = ({
     id, content, placement, delay,

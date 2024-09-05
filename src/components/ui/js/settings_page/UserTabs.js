@@ -10,7 +10,7 @@ function UserTabs() {
   const [loading, setLoading] = useState(true);
   const [account, setAccount] = useState({});
   const [platforms, setPlatforms] = useState(Array(0));
-  // const [adProps, setAdProps] = useState({});
+  // const [campaignProps, setCampaignProps] = useState({});
 
   const handleTabSelect = (tab) => {
     setActiveTab(tab);
@@ -39,7 +39,7 @@ function UserTabs() {
       .then((data) => {
         handleAccountInfo(data.account);
         setPlatforms(data.platforms);
-        // setAdProps(data.ads);
+        // setCampaignProps(data.campaigns);
       })
       .catch((error) => {
         // eslint-disable-next-line no-console
@@ -71,8 +71,8 @@ function UserTabs() {
           <Tab eventKey="platforms" title="My Platforms">
             <PlatformManagementPage platforms={platforms} />
           </Tab>
-          <Tab eventKey="ad-props" title="My Campaigns">
-            {/* <AdPropositionList /> */}
+          <Tab eventKey="campaign-props" title="My Campaigns">
+            {/* <CampaignPropositionList /> */}
           </Tab>
 
         </Tabs>

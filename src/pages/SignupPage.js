@@ -12,7 +12,7 @@ function LoginPage() {
   const [usernameText, setUsernameText] = useState('');
   const [emailText, setemailText] = useState('');
   const [passwordText, setPasswordText] = useState('');
-  const [channelChecked, setChannelChecked] = useState(false);
+  const [platformChecked, setPlatformChecked] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [RedirectFunction, setRedirectFunction] = useState({});
 
@@ -33,11 +33,11 @@ function LoginPage() {
     setPasswordText(text.target.value);
   }
 
-  function setChannelOwner(checkbox) {
+  function setPlatformOwner(checkbox) {
     if (checkbox.target.checked) {
-      setChannelChecked(true);
+      setPlatformChecked(true);
     } else {
-      setChannelChecked(false);
+      setPlatformChecked(false);
     }
   }
 
@@ -53,7 +53,7 @@ function LoginPage() {
           username: usernameText,
           email: emailText,
           password: passwordText,
-          channel_owner: channelChecked,
+          platform_owner: platformChecked,
         }),
       };
       fetch('/handle_signup', requestOptions).then((reponse) => reponse.json().then((data) => {
@@ -92,8 +92,8 @@ function LoginPage() {
         </Form>
         <div>
           <div>
-            Channel Owner
-            <input type="checkbox" onChange={setChannelOwner} placeholder="Enter Channel Owner" />
+            Platform Owner
+            <input type="checkbox" onChange={setPlatformOwner} placeholder="Enter Platform Owner" />
           </div>
         </div>
         <Button variant="outline-secondary" onClick={signUp}>Submit</Button>

@@ -31,7 +31,7 @@ PlatformManagementPage.propTypes = {
     index: PropTypes.number.isRequired,
     id: PropTypes.string.isRequired,
     platformName: PropTypes.string.isRequired,
-    subCount: PropTypes.number.isRequired,
+    impressions: PropTypes.number.isRequired,
     topics: PropTypes.string.isRequired,
     pricePerAdView: PropTypes.number.isRequired,
   })).isRequired,

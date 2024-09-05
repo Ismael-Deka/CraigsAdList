@@ -4,28 +4,42 @@
 # W0703 -- too general exception -- don't really care
 """ Fuctions for extracting data from database """
 from flask_login import current_user
-from models import Account, Ad, Channel, Offers, Responses, db
-import base64
+from models import Account, Campaign, Platform, db
 import os
+import io
 import traceback
+from PIL import Image
 
-def get_profile_pic(cos, pfp_index):
-            response = cos.get_object(Bucket=os.getenv("COS_BUCKET_NAME"), Key=f"pfp/{pfp_index}.png")
-            encoded_pfp = base64.b64encode(response['Body'].read()).decode("utf-8")
-            return f"data:image/png;base64,{encoded_pfp}"
+def get_profile_pic( pfp_index, img_type):
+            return f"https://{os.getenv('COS_ENDPOINT_URL')}/pfp_source/{img_type}/{pfp_index}.png"
 
-def upload_profile_pic(cos, pfp_index, file):
-    if file is None or file == '':
+def get_search_pic(pfp_index, img_type):
+            return f"https://{os.getenv('COS_ENDPOINT_URL')}/pfp200/{img_type}/{pfp_index}.png"
+
+def upload_profile_pic(cos, pfp_index, img, img_type):
+    if img is None or img == '':
         return False
 
-    # Upload file to IBM COS
+    # Upload img to IBM COS
     try:
-        cos.upload_fileobj(file, os.getenv("COS_BUCKET_NAME"), f"pfp/{pfp_index}.png")
+        cos.upload_fileobj(img, os.getenv("COS_BUCKET_NAME"), f"pfp/{img_type}/{pfp_index}.png")
+        cos.upload_fileobj(resize_profile_pic(img), os.getenv("COS_BUCKET_NAME"), f"pfp200/{img_type}/{pfp_index}.png")
         return True
     except Exception as e:
-        tb = traceback.TracebackException.from_exception(e)
-        print(e.with_traceback(tb))
+        tb = traceback.format_exc()
+        print(f"An error occurred: {e}")
+        print(tb)
         return False
+def resize_profile_pic(img):
+        with Image.open(img) as img:
+            img_resized = img.resize((200,200), Image.Resampling.LANCZOS)
+            
+            img_io = io.BytesIO()
+
+            img_resized.save(img_io, format='PNG')  
+            img_io.seek(0)  
+
+            return img_io  
 
 def get_all_accounts():
     """Returns all accounts stored in database"""
@@ -38,80 +52,57 @@ def get_all_accounts():
                 "username": i.username,
                 "password": i.password,
                 "email": i.email,
-                "channel_owner": i.channel_owner,
+                "platform_owner": i.platform_owner,
             }
         )
 
     return account_list
 
 
-def create_ad(title, topics="", text="", reward=0, show_in_list=True):
-    """Creates new ad"""
+def create_campaign(title, topics="", description="", budget=0, show_in_list=True):
+    """Creates new Campaign"""
     # there is an error here, current_user.id arg prolly should not be among the args
-    new_ad = Ad(current_user.id, title, topics, text, reward, show_in_list)
+    new_campaign = Campaign(creator_id=current_user.id, 
+                      title=title, 
+                      topics=topics, 
+                      description=description, 
+                      budget=budget, 
+                      show_in_list=show_in_list)
 
-    db.session.add(new_ad)
+    db.session.add(new_campaign)
     db.session.commit()
-    return does_ad_exist(title)
-
-def create_offer(creator_id, channel_id, owner_id , reward, message=""):
-    """Creates new ad"""
-    # there is an error here, current_user.id arg prolly should not be among the args
-    new_offer = Offers(creator_id, channel_id, owner_id , reward, message)
-
-    db.session.add(new_offer)
-    db.session.commit()
-    return does_offer_exist(new_offer.id)
-
-def create_response(creator_id, ad_id, owner_id , accepted, message=""):
-    """Creates new ad"""
-    # there is an error here, current_user.id arg prolly should not be among the args
-    new_response = Responses(creator_id, ad_id, owner_id , accepted, message)
-
-    db.session.add(new_response)
-    db.session.commit()
-    return does_response_exist(new_response.id)
+    return does_campaign_exist(title)
 
 
-def does_offer_exist(offer_id):
-    """Check if the ad with the given title exists in the database"""
-    offer = Offers.query.filter_by(id=offer_id).first()
-    return offer is not None
 
-def does_response_exist(response_id):
-    """Check if the ad with the given title exists in the database"""
-    response = Responses.query.filter_by(id=response_id).first()
-    return response is not None
-
-
-def does_ad_exist(ad_title):
-    """Check if the ad with the given title exists in the database"""
-    advertisement = Ad.query.filter_by(title=ad_title).first()
+def does_campaign_exist(ad_title):
+    """Check if the Campaign with the given title exists in the database"""
+    advertisement = Campaign.query.filter_by(title=ad_title).first()
     return advertisement is not None
 
 
-def create_channel(
-    channel_name, topics, preferred_reward, subscribers=0, show_channel=True
+def create_platform(
+    platform_name, topics, preferred_price, impressions=0, show_platform=True
 ):
-    """Creates channel based on given args"""
-    new_channel = Channel(
-        current_user.id,
-        show_channel,
-        channel_name,
-        subscribers,
-        topics,
-        preferred_reward,
+    """Creates Platform based on given args"""
+    new_platform = Platform(
+        owner_id=current_user.id,
+        show_platform=show_platform,
+        platform_name=platform_name,
+        impressions=impressions,
+        topics=topics,
+        preferred_price=preferred_price,
     )
 
-    db.session.add(new_channel)
+    db.session.add(new_platform)
     db.session.commit()
-    return does_channel_exist(channel_name)
+    return does_platform_exist(platform_name)
 
 
-def does_channel_exist(channelname):
-    """Check if the channel with the given name exists in the database"""
-    channel = Channel.query.filter_by(channel_name=channelname).first()
-    return channel is not None
+def does_platform_exist(platform_name):
+    """Check if the Platform with the given name exists in the database"""
+    Platform = Platform.query.filter_by(platform_name=platform_name).first()
+    return Platform is not None
 
 
 def map_usernames(raw_accounts):
@@ -122,7 +113,7 @@ def map_usernames(raw_accounts):
     return accounts
 
 
-def get_results(cos, args):
+def get_results( args):
     """Return data filtered according to the query"""
     results = None
 
@@ -135,7 +126,7 @@ def get_results(cos, args):
        
 
     elif args.get("for") == "users":
-        results = get_user_results(cos=cos, args=args)
+        results = get_user_results(args=args)
     return results
 
 def get_platforms_results(args):
@@ -143,7 +134,7 @@ def get_platforms_results(args):
         results_per_page = int(args.get("perPage"))
         sort_method = args.get("sortBy")
         sort_order = args.get("sortOrder")
-        platforms= Channel.query.filter_by(show_channel=True).all()
+        platforms= Platform.query.filter_by(show_platform=True).all()
         accounts = map_usernames(Account.query.all())
         platforms_data = []
 
@@ -155,13 +146,17 @@ def get_platforms_results(args):
                         "id": platform.id,
                         "ownerId":platform.owner_id,
                         "ownerName": accounts[platform.owner_id],
-                        "platformName": platform.channel_name,
-                        "subscribers": platform.subscribers,
+                        "platformName": platform.platform_name,
+                        "impressions": platform.impressions,
                         "topics": platform.topics,
-                        "preferredReward": platform.preferred_reward,
+                        "preferredPrice": platform.preferred_price,
+                        "pfp": get_search_pic(platform.id,"platforms"),
                     }
                 )
-            except Exception:
+            except Exception as e:
+                tb = traceback.format_exc()
+                print(f"An error occurred: {e}")
+                print(tb)
                 continue
 
         platforms_data = filter_results(args=args, data_list=platforms_data, arg_list=
@@ -169,9 +164,9 @@ def get_platforms_results(args):
                                          "ownerId",
                                          "ownerName",
                                          "platformName",
-                                         "subscribers",
+                                         "impressions",
                                          "topics",
-                                         "preferredReward"
+                                         "preferredPrice"
                                          ])
         
         for platform in platforms_data:
@@ -193,9 +188,10 @@ def get_campaigns_results(args):
     results_per_page = int(args.get("perPage"))
     sort_method = args.get("sortBy")
     sort_order = args.get("sortOrder")
-    campaigns= Ad.query.filter_by(show_in_list=True).all()
+    campaigns= Campaign.query.filter_by(show_in_list=True).all()
     accounts = map_usernames(Account.query.all())
     campaigns_data = []
+
     for campaign in campaigns:
         try:
             campaign.topics = campaign.topics.split(",")
@@ -205,39 +201,44 @@ def get_campaigns_results(args):
                     "ownerId":campaign.creator_id,
                     "ownerName": accounts[campaign.creator_id],
                     "campaignName": campaign.title,
-                    "campaignDesc": campaign.text,
+                    "campaignDesc": campaign.description,
                     "topics": campaign.topics,
-                    "preferredReward": campaign.reward,
+                    "budget": campaign.budget,
+                    "pfp": get_search_pic(campaign.id,"campaigns"),
                 }
             )
-        except Exception:
-             continue
+           
+        except Exception as e:
+            tb = traceback.format_exc()
+            print(f"An error occurred: {e}")
+            print(tb)
+            continue
         
-        campaign_data = filter_results(args=args, data_list=campaigns_data, arg_list=
+    campaign_data = filter_results(args=args, data_list=campaigns_data, arg_list=
                                         ["id",
                                          "ownerId",
                                          "ownerName",
                                          "campaignName",
                                          "campaignDesc",
                                          "topics",
-                                         "preferredReward"
+                                         "budget"
                                          ])
         
-        for campaign in campaign_data:
+    for campaign in campaign_data:
             campaign["topics"] = (", ").join(campaign["topics"])
         
-        if(sort_method is not None):
+    if(sort_method is not None):
             campaign_data = sorted(campaign_data, key=lambda x: x[sort_method], reverse=( sort_order == 'desc'))
 
-        result_count = len(campaign_data)
+    result_count = len(campaign_data)
 
-        campaigns = paginate_results(campaign_data, results_per_page, page_number)
+    campaigns = paginate_results(campaign_data, results_per_page, page_number)
 
-        results = {'results_data': campaigns, 'result_count': result_count}
+    results = {'results_data': campaigns, 'result_count': result_count}
         
-        return results
+    return results
 
-def get_user_results(cos, args):
+def get_user_results(args):
     page_number = int(args.get("page"))
     results_per_page = int(args.get("perPage"))
     sort_method = args.get("sortBy")
@@ -253,12 +254,15 @@ def get_user_results(cos, args):
                     "id": account.id,
                     "username":account.username,
                     "email": account.email,
-                    "pfp": get_profile_pic(cos, account.profile_pic),
+                    "pfp": get_search_pic(account.profile_pic,"users"),
                }
             )
-        except Exception:
+        except Exception as e:
+            tb = traceback.format_exc()
+            print(f"An error occurred: {e}")
+            print(tb)
             continue
-
+    print(f'Length of data: {len(accounts)}')
     accounts_data = filter_results(args=args, data_list=accounts_data, arg_list=
                                         ["id",
                                          "username",
@@ -293,6 +297,7 @@ def paginate_results(data, results_per_page, page_number):
     
 def filter_results(args, data_list, arg_list):
     for arg_name in arg_list:
+
         arg_value = args.get(arg_name)
         if arg_value is not None:
             data_list = list(
@@ -302,10 +307,10 @@ def filter_results(args, data_list, arg_list):
 
 def is_filter_matched(arg_name,arg_value, data ):
     
-    if arg_name == "subscribers":
+    if arg_name == "impressions":
         
         return data[arg_name] >= int(arg_value)
-    elif arg_name == "reward" or arg_name == "preferred_reward":
+    elif arg_name == "budget" or arg_name == "preferred_price":
         return data[arg_name] <= int(arg_value)
     elif arg_name == "id":
         return data[arg_name] == int(arg_value)
@@ -321,7 +326,7 @@ def get_ads(args):
     """Return ads data filtered according to the query"""
     ads_data = []
     if args.get("for") == "adsPage":
-        ads = Ad.query.filter_by(show_in_list=True).all()
+        ads = Campaign.query.filter_by(show_in_list=True).all()
         accounts = map_usernames(Account.query.all())
         for advertisement in ads:
             try:
@@ -332,8 +337,8 @@ def get_ads(args):
                         "creatorName": accounts[advertisement.creator_id],
                         "title": advertisement.title,
                         "topics": advertisement.topics,
-                        "text": advertisement.text,
-                        "reward": advertisement.reward,
+                        "description": advertisement.description,
+                        "budget": advertisement.budget,
                     }
                 )
             except Exception:
@@ -370,19 +375,19 @@ def get_ads(args):
                     ads_data,
                 )
             )
-        if args.get("text") is not None:
-            searched_text = args.get("text")
+        if args.get("description") is not None:
+            searched_text = args.get("description")
             ads_data = list(
                 filter(
-                    lambda advertisement: searched_text in advertisement["text"],
+                    lambda advertisement: searched_text in advertisement["description"],
                     ads_data,
                 )
             )
-        if args.get("reward") is not None:
-            max_reward = int(args.get("reward"))
+        if args.get("budget") is not None:
+            max_budget = int(args.get("budget"))
             ads_data = list(
                 filter(
-                    lambda advertisement: advertisement["reward"] <= max_reward,
+                    lambda advertisement: advertisement["budget"] <= max_budget,
                     ads_data,
                 )
             )
@@ -397,7 +402,7 @@ def get_ads(args):
 
 def get_all_ads():
     """Return all ads data"""
-    ads = Ad.query.all()
+    ads = Campaign.query.all()
     ads_list = []
     for i in ads:
         ads_list.append(
@@ -405,8 +410,8 @@ def get_all_ads():
                 "creator_id": i.creator_id,
                 "title": i.title,
                 "topics": i.topics,
-                "text": i.text,
-                "reward": i.reward,
+                "description": i.description,
+                "budget": i.budget,
                 "show_in_list": i.show_in_list,
             }
         )
@@ -415,14 +420,14 @@ def get_all_ads():
 
 def delete_all_ads():
     """Deletes all ads"""
-    rows_deleted = Ad.query.delete()
+    rows_deleted = Campaign.query.delete()
     db.session.commit()
     return rows_deleted
 
 
-def delete_all_channels():
-    """Deletes all channels"""
-    rows_deleted = Channel.query.delete()
+def delete_all_platforms():
+    """Deletes all platforms"""
+    rows_deleted = Platform.query.delete()
     db.session.commit()
     return rows_deleted
 
@@ -438,16 +443,16 @@ def delete_ad(ad_id):
     """Deletes the add with given id"""
     if ad_id is None:
         return -1
-    rows_deleted = Ad.query.filter_by(id=ad_id).delete()
+    rows_deleted = Campaign.query.filter_by(id=ad_id).delete()
     db.session.commit()
     return rows_deleted
 
 
-def delete_channel(channel_id):
-    """Deletes the channel with given id"""
-    if channel_id is None:
+def delete_platform(platform_id):
+    """Deletes the Platform with given id"""
+    if platform_id is None:
         return -1
-    rows_deleted = Channel.query.filter_by(id=channel_id).delete()
+    rows_deleted = Platform.query.filter_by(id=platform_id).delete()
     db.session.commit()
     return rows_deleted
 

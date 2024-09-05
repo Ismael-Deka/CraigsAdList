@@ -65,7 +65,7 @@ function UserAccountForm({ account }) {
         method: 'POST',
         body: formData,
       };
-      fetch('/edit_profile', requestOptions).then((reponse) => reponse.json().then(
+      fetch('/edit_user_profile', requestOptions).then((reponse) => reponse.json().then(
         (data) => {
           if (data.success) {
             const pfpSuccess = data.pfp_upload;

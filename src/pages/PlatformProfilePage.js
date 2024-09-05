@@ -5,7 +5,7 @@ import {
 } from 'react-bootstrap';
 import PlatformListItem from '../components/ui/js/settings_page/PlatformListItem'; // Assuming you have a PlatformListItem component
 
-function PlatformPage() {
+function PlatformProfilePage() {
   const [platform, setPlatform] = useState(null);
   const [loading, setLoading] = useState(true);
   const params = useParams();
@@ -21,7 +21,7 @@ function PlatformPage() {
   useEffect(() => {
     if (platformId) {
       // Fetch platform details based on platformId
-      fetch(`/return_selected_channel?id=${platformId}`, { method: 'GET' })
+      fetch(`/return_selected_platform?id=${platformId}`, { method: 'GET' })
         .then((response) => {
           if (response.ok) {
             return response.json(); // Continue processing if status is okay
@@ -67,7 +67,7 @@ function PlatformPage() {
           {/* Platform Image */}
           {/* Assuming platform has an image field */}
           <Image
-            src="https://lh3.googleusercontent.com/a/AATXAJyAoyxAHlPxYfdjPzbDWlo3nGAwjXr1qnwJ2ZST=s96-c"
+            src={platform.pfp}
             alt="Platform"
             fluid
             roundedCircle
@@ -109,7 +109,7 @@ function PlatformPage() {
           <PlatformListItem
             id={platform.id}
             platformName={platform.platformName}
-            subCount={platform.subCount}
+            impressions={platform.subCount}
             topics={platform.topics}
             pricePerAdView={platform.pricePerAdView}
 
@@ -128,4 +128,4 @@ function PlatformPage() {
   );
 }
 
-export default PlatformPage;
+export default PlatformProfilePage;

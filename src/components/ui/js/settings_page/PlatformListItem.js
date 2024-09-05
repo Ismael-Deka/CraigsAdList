@@ -5,10 +5,10 @@ import {
 } from 'react-bootstrap';
 
 function PlatformListItem({
-  id, platformName, subCount, topics, pricePerAdView, currency, onDelete, onUpdate,
+  id, platformName, impressions, topics, pricePerAdView, currency, onDelete, onUpdate,
 }) {
   const [updatedPlatformName, setUpdatedPlatformName] = useState(platformName);
-  const [updatedSubCount, setUpdatedSubCount] = useState(subCount);
+  const [updatedImpressions, setUpdatedImpressions] = useState(impressions);
   const [updatedTopics, setUpdatedTopics] = useState(topics);
   const [updatedPricePerAdView, setUpdatedPricePerAdView] = useState(pricePerAdView);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -17,10 +17,10 @@ function PlatformListItem({
   // Update state when prop values change
   useEffect(() => {
     setUpdatedPlatformName(platformName);
-    setUpdatedSubCount(subCount);
+    setUpdatedImpressions(impressions);
     setUpdatedTopics(topics);
     setUpdatedPricePerAdView(pricePerAdView);
-  }, [platformName, subCount, topics, pricePerAdView]);
+  }, [platformName, impressions, topics, pricePerAdView]);
 
   const handleShowEditModal = () => setShowEditModal(true);
   const handleCloseEditModal = () => setShowEditModal(false);
@@ -29,8 +29,8 @@ function PlatformListItem({
 
   const handleUpdatePlatform = () => {
     // Validate inputs before updating
-    if (!Number.isNaN(updatedSubCount) && !Number.isNaN(updatedPricePerAdView)) {
-      onUpdate(id, updatedPlatformName, updatedSubCount, updatedTopics, updatedPricePerAdView);
+    if (!Number.isNaN(updatedImpressions) && !Number.isNaN(updatedPricePerAdView)) {
+      onUpdate(id, updatedPlatformName, updatedImpressions, updatedTopics, updatedPricePerAdView);
       handleCloseEditModal();
     } else {
       // Show warning modal for invalid inputs
@@ -47,9 +47,9 @@ function PlatformListItem({
       <Card.Body>
         <h1>{platformName}</h1>
         <Card.Subtitle className="mb-2 text-muted">
-          Subscribers:
+          Impressions:
         </Card.Subtitle>
-        <Card.Text>{subCount}</Card.Text>
+        <Card.Text>{impressions}</Card.Text>
         <Card.Subtitle className="mb-2 text-muted">
           Topics:
         </Card.Subtitle>
@@ -89,12 +89,12 @@ function PlatformListItem({
                 onChange={(e) => setUpdatedPlatformName(e.target.value)}
               />
             </Form.Group>
-            <Form.Group controlId="editSubCount">
-              <Form.Label>Subscribers</Form.Label>
+            <Form.Group controlId="editImpressions">
+              <Form.Label>Impressions</Form.Label>
               <Form.Control
                 type="number"
-                value={updatedSubCount}
-                onChange={(e) => setUpdatedSubCount(e.target.value)}
+                value={updatedImpressions}
+                onChange={(e) => setUpdatedImpressions(e.target.value)}
               />
             </Form.Group>
             <Form.Group controlId="editTopics">
@@ -131,7 +131,7 @@ function PlatformListItem({
           <Modal.Title>Invalid Input</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Please enter valid numbers for Subscribers and Price per Ad View.
+          Please enter valid numbers for Impressions and Price per Ad View.
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseWarningModal}>
@@ -146,7 +146,7 @@ function PlatformListItem({
 PlatformListItem.propTypes = {
   id: PropTypes.string.isRequired,
   platformName: PropTypes.string.isRequired,
-  subCount: PropTypes.number.isRequired,
+  impressions: PropTypes.number.isRequired,
   topics: PropTypes.string.isRequired,
   pricePerAdView: PropTypes.number.isRequired,
   currency: PropTypes.string.isRequired,

@@ -3,6 +3,7 @@
 import os
 import flask
 import ibm_boto3
+import traceback
 
 from flask_login import current_user, login_required, login_user, logout_user, LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -11,13 +12,13 @@ from dotenv import load_dotenv, find_dotenv
 
 
 from db_utils import (
-    create_channel,
+    create_platform,
     get_results,
     get_profile_pic,
-    upload_profile_pic
+    upload_profile_pic,
 )
 
-from models import db, Account, Ad, Channel
+from models import db, Account, Campaign, Platform
 
 load_dotenv(find_dotenv())
 
@@ -46,6 +47,7 @@ login_manager.init_app(app)
 def load_user(user_id):
     """Stolen from some tutorial on flask-login. While it is not explicitly used
     here, it is required by flask-login"""
+    print(f"Current User ID: {user_id}")
     return Account.query.get(int(user_id))
 
 # Decorator to check authentication
@@ -71,18 +73,14 @@ bp = flask.Blueprint(
 
 # route for serving React page
 @bp.route("/")
-@bp.route("/ads")
-@bp.route("/search/<string:search_type>")
 @bp.route("/login")
 @bp.route("/signup")
-@bp.route("/new_add")
-@bp.route("/new_channel")
-@bp.route("/new_response")
-@bp.route("/new_offer")
-@bp.route("/profile/<int:user_id>")
+@bp.route("/new_platform")
 @bp.route("/settings")
+@bp.route("/profile/<int:user_id>")
 @bp.route('/platform/<int:platform_id>')
 @bp.route("/messages/<string:folder>")
+@bp.route("/search/<string:search_type>")
 def index(user_id=-1,platform_id=-1,folder="",search_type=""):
     """Root endpoint"""
     # NB: DO NOT add an "index.html" file in your normal templates folder
@@ -136,7 +134,7 @@ def handle_signup():
                 username=flask.request.json["username"],
                 email=flask.request.json["email"],
                 password=generate_password_hash(flask.request.json["password"]),
-                channel_owner=flask.request.json["channel_owner"],
+                platform_owner=flask.request.json["platform_owner"],
             )
             db.session.add(new_user)
             db.session.commit()
@@ -181,10 +179,10 @@ def handle_logout():
     return is_logged_in()
 
 
-@bp.route("/channelowner", methods=["GET"])
-def is_channel_owner():
-    """returns true if current user is a channel owner"""
-    return flask.jsonify({"is_user_channel_owner": current_user.channel_owner})
+@bp.route("/platformowner", methods=["GET"])
+def is_platform_owner():
+    """returns true if current user is a platform owner"""
+    return flask.jsonify({"is_user_platform_owner": current_user.platform_owner})
 
 @bp.route("/is_logged_in", methods=["GET"])
 def is_logged_in():
@@ -199,7 +197,7 @@ def get_current_user():
         return flask.jsonify({
             "current_user": current_user.username,
             "id": current_user.id,
-            "pfp": get_profile_pic(cos, current_user.profile_pic)}),200
+            "pfp": get_profile_pic(current_user.profile_pic, 'users')}),200
     else:
         flask.abort(404)
 
@@ -214,55 +212,58 @@ def account_info():
     if(user_id is None):
         flask.abort(404)
     account = Account.query.filter_by(id=user_id).first()
-    ad_log = Ad.query.filter_by(creator_id=user_id).all()
-    channel_log = Channel.query.filter_by(owner_id=user_id).all()
-    ad_list = []
-    for i in ad_log:
-        ad_dict = {}
-        ad_dict["id"] = i.id
-        ad_dict["title"] = i.title
-        ad_dict["topics"] = i.topics
-        ad_dict["text"] = i.text
-        ad_dict["reward"] = i.reward
-        ad_list.append(ad_dict)
-    channel_list = []
-    for i in channel_log:
+    campaign_log = Campaign.query.filter_by(creator_id=user_id).all()
+    platform_log = Platform.query.filter_by(owner_id=user_id).all()
+    campaign_list = []
+    for i in campaign_log:
+        campaign_dict = {}
+        campaign_dict["id"] = i.id
+        campaign_dict["title"] = i.title
+        campaign_dict["topics"] = i.topics
+        campaign_dict["description"] = i.description
+        campaign_dict["budget"] = i.budget
+        campaign_list.append(campaign_dict)
+    platform_list = []
+    for i in platform_log:
         
-        channel_dict = {}
-        channel_dict["id"]=i.id
-        channel_dict["platformName"] = i.channel_name
-        channel_dict["subCount"] = i.subscribers
-        channel_dict["topics"] = i.topics
-        channel_dict["pricePerAdView"] = i.preferred_reward
-        channel_list.append(channel_dict)
+        platform_dict = {}
+        platform_dict["id"]=i.id
+        platform_dict["platformName"] = i.platform_name
+        platform_dict["impressions"] = i.impressions
+        platform_dict["topics"] = i.topics
+        platform_dict["pricePerAdView"] = i.preferred_price
+        platform_list.append(platform_dict)
     try:
         return flask.jsonify(
             {"account": {
                 "username": account.username, 
                 "email":account.email, 
-                "pfp":get_profile_pic(cos, account.profile_pic) }, 
-             "ads": ad_list, 
-             "platforms": channel_list}
+                "pfp":get_profile_pic(account.profile_pic, "users") }, 
+             "campaigns": campaign_list, 
+             "platforms": platform_list}
         ), 200
     except Exception as e:
-            print(f"An error occurred: {e.with_traceback()}")
+            tb = traceback.format_exc()
+            print(f"An error occurred: {e}")
+            print(tb)
             flask.abort(500)
 
 
-@bp.route("/return_selected_channel", methods=["GET"])
-def get_channels_by_id():
-    """get channels by id"""
+@bp.route("/return_selected_platform", methods=["GET"])
+def get_platforms_by_id():
+    """get platforms by id"""
     args = flask.request.args
-    channel = Channel.query.filter_by(id=args.get("id")).first()
-    if(channel != None):
+    platform = Platform.query.filter_by(id=args.get("id")).first()
+    if(platform != None):
         return flask.jsonify(
                 {
-                    "id": channel.id,
-                    "ownerName": Account.query.filter_by(id=channel.owner_id).first().username,
-                    "platformName": channel.channel_name,
-                    "subCount": '{:,}'.format(channel.subscribers),
-                    "topics": channel.topics,
-                    "pricePerAdView": channel.preferred_reward,
+                    "id": platform.id,
+                    "ownerName": Account.query.filter_by(id=platform.owner_id).first().username,
+                    "platformName": platform.platform_name,
+                    "impressions": '{:,}'.format(platform.impressions),
+                    "topics": platform.topics,
+                    "pricePerAdView": platform.preferred_price,
+                    "pfp": get_profile_pic(platform.id, "platforms")
                 }
             ),200
     else:
@@ -304,7 +305,7 @@ def change_pass():
 
 
 @require_auth
-@bp.route("/edit_profile", methods=["POST"])
+@bp.route("/edit_user_profile", methods=["POST"])
 def edit_profile():
     username = flask.request.form['username']
     email = flask.request.form['email']
@@ -319,7 +320,7 @@ def edit_profile():
         account.username = username
         account.email = email
         if is_pfp_changed == "true":
-            is_pfp_upload_success = upload_profile_pic(cos, current_user.profile_pic, pfp)
+            is_pfp_upload_success = upload_profile_pic(cos, current_user.profile_pic, pfp,'users')
         else:
             is_pfp_upload_success = False
         try:
@@ -341,21 +342,21 @@ def edit_profile():
     
 
 @require_auth
-@bp.route("/create_channel", methods=["POST"])
-def create_new_channel():
-    is_successful = create_channel(
-        channel_name=flask.request.json["channel_name"],
+@bp.route("/create_platform", methods=["POST"])
+def create_new_platform():
+    is_successful = create_platform(
+        platform_name=flask.request.json["platform_name"],
         topics=flask.request.json["topic_list"],
-        subscribers=flask.request.json["sub_count"],
-        preferred_reward=flask.request.json["preferred_price"],
-        show_channel=flask.request.json["show_channel"])
+        impressions=flask.request.json["impressions"],
+        preferred_price=flask.request.json["preferred_price"],
+        show_platform=flask.request.json["show_platform"])
     return flask.jsonify({"success": is_successful})
 
 @bp.route("/return_results", methods=["GET"])
 def return_results():
-    """Returns JSON with channels"""
+    """Returns JSON with search results"""
     args = flask.request.args
-    results = get_results(cos, args)
+    results = get_results(args)
     if(results is not None):
         if(args.get("for") == "platforms"):
             return flask.jsonify(

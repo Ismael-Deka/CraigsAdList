@@ -10,9 +10,9 @@ function FilterPlatformsForm(props) {
   } = props;
   const [isScreenSmall, setSmallScreen] = useState(window.innerWidth < 1024);
   const [owner, setOwner] = useState('');
-  const [subs, setSubs] = useState('');
+  const [impressions, setImpressions] = useState('');
   const [topics, setTopics] = useState('');
-  const [reward, setReward] = useState('');
+  const [price, setPrice] = useState('');
 
   useEffect(() => {
     const handleWindowResize = () => {
@@ -33,14 +33,14 @@ function FilterPlatformsForm(props) {
     if (owner.trim() !== '') {
       query += `&ownerName=${owner}`;
     }
-    if (subs.toString().trim() !== '') {
-      query += `&subscribers=${subs}`;
+    if (impressions.toString().trim() !== '') {
+      query += `&impressions=${impressions}`;
     }
     if (topics.trim() !== '') {
       query += `&topics=${topics}`;
     }
-    if (reward.toString().trim() !== '') {
-      query += `&preferredReward=${reward}`;
+    if (price.toString().trim() !== '') {
+      query += `&preferredPrice=${price}`;
     }
     if (sortOption !== 'default') {
       query += `&sortBy=${sortOption}&sortOrder=${sortOrder}`;
@@ -51,9 +51,9 @@ function FilterPlatformsForm(props) {
 
   function clearFilters() {
     setOwner('');
-    setSubs('');
+    setImpressions('');
     setTopics('');
-    setReward('');
+    setPrice('');
     setSortOption('default');
     setSortOrder('asc');
 
@@ -117,12 +117,12 @@ function FilterPlatformsForm(props) {
             />
             <FormCheck
               inline
-              label="Subscribers"
+              label="Impressions"
               type="radio"
               name="sortRadio"
-              id="subs"
-              value="subscribers"
-              checked={sortOption === 'subscribers'}
+              id="impressions"
+              value="impressions"
+              checked={sortOption === 'impressions'}
               onClick={handleSortOptionChange}
             />
             <FormCheck
@@ -131,8 +131,8 @@ function FilterPlatformsForm(props) {
               type="radio"
               name="sortRadio"
               id="price"
-              value="preferredReward"
-              checked={sortOption === 'preferredReward'}
+              value="preferredPrice"
+              checked={sortOption === 'preferredPrice'}
               onClick={handleSortOptionChange}
             />
           </div>
@@ -182,15 +182,15 @@ function FilterPlatformsForm(props) {
           </Row>
           <Row>
             <Col>
-              <Form.Label htmlFor="subs" style={{ whiteSpace: 'nowrap' }}>Min subscribers</Form.Label>
-              <Form.Control name="subs" type="text" pattern="[0-9]*" placeholder="50,000" value={subs} onChange={(e) => (isValidNumbericInput(e.target.value) ? setSubs(e.target.value) : null)} />
+              <Form.Label htmlFor="impressions" style={{ whiteSpace: 'nowrap' }}>Min Impressions</Form.Label>
+              <Form.Control name="impressions" type="text" pattern="[0-9]*" placeholder="50,000" value={impressions} onChange={(e) => (isValidNumbericInput(e.target.value) ? setImpressions(e.target.value) : null)} />
             </Col>
 
             <Col>
-              <Form.Label htmlFor="maxReward" style={{ whiteSpace: 'nowrap' }}>Max price</Form.Label>
+              <Form.Label htmlFor="maxPrice" style={{ whiteSpace: 'nowrap' }}>Max price</Form.Label>
               <InputGroup className="mb-3">
                 <InputGroup.Text id="basic-addon1">$</InputGroup.Text>
-                <Form.Control name="maxReward" type="text" pattern="[0-9]*" value={reward} onChange={(e) => (isValidNumbericInput(e.target.value) ? setReward(e.target.value) : null)} />
+                <Form.Control name="maxPrice" type="text" pattern="[0-9]*" value={price} onChange={(e) => (isValidNumbericInput(e.target.value) ? setPrice(e.target.value) : null)} />
               </InputGroup>
             </Col>
           </Row>
@@ -217,8 +217,8 @@ function FilterPlatformsForm(props) {
             </FloatingLabel>
           </Col>
           <Col>
-            <FloatingLabel htmlFor="subs" controlId="floatingInput" label="Min Subscribers">
-              <Form.Control name="subs" type="text" pattern="[0-9]*" placeholder="" onKeyDown={handleKeyDown} value={subs} onChange={(e) => (isValidNumbericInput(e.target.value) ? setSubs(e.target.value) : null)} />
+            <FloatingLabel htmlFor="impressions" controlId="floatingInput" label="Min Impressions">
+              <Form.Control name="impressions" type="text" pattern="[0-9]*" placeholder="" onKeyDown={handleKeyDown} value={impressions} onChange={(e) => (isValidNumbericInput(e.target.value) ? setImpressions(e.target.value) : null)} />
             </FloatingLabel>
           </Col>
           <Col>
@@ -227,8 +227,8 @@ function FilterPlatformsForm(props) {
             </FloatingLabel>
           </Col>
           <Col>
-            <FloatingLabel htmlFor="maxReward" controlId="floatingInput" label="Max price">
-              <Form.Control name="maxReward" type="text" pattern="[0-9]*" placeholder="" value={reward} onKeyDown={handleKeyDown} onChange={(e) => (isValidNumbericInput(e.target.value) ? setReward(e.target.value) : null)} />
+            <FloatingLabel htmlFor="maxPrice" controlId="floatingInput" label="Max price">
+              <Form.Control name="maxPrice" type="text" pattern="[0-9]*" placeholder="" value={price} onKeyDown={handleKeyDown} onChange={(e) => (isValidNumbericInput(e.target.value) ? setPrice(e.target.value) : null)} />
             </FloatingLabel>
           </Col>
           <Col className="mb-3" style={{ alignSelf: 'flex-end' }}>

@@ -6,7 +6,7 @@ import {
 import PlatformListItem from '../components/ui/js/settings_page/PlatformListItem';
 import CircleImage from '../components/ui/js/misc/CircleImage';
 
-function ProfilePage() {
+function UserProfilePage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [decodedPfp, setDecodedPfp] = useState('');
@@ -146,4 +146,4 @@ function ProfilePage() {
   );
 }
 
-export default ProfilePage;
+export default UserProfilePage;

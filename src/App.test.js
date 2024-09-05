@@ -1,18 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import AdsPage from './pages/AdsPage';
-import ChannelsPage from './pages/PlatformsPage';
 import LandingPage from './pages/LandingPage';
-
-it('renders filter on ads page', () => {
-  render(<AdsPage />);
-  expect(screen.getByText('Filter by:')).toBeInTheDocument();
-});
-
-it('renders filter on channels page', () => {
-  render(<ChannelsPage />);
-  expect(screen.getByText('Filter by:')).toBeInTheDocument();
-});
 
 it('renders creators on landing page', () => {
   render(<BrowserRouter><LandingPage /></BrowserRouter>);

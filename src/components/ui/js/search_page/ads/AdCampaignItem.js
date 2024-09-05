@@ -14,7 +14,7 @@ import classes from '../../../css/ListItem.module.css';
 function AdCampaignItem(props) {
   const { campaign } = props;
   const {
-    id, ownerId, ownerName, campaignName, topics, preferredReward,
+    id, ownerId, ownerName, campaignName, topics, budget,
   } = campaign;
 
   const navigate = useNavigate();
@@ -80,14 +80,14 @@ function AdCampaignItem(props) {
             <Card.Img
               width={230}
               variant="top"
-              src="https://i.pinimg.com/474x/21/d2/9f/21d29f70c61cdfc6a90cf1e53004d22e.jpg"
+              src={campaign.pfp}
             />
           )}
           {!isMobile && (
             <Card.Img
               width={230}
               variant="left"
-              src="https://i.pinimg.com/474x/21/d2/9f/21d29f70c61cdfc6a90cf1e53004d22e.jpg"
+              src={campaign.pfp}
             />
           )}
 
@@ -119,8 +119,8 @@ function AdCampaignItem(props) {
               </p>
               <p>
                 <b style={{ float: 'left' }}>
-                  Preferred Reward: $
-                  {preferredReward}
+                  Budget: $
+                  {budget}
                 </b>
               </p>
             </Card.Text>
@@ -148,7 +148,8 @@ AdCampaignItem.defaultProps = {
     ownerName: '',
     campaignName: '',
     topics: '',
-    preferredReward: 0,
+    budget: 0,
+    pfp: '',
   }),
 };
 
@@ -159,6 +160,7 @@ AdCampaignItem.propTypes = {
     ownerName: PropTypes.string.isRequired,
     campaignName: PropTypes.string.isRequired,
     topics: PropTypes.string,
-    preferredReward: PropTypes.number,
+    budget: PropTypes.number,
+    pfp: PropTypes.string,
   }),
 };
