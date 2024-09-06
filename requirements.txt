@@ -7,3 +7,4 @@ psycopg2-binary
 Flask-SQLAlchemy
 ibm-cos-sdk
 psycopg2
+pillow

@@ -2,10 +2,10 @@
 import Button from 'react-bootstrap/Button';
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
-import { Form } from 'react-bootstrap';
-import Card from '../components/ui/js/misc/Card';
+import { Form, Card } from 'react-bootstrap';
+// import Card from '../components/ui/js/misc/Card';
 import LoginErrorDialog from '../components/ui/js/misc/LoginErrorDialog';
-import classes from './css/LoginPage.module.css';
+import classes from './css/LoginSignupPage.module.css';
 
 function LoginPage() {
   const [IsErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
@@ -55,7 +55,16 @@ function LoginPage() {
 
   return (
     <div>
-      <Card>
+      <Card style={{
+        marginTop: '5vh',
+        display: 'block',
+        width: '50%',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        textAlign: 'center',
+        padding: '50px',
+      }}
+      >
         <div>
           <div className={classes.welcome_logo}>Log-In</div>
           <Form className="d-flex justify-content-center">

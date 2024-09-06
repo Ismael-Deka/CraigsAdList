@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Form, Button, Modal, Container, Row, Col, Stack, Toast,
+  Form, Button, Modal, Container, Row, Col, Toast,
 } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import CircleImage from '../misc/CircleImage';
+import ImageSelectForm from '../misc/ImageSelectForm'; // Import the new component
 
-// eslint-disable-next-line no-unused-vars
-function UserAccountForm({ account }) {
+function UserAccountForm() {
   const [localUsername, setLocalUsername] = useState('');
   const [localEmail, setLocalEmail] = useState('');
   const [localProfilePic, setLocalPfp] = useState('');
-
   const [currentProfilePic, setCurrentPfp] = useState('');
-
   const [emailFormatError, setEmailFormatError] = useState('');
-
   const [originalPassword, setOriginalPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
@@ -23,30 +19,23 @@ function UserAccountForm({ account }) {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const [showSuccesModal, setShowSuccessModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
   const [showPfpToast, setShowPfpToast] = useState(false);
   const [pfpFailMessage, setPfpFailMessage] = useState('');
 
-  const [showProfileToast, setShowProfileToast] = useState(false);
-  const [profileFailMessage, setProfileFailMessage] = useState('');
+  const [submittingForm, setSubmittingForm] = useState(null);
 
   const handleShowConfirmation = () => setShowConfirmationModal(true);
   const handleCloseConfirmation = () => setShowConfirmationModal(false);
-  // Confirmation Modal State
-  const [submittingForm, setSubmittingForm] = useState(null);
 
   const handleConfirmSubmit = (formType) => {
-    if (formType === 'profile' && emailFormatError) {
-      // If there's an email format error, prevent form submission
+    if (formType === 'profile' && emailFormatError) return;
+    if (formType === 'password' && newPassword !== confirmNewPassword) {
+      setErrorMessage("New passwords don't match!");
+      setShowErrorModal(true);
       return;
-    } if (formType === 'password') {
-      if (newPassword !== confirmNewPassword) {
-        setErrorMessage("New passwords don't match!");
-        setShowErrorModal(true);
-        return;
-      }
     }
     setSubmittingForm(formType);
     handleShowConfirmation();
@@ -65,14 +54,10 @@ function UserAccountForm({ account }) {
         method: 'POST',
         body: formData,
       };
-      fetch('/edit_user_profile', requestOptions).then((reponse) => reponse.json().then(
+      fetch('/edit_user_profile', requestOptions).then((response) => response.json().then(
         (data) => {
           if (data.success) {
             const pfpSuccess = data.pfp_upload;
-            const storedUserData = JSON.parse(localStorage.getItem('userData'));
-            if (storedUserData) {
-              localStorage.removeItem('userData');
-            }
             if (!pfpSuccess && localProfilePic !== '') {
               setPfpFailMessage('Failed to update profile picture. Please try again.');
               setShowPfpToast(true);
@@ -84,19 +69,20 @@ function UserAccountForm({ account }) {
               }, 4000);
             }
           } else {
-            setProfileFailMessage('Failed to update profile information. Please try again.');
-            setShowProfileToast(true); // Show the toast
+            setErrorMessage('Failed to update profile information. Please try again.');
+            setShowErrorModal(true);
           }
         },
       ));
     } else if (submittingForm === 'password') {
       formData.append('original_pass', originalPassword);
       formData.append('new_pass', newPassword);
+
       const requestOptions = {
         method: 'POST',
         body: formData,
       };
-      fetch('/change_pass', requestOptions).then((reponse) => reponse.json().then(
+      fetch('/change_pass', requestOptions).then((response) => response.json().then(
         (data) => {
           if (data.success) {
             setSuccessMessage('Password changed successfully!');
@@ -112,27 +98,10 @@ function UserAccountForm({ account }) {
       ));
     }
 
-    // Close the confirmation modal if open
-    handleCloseConfirmation();
+    handleCloseConfirmation(); // Close the confirmation modal
   };
 
-  useEffect(() => {
-    fetch('/account_info', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setLocalEmail(data.account.email);
-        setLocalUsername(data.account.username);
-        setCurrentPfp(data.account.pfp);
-      });
-  }, []);
-
   const handleProfilePictureChange = (event) => {
-    // eslint-disable-next-line no-unused-vars
     const selectedPfp = event.target.files[0];
     const reader = new FileReader();
     setLocalPfp(selectedPfp);
@@ -161,25 +130,36 @@ function UserAccountForm({ account }) {
     }
   };
 
+  useEffect(() => {
+    fetch('/account_info', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setLocalEmail(data.account.email);
+        setLocalUsername(data.account.username);
+        setCurrentPfp(data.account.pfp);
+      });
+  }, []);
+
   return (
     <Container>
       <Row className="mt-5">
         <Col md={{ span: 8, offset: 2 }}>
 
           <h2>My Account</h2>
-          {/* Profile Picture */}
+
+          {/* Use ImageSelectForm Component */}
           <h4 className="mt-5">Change Profile Picture</h4>
           <hr className="hr hr-blurry" />
-          <Stack gap={5} style={{ alignItems: 'center' }}>
-            <CircleImage
-              src={currentProfilePic}
-            />
-            <Form>
-              <Form.Group controlId="formFile" className="mb-3">
-                <Form.Control type="file" accept="image/*" onChange={handleProfilePictureChange} />
-              </Form.Group>
-            </Form>
-          </Stack>
+          <ImageSelectForm
+            currentProfilePic={currentProfilePic}
+            handleProfilePictureChange={handleProfilePictureChange}
+          />
+
           <Form onSubmit={(e) => {
             e.preventDefault();
             handleConfirmSubmit('profile');
@@ -204,7 +184,7 @@ function UserAccountForm({ account }) {
                 type="email"
                 placeholder="Enter your email address"
                 value={localEmail}
-                onChange={handleEmailChange}
+                onChange={(e) => handleEmailChange(e.target.value)}
                 required
               />
               {emailFormatError && <Form.Text className="text-danger">{emailFormatError}</Form.Text>}
@@ -214,22 +194,7 @@ function UserAccountForm({ account }) {
               Save Profile Changes
             </Button>
           </Form>
-          <Toast onClose={() => setShowPfpToast(false)} show={showPfpToast} delay={5000}>
-            <Toast.Header>
-              <strong className="mr-auto">Error</strong>
-            </Toast.Header>
-            <Toast.Body>{pfpFailMessage}</Toast.Body>
-          </Toast>
-          <Toast
-            onClose={() => setShowProfileToast(false)}
-            show={showProfileToast}
-            delay={5000}
-          >
-            <Toast.Header>
-              <strong className="mr-auto">Error</strong>
-            </Toast.Header>
-            <Toast.Body>{profileFailMessage}</Toast.Body>
-          </Toast>
+
           <Form onSubmit={(e) => {
             e.preventDefault();
             handleConfirmSubmit('password');
@@ -275,6 +240,13 @@ function UserAccountForm({ account }) {
             </Button>
           </Form>
 
+          <Toast onClose={() => setShowPfpToast(false)} show={showPfpToast} delay={5000}>
+            <Toast.Header>
+              <strong className="mr-auto">Error</strong>
+            </Toast.Header>
+            <Toast.Body>{pfpFailMessage}</Toast.Body>
+          </Toast>
+
           {/* Confirmation Modal */}
           <Modal show={showConfirmationModal} onHide={handleCloseConfirmation}>
             <Modal.Header closeButton>
@@ -282,7 +254,6 @@ function UserAccountForm({ account }) {
             </Modal.Header>
             <Modal.Body>
               <div>Are you sure you want to submit these changes?</div>
-
             </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseConfirmation}>
@@ -293,6 +264,7 @@ function UserAccountForm({ account }) {
               </Button>
             </Modal.Footer>
           </Modal>
+
           {/* Error Modal */}
           <Modal show={showErrorModal} onHide={() => setShowErrorModal(false)}>
             <Modal.Header closeButton>
@@ -306,8 +278,8 @@ function UserAccountForm({ account }) {
             </Modal.Footer>
           </Modal>
 
-          {/* Error Modal */}
-          <Modal show={showSuccesModal} onHide={() => setShowSuccessModal(false)}>
+          {/* Success Modal */}
+          <Modal show={showSuccessModal} onHide={() => setShowSuccessModal(false)}>
             <Modal.Header closeButton>
               <Modal.Title>Success</Modal.Title>
             </Modal.Header>
@@ -325,13 +297,12 @@ function UserAccountForm({ account }) {
   );
 }
 
-export default UserAccountForm;
-
 UserAccountForm.propTypes = {
-  account: PropTypes.arrayOf(PropTypes.shape({
+  account: PropTypes.shape({
     username: PropTypes.string.isRequired,
     pfp: PropTypes.string.isRequired,
-    platformName: PropTypes.string.isRequired,
-  })).isRequired,
-
+    email: PropTypes.string.isRequired,
+  }).isRequired,
 };
+
+export default UserAccountForm;

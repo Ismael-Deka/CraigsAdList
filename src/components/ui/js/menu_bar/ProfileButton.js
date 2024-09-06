@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router';
 import PropTypes from 'prop-types';
 import {
@@ -22,6 +22,7 @@ function ProfileButton({
   };
 
   const location = useLocation();
+  useEffect(() => {}, [isLoggedIn]);
 
   return (
     <div

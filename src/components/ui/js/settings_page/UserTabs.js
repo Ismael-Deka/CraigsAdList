@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, Tab, Spinner } from 'react-bootstrap';
 import UserAccountForm from './UserAccountForm';
-import PlatformManagementPage from './PlatformManagementPage';
+import PlatformManagementForm from './PlatformManagementForm';
 
 function UserTabs() {
   const [activeTab, setActiveTab] = useState('account');
@@ -69,7 +69,7 @@ function UserTabs() {
             <UserAccountForm account={account} />
           </Tab>
           <Tab eventKey="platforms" title="My Platforms">
-            <PlatformManagementPage platforms={platforms} />
+            <PlatformManagementForm platforms={platforms} />
           </Tab>
           <Tab eventKey="campaign-props" title="My Campaigns">
             {/* <CampaignPropositionList /> */}

@@ -48,6 +48,7 @@ function MenuBar() {
           isLoggedIn: false,
           isErrorDialogOpen: true,
         }));
+        localStorage.removeItem('userData');
         window.location.reload();
       }
     }));

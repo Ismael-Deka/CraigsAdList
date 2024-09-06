@@ -16,6 +16,7 @@ from db_utils import (
     get_results,
     get_profile_pic,
     upload_profile_pic,
+    delete_account
 )
 
 from models import db, Account, Campaign, Platform
@@ -92,9 +93,7 @@ def index(user_id=-1,platform_id=-1,folder="",search_type=""):
 def handle_login():
     """Handle login"""
     if flask.request.method == "POST":
-        print(flask.request.json["email"])
         user = Account.query.filter_by(email=flask.request.json["email"]).first()
-        print(Account.query.all())
         if user is not None and check_password_hash(
             user.password, flask.request.json["password"]
         ):
@@ -123,51 +122,92 @@ def handle_login():
         {"is_login_successful": False, "error_message": "Wrong method"}
     )
 
+@bp.route("/is_username_taken", methods=["GET"])
+def is_username_taken():
+    args = flask.request.args
+    user = Account.query.filter(
+            (Account.username == args.get("username")) 
+        ).first()
+    return flask.jsonify({"is_username_taken":user is not None})
+
 
 @bp.route("/handle_signup", methods=["POST"])
 def handle_signup():
     """Handle signup"""
     if flask.request.method == "POST":
-        user = Account.query.filter_by(username=flask.request.json["username"]).first()
+        # Check if all required fields are filled
+        required_fields = ["username", "email", "password"]
+        for field in required_fields:
+            if not flask.request.form.get(field):
+                return flask.jsonify(
+                    {
+                        "is_signup_successful": False,
+                        "error_message": f"{field} is required."
+                    }
+                )
+
+        # Check if the user with the same username or email already exists
+        user = Account.query.filter(
+            (Account.username == flask.request.form["username"]) |
+            (Account.email == flask.request.form["email"])
+        ).first()
+
         if user is None:
+            # Create a new user with additional fields like phone, bio, full_name
+            is_platform_owner = flask.request.form.get("platform_owner", False)
+            is_platform_owner = True if is_platform_owner == 'true' else False
             new_user = Account(
-                username=flask.request.json["username"],
-                email=flask.request.json["email"],
-                password=generate_password_hash(flask.request.json["password"]),
-                platform_owner=flask.request.json["platform_owner"],
+                username=flask.request.form["username"],
+                email=flask.request.form["email"],
+                password=generate_password_hash(flask.request.form["password"]),
+                full_name=flask.request.form.get("full_name"),
+                platform_owner=is_platform_owner
             )
+
+            # Add and commit new user to the database
             db.session.add(new_user)
             db.session.commit()
+
+            # Verify that the new user was successfully created
             check_new_user = Account.query.filter_by(
-                email=flask.request.json["email"]
+                email=flask.request.form["email"]
             ).first()
+
             is_signup_successful = check_new_user is not None
-            return flask.jsonify(
-                {"is_signup_successful": is_signup_successful, "error_message": ""}
-            )
-        if (
-            flask.request.json["username"] == ""
-            or flask.request.json["email"] == ""
-            or flask.request.json["password"] == ""
-        ):
+
+            if is_signup_successful:
+                is_new_pfp_chosen = flask.request.form["new_pfp_chosen"]
+                if is_new_pfp_chosen == 'true':
+                    is_pfp_uploaded= upload_profile_pic(cos, check_new_user.id, flask.request.files["profile_pic"],"users")
+                    if is_pfp_uploaded:
+                        check_new_user.profile_pic = check_new_user.id
+                        db.session.commit()
+                        return flask.jsonify(
+                            {"is_signup_successful": True, "error_message": ""}
+                        )
+                    else:
+                        delete_account(check_new_user.id)
+                        return flask.jsonify(
+                            {"is_signup_successful": False, "error_message": "There was a problem uploading your new profile picture. Please try again."}
+                        )
+                else:
+                    check_new_user.profile_pic = -1
+                    db.session.commit()
+                    return flask.jsonify(
+                            {"is_signup_successful": True, "error_message": ""}
+                        )
+        else:
             return flask.jsonify(
                 {
                     "is_signup_successful": False,
-                    "error_message": "Fill in all the required data",
-                }
-            )
-        if user is not None:
-            return flask.jsonify(
-                {
-                    "is_signup_successful": False,
-                    "error_message": "A user with such username/email already exists",
+                    "error_message": "A user with that username or email already exists."
                 }
             )
 
     return flask.jsonify(
         {
             "is_signup_successful": False,
-            "error_message": "Wrong method",
+            "error_message": "Invalid request method."
         }
     )
 
@@ -320,6 +360,9 @@ def edit_profile():
         account.username = username
         account.email = email
         if is_pfp_changed == "true":
+            pfp_id = current_user.profile_pic
+            if pfp_id == -1:
+                pfp_id = current_user.id
             is_pfp_upload_success = upload_profile_pic(cos, current_user.profile_pic, pfp,'users')
         else:
             is_pfp_upload_success = False

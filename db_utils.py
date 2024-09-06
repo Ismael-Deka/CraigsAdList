@@ -11,27 +11,50 @@ import traceback
 from PIL import Image
 
 def get_profile_pic( pfp_index, img_type):
+        if pfp_index != -1:
             return f"https://{os.getenv('COS_ENDPOINT_URL')}/pfp_source/{img_type}/{pfp_index}.png"
+        else:
+            return f"https://{os.getenv('COS_ENDPOINT_URL')}/default.png"
 
 def get_search_pic(pfp_index, img_type):
+        if pfp_index != -1:
             return f"https://{os.getenv('COS_ENDPOINT_URL')}/pfp200/{img_type}/{pfp_index}.png"
+        else:
+            return f"https://{os.getenv('COS_ENDPOINT_URL')}/default200.png"
 
 def upload_profile_pic(cos, pfp_index, img, img_type):
     if img is None or img == '':
         return False
-
+    img_search = img
     # Upload img to IBM COS
     try:
         cos.upload_fileobj(img, os.getenv("COS_BUCKET_NAME"), f"pfp/{img_type}/{pfp_index}.png")
-        cos.upload_fileobj(resize_profile_pic(img), os.getenv("COS_BUCKET_NAME"), f"pfp200/{img_type}/{pfp_index}.png")
+        cos.upload_fileobj(resize_profile_pic(img_search), os.getenv("COS_BUCKET_NAME"), f"pfp00/{img_type}/{pfp_index}.png")
         return True
     except Exception as e:
         tb = traceback.format_exc()
         print(f"An error occurred: {e}")
         print(tb)
         return False
+def upload_profile_pic(cos, pfp_index, img, img_type):
+    if img is None or img == '':
+        return False
+    img_search = resize_profile_pic(img)
+    # Upload img to IBM COS
+    try:
+        cos.upload_fileobj(img, os.getenv("COS_BUCKET_NAME"), f"pfp_source/{img_type}/{pfp_index}.png")
+        cos.upload_fileobj(img_search, os.getenv("COS_BUCKET_NAME"), f"pfp200/{img_type}/{pfp_index}.png")
+        return True
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(f"An error occurred: {e}")
+        print(tb)
+        return False
+
 def resize_profile_pic(img):
-        with Image.open(img) as img:
+        img_buffer = io.BytesIO(img.read())
+        print(img_buffer)
+        with Image.open(img.stream) as img:
             img_resized = img.resize((200,200), Image.Resampling.LANCZOS)
             
             img_io = io.BytesIO()

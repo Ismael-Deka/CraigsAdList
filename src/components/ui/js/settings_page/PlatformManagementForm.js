@@ -1,12 +1,12 @@
 /* eslint-disable react/no-array-index-key */
-// PlatformManagementPage.js
+// PlatformManagementForm.js
 
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Container, Row, Col } from 'react-bootstrap';
 import PlatformListItem from './PlatformListItem';
 
-function PlatformManagementPage({ platforms }) {
+function PlatformManagementForm({ platforms }) {
   // Sample platform data (replace with your actual data)
 
   return (
@@ -24,9 +24,9 @@ function PlatformManagementPage({ platforms }) {
   );
 }
 
-export default PlatformManagementPage;
+export default PlatformManagementForm;
 
-PlatformManagementPage.propTypes = {
+PlatformManagementForm.propTypes = {
   platforms: PropTypes.arrayOf(PropTypes.shape({
     index: PropTypes.number.isRequired,
     id: PropTypes.string.isRequired,
