@@ -38,6 +38,11 @@
   object-fit: cover; /* This ensures the image maintains its aspect ratio while filling the box */
   border-radius: 50%; /* Optional: makes the image circular */
 }
+.ellipsisText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 @media (min-width: 1200px){  
     #infoCardLeft {

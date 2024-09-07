@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 import Button from 'react-bootstrap/Button';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Form, Card } from 'react-bootstrap';
 // import Card from '../components/ui/js/misc/Card';
@@ -52,6 +52,10 @@ function LoginPage() {
       }));
     }
   }
+
+  useEffect(() => {
+    document.title = 'Please Log-in - CraigsAdList';
+  }, []);
 
   return (
     <div>

@@ -80,9 +80,10 @@ bp = flask.Blueprint(
 @bp.route("/settings")
 @bp.route("/profile/<int:user_id>")
 @bp.route('/platform/<int:platform_id>')
+@bp.route('/campaign/<int:campaign_id>')
 @bp.route("/messages/<string:folder>")
 @bp.route("/search/<string:search_type>")
-def index(user_id=-1,platform_id=-1,folder="",search_type=""):
+def index(user_id=-1,platform_id=-1,campaign_id=-1,folder="",search_type=""):
     """Root endpoint"""
     # NB: DO NOT add an "index.html" file in your normal templates folder
     # Flask will stop serving this React page correctly
@@ -245,48 +246,106 @@ def get_current_user():
 @bp.route("/account_info", methods=["GET"])
 def account_info():
     """Return current user's JSON data"""
-    if(current_user.is_authenticated):
-        user_id = flask.request.args.get("id",default=current_user.id)
+    if current_user.is_authenticated:
+        user_id = flask.request.args.get("id", default=current_user.id)
     else:
-         user_id = flask.request.args.get("id")
-    if(user_id is None):
+        user_id = flask.request.args.get("id")
+    
+    if user_id is None:
         flask.abort(404)
+    
     account = Account.query.filter_by(id=user_id).first()
-    campaign_log = Campaign.query.filter_by(creator_id=user_id).all()
-    platform_log = Platform.query.filter_by(owner_id=user_id).all()
+    if account is None:
+        flask.abort(404)
+
+    # Prepare account data
+    account_data = {
+        "id": account.id,
+        "username": account.username,
+        "email": account.email,
+        "phone": account.phone,
+        "bio": account.bio,
+        "platform_owner": account.platform_owner,
+        "pfp": get_profile_pic(account.profile_pic, "users"),
+        "date_created": account.date_created,  # Optionally, format to human-readable date
+        "last_login": account.last_login,  # Optionally, format to human-readable date
+        "full_name": account.full_name
+    }
+
+    # Initialize empty lists for campaigns and platforms
     campaign_list = []
-    for i in campaign_log:
-        campaign_dict = {}
-        campaign_dict["id"] = i.id
-        campaign_dict["title"] = i.title
-        campaign_dict["topics"] = i.topics
-        campaign_dict["description"] = i.description
-        campaign_dict["budget"] = i.budget
-        campaign_list.append(campaign_dict)
     platform_list = []
-    for i in platform_log:
-        
-        platform_dict = {}
-        platform_dict["id"]=i.id
-        platform_dict["platformName"] = i.platform_name
-        platform_dict["impressions"] = i.impressions
-        platform_dict["topics"] = i.topics
-        platform_dict["pricePerAdView"] = i.preferred_price
-        platform_list.append(platform_dict)
+
+    # Fetch campaigns only if the user is NOT a platform owner
+    if not account.platform_owner:
+        campaign_log = Campaign.query.filter_by(creator_id=user_id).all()
+        for i in campaign_log:
+            campaign_dict = {
+                "id": i.id,
+                "title": i.title,
+                "topics": i.topics,
+                "description": i.description,
+                "pfp":get_profile_pic(i.id,"campaigns"),
+                "budget": i.budget
+            }
+            campaign_list.append(campaign_dict)
+
+    # Fetch platforms only if the user IS a platform owner
+    if account.platform_owner:
+        platform_log = Platform.query.filter_by(owner_id=user_id).all()
+        for i in platform_log:
+            platform_dict = {
+                "id": i.id,
+                "platformName": i.platform_name,
+                "description": i.description,
+                "impressions": i.impressions,
+                "topics": i.topics,
+                "pricePerAdView": i.preferred_price,
+                "pfp":get_profile_pic(i.id,"platforms")
+            }
+            platform_list.append(platform_dict)
+
     try:
+        # Only return the campaigns or platforms based on the account type
         return flask.jsonify(
-            {"account": {
-                "username": account.username, 
-                "email":account.email, 
-                "pfp":get_profile_pic(account.profile_pic, "users") }, 
-             "campaigns": campaign_list, 
-             "platforms": platform_list}
+            {
+                "account": account_data,
+                "campaigns": campaign_list if not account.platform_owner else None,  # Return campaigns if not a platform owner
+                "platforms": platform_list if account.platform_owner else None  # Return platforms if a platform owner
+            }
         ), 200
     except Exception as e:
-            tb = traceback.format_exc()
-            print(f"An error occurred: {e}")
-            print(tb)
-            flask.abort(500)
+        tb = traceback.format_exc()
+        print(f"An error occurred: {e}")
+        print(tb)
+        flask.abort(500)
+
+@bp.route("/return_selected_campaign", methods=["GET"])
+def get_campaign_by_id():
+    """Get campaign by id"""
+    args = flask.request.args
+    campaign = Campaign.query.filter_by(id=args.get("id")).first()
+    
+    if campaign is not None:
+        return flask.jsonify(
+            {
+                "id": campaign.id,
+                "creatorId": campaign.creator_id,
+                "creatorName": Account.query.filter_by(id=campaign.creator_id).first().full_name,
+                "title": campaign.title,
+                "description": campaign.description,
+                "budget": '{:,.2f}'.format(campaign.budget) if campaign.budget else None,
+                "currency": campaign.currency,
+                "topics": campaign.topics,  # Assuming topics are stored as CSV strings
+                "startDate": campaign.start_date,
+                "endDate": campaign.end_date,
+                "isActive": campaign.is_active,
+                "showInList": campaign.show_in_list,
+                "pfp": get_profile_pic(campaign.id, "campaigns")
+            }
+        ), 200
+    else:
+        flask.abort(404)
 
 
 @bp.route("/return_selected_platform", methods=["GET"])
@@ -298,11 +357,17 @@ def get_platforms_by_id():
         return flask.jsonify(
                 {
                     "id": platform.id,
-                    "ownerName": Account.query.filter_by(id=platform.owner_id).first().username,
+                    "ownerId":platform.owner_id,
+                    "ownerName": Account.query.filter_by(id=platform.owner_id).first().full_name,
                     "platformName": platform.platform_name,
+                    "description": platform.description,
                     "impressions": '{:,}'.format(platform.impressions),
                     "topics": platform.topics,
                     "pricePerAdView": platform.preferred_price,
+                    "medium": platform.medium,
+                    "dateCreated": platform.date_created,
+                    "isActive": platform.is_active,
+                    "lastUpdated":platform.last_updated,
                     "pfp": get_profile_pic(platform.id, "platforms")
                 }
             ),200

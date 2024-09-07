@@ -1,5 +1,5 @@
 // Import necessary React and Bootstrap components
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Form, Button, Container, Row, Col,
 } from 'react-bootstrap';
@@ -63,6 +63,10 @@ function NewPlatformPage() {
     console.log(formData);
     // You can add additional logic here to handle form data as needed
   };
+
+  useEffect(() => {
+    document.title = 'Create a new platform - CraigsAdList';
+  }, []);
 
   return (
     <Container>

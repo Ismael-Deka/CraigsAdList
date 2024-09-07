@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import classes from '../../css/ListItem.module.css';
 
 function SimpleListItem({
-  name, metadata, pfp, isMobile, navigateToUserProfile,
+  name, metadata, pfp, navigateToUserProfile,
 }) {
   const infoCardRef = useRef(null);
   const infoCardTitleRef = useRef(null);
@@ -37,16 +37,16 @@ function SimpleListItem({
 
   return (
     <Col>
-      <Card onClick={navigateToUserProfile} ref={infoCardRef} style={isMobile ? { width: 'max-content' } : {}}>
+      <Card onClick={navigateToUserProfile} ref={infoCardRef}>
         <Stack className="p-1" direction="horizontal">
           <Card.Img
-            variant={isMobile ? 'top' : 'left'}
+            variant="left"
             src={pfp}
             alt={`${name}'s profile`}
             className={classes.fixedImage}
           />
 
-          <Card.Body className={!isMobile ? classes.horizontalPadding : ''}>
+          <Card.Body className={classes.horizontalPadding}>
             <Card.Title style={{ cursor: 'pointer' }}>
               <OverlayTrigger
                 placement="top"
@@ -60,7 +60,7 @@ function SimpleListItem({
                 <h4
                   ref={infoCardTitleRef}
                   className={classes.ellipsisText}
-                  style={!isMobile ? { whiteSpace: 'nowrap', maxWidth: cardWidth } : {}}
+                  style={{ whiteSpace: 'nowrap', maxWidth: cardWidth - 132 }} // compensate for pfp size(rendered size 100px) and padding(32px)
                 >
                   {name}
                 </h4>
@@ -86,7 +86,6 @@ SimpleListItem.propTypes = {
   name: PropTypes.string.isRequired,
   metadata: PropTypes.string.isRequired,
   pfp: PropTypes.string.isRequired,
-  isMobile: PropTypes.bool.isRequired,
   navigateToUserProfile: PropTypes.func,
 };
 

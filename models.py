@@ -47,7 +47,7 @@ class Campaign(db.Model):
     title = db.Column(db.String(128))
     topics = db.Column(db.String(128))  # CSV
     description = db.Column(db.Text, nullable=True)
-    budget = db.Column(db.Float, nullable=True)
+    budget = db.Column(db.Float, nullable=True) # in dollars
     currency = db.Column(db.String(3), nullable=False)  # New currency column, using 3-character ISO codes
     show_in_list = db.Column(db.Boolean, default=False)
     start_date = db.Column(db.Integer, nullable=True)
@@ -79,7 +79,7 @@ class Platform(db.Model):
     impressions = db.Column(db.Integer, default=0)
     impression_type = db.Column(db.String(64), nullable=False)
     topics = db.Column(db.String(128), index=True)  # CSV
-    preferred_price = db.Column(db.Integer, index=True)
+    preferred_price = db.Column(db.Integer, index=True) # in cents
     currency = db.Column(db.String(3), nullable=False)  # using 3-character ISO codes
     medium = db.Column(db.String(128), nullable=True)  
     

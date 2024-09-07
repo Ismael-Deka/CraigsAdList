@@ -19,16 +19,21 @@ function LandingPage() {
     navigate(`/platform/${platformId}`);
     // Implement actual navigation logic here, such as routing to another page
   };
+  const navigateToCampaign = (campaignId) => {
+    navigate(`/campaign/${campaignId}`);
+    // Implement actual navigation logic here, such as routing to another page
+  };
 
   useEffect(() => {
+    document.title = 'CraigsAdList';
     // Fetch platforms, campaigns, and users data from the API
     const fetchData = async () => {
       try {
         const randomPlatformPage = Math.floor(Math.random() * 10) + 1;
-        const randomCampaignPage = Math.floor(Math.random() * 8) + 1;
+        const randomCampaignPage = Math.floor(Math.random() * 5) + 1;
 
-        const platformResponse = await fetch(`/return_results?for=platforms&page=${randomPlatformPage}&perPage=4`);
-        const campaignResponse = await fetch(`/return_results?for=campaigns&page=${randomCampaignPage}&perPage=4`);
+        const platformResponse = await fetch(`/return_results?for=platforms&page=${randomPlatformPage}&perPage=8`);
+        const campaignResponse = await fetch(`/return_results?for=campaigns&page=${randomCampaignPage}&perPage=8`);
 
         const platformData = await platformResponse.json();
         const campaignData = await campaignResponse.json();
@@ -94,10 +99,10 @@ function LandingPage() {
 
           <Row className="mb-5">
             {platforms.map((platform) => (
-              <Col xs={12} md={6} key={platform.id}>
+              <Col className="mb-3" xs={12} md={6} key={platform.id}>
                 <SimpleListItem
                   name={platform.platformName}
-                  metadata={`Impressions: ${platform.impressions.toLocaleString()}`}
+                  metadata={`Monthly Impressions: ${platform.impressions.toLocaleString()}`}
                   pfp={platform.pfp}
                   isMobile={isMobile}
                   navigateToUserProfile={() => navigateToPlatform(platform.id)}
@@ -110,12 +115,13 @@ function LandingPage() {
 
           <Row className="mb-5">
             {campaigns.map((campaign) => (
-              <Col xs={12} md={6} key={campaign.id}>
+              <Col className="mb-3" xs={12} md={6} key={campaign.id}>
                 <SimpleListItem
                   name={campaign.campaignName}
                   metadata={`Budget: $${campaign.budget.toLocaleString()}`}
                   pfp={campaign.pfp}
                   isMobile={isMobile}
+                  navigateToUserProfile={() => navigateToCampaign(campaign.id)}
                 />
               </Col>
             ))}

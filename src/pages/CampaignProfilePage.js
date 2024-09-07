@@ -4,19 +4,19 @@ import {
   Container, Row, Col, ListGroup, Spinner, Card, Stack,
 } from 'react-bootstrap';
 
-import CircleImage from '../components/ui/js/misc/CircleImage';
+import CircleImage from '../components/ui/js/misc/CircleImage'; // Assuming campaigns have a profile picture similar to platforms
 
-function PlatformProfilePage() {
-  const [platform, setPlatform] = useState(null);
+function CampaignProfilePage() {
+  const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
   const params = useParams();
-  const platformId = params.id;
+  const campaignId = params.id;
 
-  const handlePlatformInfo = (newPlatform) => {
-    document.title = `${newPlatform.platformName} - CraigsAdList`;
-    setPlatform((prevPlatform) => ({
-      ...prevPlatform,
-      ...newPlatform,
+  const handleCampaignInfo = (newCampaign) => {
+    document.title = `${newCampaign.title} - CraigsAdList`;
+    setCampaign((prevCampaign) => ({
+      ...prevCampaign,
+      ...newCampaign,
     }));
   };
 
@@ -30,9 +30,9 @@ function PlatformProfilePage() {
   };
 
   useEffect(() => {
-    if (platformId) {
-      // Fetch platform details based on platformId
-      fetch(`/return_selected_platform?id=${platformId}`, { method: 'GET' })
+    if (campaignId) {
+      // Fetch campaign details based on campaignId
+      fetch(`/return_selected_campaign?id=${campaignId}`, { method: 'GET' })
         .then((response) => {
           if (response.ok) {
             return response.json(); // Continue processing if status is okay
@@ -40,17 +40,17 @@ function PlatformProfilePage() {
           throw new Error(`HTTP error! Status: ${response.status}`);
         })
         .then((data) => {
-          handlePlatformInfo(data);
+          handleCampaignInfo(data);
         })
         .catch((error) => {
           // eslint-disable-next-line no-console
-          console.error('Error fetching platform details:', error);
+          console.error('Error fetching campaign details:', error);
         })
         .finally(() => {
           setLoading(false);
         });
     }
-  }, []);
+  }, [campaignId]);
 
   if (loading) {
     return (
@@ -63,7 +63,7 @@ function PlatformProfilePage() {
     );
   }
 
-  if (!loading && !platform) {
+  if (!loading && !campaign) {
     document.title = '404 - CraigsAdList';
     return (
       <div
@@ -71,7 +71,7 @@ function PlatformProfilePage() {
         style={{ marginTop: '40vh' }}
       >
         <h1>404</h1>
-        <l>This plaform cannot be found or does not exist.</l>
+        <p>This campaign cannot be found or does not exist.</p>
         <p>Please try again later.</p>
       </div>
     );
@@ -91,93 +91,88 @@ function PlatformProfilePage() {
           <Col>
             <Row className="justify-content-center">
               <Col className="mb-5" md={8} alignItem="center">
-                {/* Profile Picture */}
+                {/* Campaign Profile Picture */}
                 <CircleImage
-                  src={platform.pfp}
-                  alt="Profile"
+                  src={campaign.pfp} // Assuming campaigns have a profile picture
+                  alt="Campaign Profile"
                   size="large"
                   className="mb-3"
                 />
-                <h2>{platform.platformName}</h2>
+                <h2>{campaign.title}</h2>
                 <Stack direction="horizontal" gap={3}>
                   <Col>
                     <p>
                       <Card.Subtitle className="text-muted">
-                        Monthy Impressions:
+                        Campaign Creator:
                       </Card.Subtitle>
                       {' '}
-                      {platform.impressions.toLocaleString()}
+                      <a
+                        href={`/profile/${campaign.creatorId}`}
+                        style={{ color: 'black' }}
+                      >
+                        {campaign.creatorName}
+                      </a>
                     </p>
-                    {/* Phone number (if available) */}
-
                     <p>
                       <Card.Subtitle className="text-muted">
-                        Owned by:
+                        Campaign Active?:
                       </Card.Subtitle>
                       {' '}
-                      <a href={`/profile/${platform.ownerId}`} style={{ color: 'black' }}>{platform.ownerName}</a>
+                      {((Math.floor(Date.now() / 1000)) < campaign.endDate).toString()}
                     </p>
-
                   </Col>
                   <Col>
-                    {/* Last login */}
-                    <p>
-                      <Card.Subtitle className="text-muted">
-                        Platform Active?:
-                      </Card.Subtitle>
-                      {' '}
-                      {platform.isActive.toLocaleString()}
-                    </p>
                     {/* Date created */}
+
                     <p>
                       <Card.Subtitle className="text-muted">
-                        Platform created:
+                        Campaign Start Date:
                       </Card.Subtitle>
                       {' '}
-                      {formatUnixTimestamp(platform.dateCreated)}
+                      {formatUnixTimestamp(campaign.startDate)}
+                    </p>
+                    <p>
+                      <Card.Subtitle className="text-muted">
+                        Campaign End Date:
+                      </Card.Subtitle>
+                      {' '}
+                      {formatUnixTimestamp(campaign.endDate)}
                     </p>
                   </Col>
                 </Stack>
-
               </Col>
             </Row>
+
             <Row className="justify-content-center">
               <Col md={8}>
-                {/* Bio Section inside a Bootstrap Card */}
+                {/* Campaign Description */}
                 <Card className="mb-4">
-                  <Card.Header><h3>Plaform Description</h3></Card.Header>
+                  <Card.Header><h3>Campaign Description</h3></Card.Header>
                   <Card.Body>
-                    <Card.Text>{platform.description}</Card.Text>
+                    <Card.Text>{campaign.description}</Card.Text>
                   </Card.Body>
                 </Card>
 
-                {/* Conditional List (Campaigns or Platforms) */}
+                {/* Campaign Statistics */}
                 <div className="mb-4">
-                  <Card.Header style={{ border: '1px solid rgba(0,0,0,.125)' }}><h3>Platform Statistics</h3></Card.Header>
+                  <Card.Header style={{ border: '1px solid rgba(0,0,0,.125)' }}><h3>Campaign Details</h3></Card.Header>
                   <ListGroup>
                     <ListGroup.Item>
-                      <strong>Medium:</strong>
-                      {' '}
-                      {platform.medium}
+                      <strong>Budget:</strong>
+                      {' $'}
+                      {campaign.budget ? campaign.budget.toLocaleString() : 'N/A'}
                     </ListGroup.Item>
                     <ListGroup.Item>
-                      <strong>Monthy Impressions:</strong>
+                      <strong>Currency:</strong>
                       {' '}
-                      {platform.impressions}
+                      {campaign.currency}
                     </ListGroup.Item>
                     <ListGroup.Item>
                       <strong>Topics:</strong>
                       {' '}
-                      {platform.topics}
+                      {campaign.topics}
                     </ListGroup.Item>
-                    <ListGroup.Item>
-                      <strong>Preferred Price per Impressions:</strong>
-                      {' $'}
-                      {(platform.pricePerAdView / 100).toFixed(2)}
-                      {' '}
-                      {/* platform.currency */}
-                    </ListGroup.Item>
-                    {/* Add more stats as needed */}
+
                   </ListGroup>
                 </div>
               </Col>
@@ -189,4 +184,4 @@ function PlatformProfilePage() {
   );
 }
 
-export default PlatformProfilePage;
+export default CampaignProfilePage;

@@ -4,6 +4,7 @@
 import {
   Container, Row, Col,
 } from 'react-bootstrap';
+import { useEffect } from 'react';
 import UserTabs from '../components/ui/js/settings_page/UserTabs';
 
 function SettingsPage() {
@@ -29,6 +30,10 @@ function SettingsPage() {
   /* function handleCampaignDelete(i) {
     setCampaigns([...campaigns.slice(0, i), ...campaigns.slice(i + 1)]);
   } */
+
+  useEffect(() => {
+    document.title = 'Settings - CraigsAdList';
+  }, []);
 
   return (
     <Container>

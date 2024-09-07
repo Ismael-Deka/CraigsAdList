@@ -58,6 +58,10 @@ function UserAccountForm() {
         (data) => {
           if (data.success) {
             const pfpSuccess = data.pfp_upload;
+            const storedUserData = JSON.parse(localStorage.getItem('userData'));
+            if (storedUserData) {
+              localStorage.removeItem('userData');
+            }
             if (!pfpSuccess && localProfilePic !== '') {
               setPfpFailMessage('Failed to update profile picture. Please try again.');
               setShowPfpToast(true);

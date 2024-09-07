@@ -11,6 +11,7 @@ import PlatformProfilePage from './pages/PlatformProfilePage';
 import InboxPage from './pages/InboxPage';
 import NewPlatformPage from './pages/NewPlatformPage';
 import SearchPage from './pages/SearchPage';
+import CampaignProfilePage from './pages/CampaignProfilePage';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/new_platform" element={<NewPlatformPage />} />
         <Route path="/profile/:id" element={<UserProfilePage />} />
         <Route path="/platform/:id" element={<PlatformProfilePage />} />
+        <Route path="/campaign/:id" element={<CampaignProfilePage />} />
         <Route path="/messages/:folder" element={<InboxPage />} />
         <Route path="/search/:searchType" element={<SearchPage />} />
       </Routes>

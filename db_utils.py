@@ -275,9 +275,9 @@ def get_user_results(args):
             accounts_data.append(
                 {
                     "id": account.id,
-                    "username":account.username,
                     "email": account.email,
-                    "pfp": get_search_pic(account.profile_pic,"users"),
+                    "pfp": get_profile_pic(account.profile_pic, "users"),
+                    "fullName": account.full_name
                }
             )
         except Exception as e:
@@ -288,13 +288,13 @@ def get_user_results(args):
     print(f'Length of data: {len(accounts)}')
     accounts_data = filter_results(args=args, data_list=accounts_data, arg_list=
                                         ["id",
-                                         "username",
                                          "email",
+                                         "fullName",
                                          "pfp",
                                          
                                          ])
     if(sort_method is not None):
-        accounts_data = sorted(accounts_data, key=lambda x: x["username"], reverse=( sort_order == 'desc'))
+        accounts_data = sorted(accounts_data, key=lambda x: x["fullName"], reverse=( sort_order == 'desc'))
     
     result_count = len(accounts_data)
 

@@ -20,7 +20,7 @@ function FilterUsersForm(props) {
   };
 
   const clearFilters = () => {
-    setSortOption('relevance');
+    setSortOption('default');
     setSortOrder('asc');
 
     setQuery('');
@@ -46,12 +46,12 @@ function FilterUsersForm(props) {
           <div>
             <FormCheck
               inline
-              label="Relevance"
+              label="Default"
               type="radio"
               name="sortRadio"
-              id="relevance"
-              value="relevance"
-              checked={sortOption === 'relevance'}
+              id="default"
+              value="default"
+              checked={sortOption === 'default'}
               onChange={handleSortOptionChange}
             />
             <FormCheck
@@ -109,7 +109,7 @@ function FilterUsersForm(props) {
 export default FilterUsersForm;
 
 FilterUsersForm.defaultProps = {
-  sortOption: 'relevance',
+  sortOption: 'default',
   sortOrder: 'asc',
   setQuery: () => { },
   setSortOption: () => { },

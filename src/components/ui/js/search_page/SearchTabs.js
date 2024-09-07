@@ -24,6 +24,8 @@ function SearchTabs(props) {
   };
 
   useEffect(() => {
+    document.title = `Search ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+} - CraigsAdList`;
     // Extract the current tab from the URL
     const pathParts = location.pathname.split('/');
     const currentTab = pathParts[2]; // Assuming the URL structure is /search/<tab>

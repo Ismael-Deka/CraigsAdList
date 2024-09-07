@@ -48,24 +48,43 @@ function SignupPage() {
     setLastNameText(text.target.value);
   };
 
+  // Debounced resize handler
+  const handleWindowResize = useCallback(() => {
+    setIsMobile(window.innerWidth < 603);
+    setSmallScreen(window.innerWidth < 1440);
+  }, []);
+
   useEffect(() => {
-    const handleWindowResize = () => {
-      setIsMobile(window.innerWidth < 603);
-      setSmallScreen(window.innerWidth < 1440);
+    let timeoutId = null;
+
+    const debouncedResizeHandler = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = setTimeout(() => {
+        handleWindowResize();
+      }, 100); // Adjust the delay (200ms) as needed
     };
 
     // Add event listener for window resize
-    window.addEventListener('resize', handleWindowResize);
+    window.addEventListener('resize', debouncedResizeHandler);
 
-    // Cleanup function to remove event listener
+    // Cleanup function to remove event listener and clear any pending timeouts
     return () => {
-      window.removeEventListener('resize', handleWindowResize);
+      window.removeEventListener('resize', debouncedResizeHandler);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     };
-  }, []);
+  }, [handleWindowResize]);
 
   useEffect(() => {
     setUsernameText(`${firstNameText !== '' ? firstNameText.toLocaleLowerCase() : 'First Name'}.${lastNameText !== '' ? lastNameText.toLocaleLowerCase() : 'Last Name'}`);
   }, [firstNameText, lastNameText]);
+
+  useEffect(() => {
+    document.title = 'Sign-up - CraigsAdList';
+  }, []);
 
   // Function to handle profile picture selection
   const handleProfilePictureChange = (event) => {
@@ -231,7 +250,7 @@ function SignupPage() {
               <ButtonGroup className="m-3">
                 <ToggleButton
                   type="radio"
-                  variant={role === 'platform_owner' ? 'primary' : 'outline-primary'}
+                  variant={role === 'platform_owner' ? 'secondary' : 'outline-secondary'}
                   name="radio"
                   value="platform_owner"
                   checked={role === 'platform_owner'}
@@ -241,7 +260,7 @@ function SignupPage() {
                 </ToggleButton>
                 <ToggleButton
                   type="radio"
-                  variant={role === 'advertiser' ? 'primary' : 'outline-primary'}
+                  variant={role === 'advertiser' ? 'secondary' : 'outline-secondary'}
                   name="radio"
                   value="advertiser"
                   checked={role === 'advertiser'}
@@ -298,7 +317,7 @@ function SignupPage() {
                 <ButtonGroup className="m-3">
                   <ToggleButton
                     type="radio"
-                    variant={role === 'platform_owner' ? 'primary' : 'outline-primary'}
+                    variant={role === 'platform_owner' ? 'secondary' : 'outline-secondary'}
                     name="radio"
                     value="platform_owner"
                     checked={role === 'platform_owner'}
@@ -308,7 +327,7 @@ function SignupPage() {
                   </ToggleButton>
                   <ToggleButton
                     type="radio"
-                    variant={role === 'advertiser' ? 'primary' : 'outline-primary'}
+                    variant={role === 'advertiser' ? 'secondary' : 'outline-secondary'}
                     name="radio"
                     value="advertiser"
                     checked={role === 'advertiser'}
@@ -323,7 +342,7 @@ function SignupPage() {
                   <ToggleButton
                     size="sm"
                     type="radio"
-                    variant={role === 'platform_owner' ? 'primary' : 'outline-primary'}
+                    variant={role === 'platform_owner' ? 'secondary' : 'outline-secondary'}
                     name="radio"
                     value="platform_owner"
                     checked={role === 'platform_owner'}
@@ -334,7 +353,7 @@ function SignupPage() {
                   <ToggleButton
                     size="sm"
                     type="radio"
-                    variant={role === 'advertiser' ? 'primary' : 'outline-primary'}
+                    variant={role === 'advertiser' ? 'secondary' : 'outline-secondary'}
                     name="radio"
                     value="advertiser"
                     checked={role === 'advertiser'}
