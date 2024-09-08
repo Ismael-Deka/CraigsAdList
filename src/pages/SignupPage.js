@@ -183,25 +183,7 @@ function SignupPage() {
   };
 
   return (
-    <Card
-      style={!isMobile ? {
-        marginTop: '5vh',
-        display: 'block',
-        width: '50%',
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        textAlign: 'center',
-        padding: '50px',
-      } : {
-        marginTop: '5vh',
-        display: 'block',
-        width: '95%',
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        textAlign: 'center',
-        padding: '50px',
-      }}
-    >
+    <Card className={classes.cardContainer}>
       <Container>
         <Col>
           <div className={classes.welcome_logo}>Sign Up</div>

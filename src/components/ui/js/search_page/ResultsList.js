@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-nested-ternary */
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import {
   Spinner, Col, Collapse, Row, OverlayTrigger, Button, Tooltip,
 } from 'react-bootstrap';
@@ -30,6 +30,7 @@ function ResultsList({ resultType }) {
   const [sortOption, setSortOption] = useState('default');
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   function areResultsFound(data) {
     let resultFound = true;
@@ -72,7 +73,7 @@ function ResultsList({ resultType }) {
           newQuery = `${newQuery}&campaignName=${params.get('keyword')}`;
           break;
         case 'users':
-          newQuery = `${newQuery}&username=${params.get('keyword')}`;
+          newQuery = `${newQuery}&fullName=${params.get('keyword')}`;
           break;
         default:
           break;
@@ -107,9 +108,16 @@ function ResultsList({ resultType }) {
     </Tooltip>
   );
 
+  const clearSearchQuery = () => {
+    navigate(`/search/${resultType}`);
+    window.location.reload();
+  };
+
   return (
     <div>
+      {(params.get('keyword') !== null) && (<Button style={{ float: 'left' }} variant="outline-secondary" onClick={clearSearchQuery}>Clear Search Filters</Button>)}
       <Row>
+
         <Collapse in={open}>
           <Row>
 

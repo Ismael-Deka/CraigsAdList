@@ -1,0 +1,9 @@
+.borderView{
+    border: 1px;
+    border-style:solid;
+    border-radius: 20px;
+    border-color: #ababab;
+    background-repeat: no-repeat;
+    background-clip: content-box;
+    background-position: right;
+}

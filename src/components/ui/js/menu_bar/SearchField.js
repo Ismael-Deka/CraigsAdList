@@ -3,9 +3,10 @@ import { useNavigate, useSearchParams } from 'react-router-dom'; // Import useNa
 import {
   Form, InputGroup, FormControl, Button, ListGroup, FormCheck,
 } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 import classes from '../../css/SearchField.module.css';
 
-function SearchField() {
+function SearchField({ isMobile }) {
   const [params] = useSearchParams();
   const keyword = params.get('keyword');
 
@@ -46,8 +47,9 @@ function SearchField() {
   const handleKeyPress = (event) => {
     if (event.key === 'Enter' && state.query.trim() !== '') {
       const searchOption = state.searchType.toLowerCase();
-      navigate(`/search/${searchOption}?keyword=${state.query}`);
       event.preventDefault();
+      navigate(`/search/${searchOption}?keyword=${state.query}`);
+      window.location.reload();
     }
   };
 
@@ -56,12 +58,12 @@ function SearchField() {
   };
 
   return (
-    <Form inline className="my-2 my-lg-0 mx-auto mr-4" onSubmit={handleFormSubmit}>
+    <Form inline onSubmit={handleFormSubmit}>
       <InputGroup>
         <FormControl
           type="text"
           placeholder="Search"
-          style={{ width: '30vw' }}
+          style={!isMobile ? { width: '30vw' } : { width: '50vw' }}
           className={`${classes.searchBar} mr-sm-2`}
           value={state.query}
           onChange={(e) => {
@@ -126,3 +128,8 @@ function SearchField() {
 }
 
 export default SearchField;
+
+// Validate the prop type for isMobile
+SearchField.propTypes = {
+  isMobile: PropTypes.bool.isRequired, // Define isMobile as a required boolean prop
+};

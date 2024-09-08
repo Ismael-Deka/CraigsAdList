@@ -20,6 +20,7 @@ function MenuBar() {
     currentUserId: '',
     currentUserPfp: '',
     isLoggedIn: false,
+    isMobileSearchOpen: false,
     screenSize: window.innerWidth,
   });
 
@@ -30,6 +31,10 @@ function MenuBar() {
   const hideCloseHandler = useCallback(() => {
     setState((prevState) => ({ ...prevState, isErrorDialogOpen: false }));
   }, []);
+
+  const mobileSearchHandler = () => {
+    setState((prevState) => ({ ...prevState, isMobileSearchOpen: !state.isMobileSearchOpen }));
+  };
 
   const logOut = useCallback(() => {
     fetch('/handle_logout', {
@@ -115,15 +120,6 @@ function MenuBar() {
   }, [location.pathname]);
 
   const menuItems = useMemo(() => [
-    {
-      size: 320,
-      component: (
-        <Navbar.Brand href="/" style={{ color: 'black' }}>
-          <SiteBrand width={40} height={40} />
-          {state.screenSize >= 603 && <span style={{ fontFamily: 'monospace' }}>CraigsAdList</span>}
-        </Navbar.Brand>
-      ),
-    },
     { size: 830, component: <Nav.Link href="/search/platforms" style={{ color: 'black' }}>Find Platforms</Nav.Link> },
     { size: 1003, component: <Nav.Link href="/search/campaigns" style={{ color: 'black' }}>Find Campaigns</Nav.Link> },
   ], [state.screenSize]);
@@ -133,6 +129,12 @@ function MenuBar() {
       <header className={classes.header}>
         <span className={classes.menu}>
           <Nav className="me-auto" activeKey="/ads" style={{ alignItems: 'center' }}>
+            {state.screenSize >= 320 && !state.isMobileSearchOpen && (
+            <Navbar.Brand href="/" style={{ color: 'black' }}>
+              <SiteBrand width={40} height={40} />
+              {state.screenSize >= 603 && <span style={{ fontFamily: 'monospace' }}>CraigsAdList</span>}
+            </Navbar.Brand>
+            )}
             {menuItems.map((item) => state.screenSize >= item.size && (
               <Nav.Item key={item.size}>
                 {item.component}
@@ -141,20 +143,24 @@ function MenuBar() {
           </Nav>
         </span>
 
-        {state.screenSize < 573 ? (
-          <Button id={classes.mobileSearchBar}>Search</Button>
+        {(state.screenSize < 573 && !state.isMobileSearchOpen) ? (
+          <Button id={classes.mobileSearchBar} onClick={mobileSearchHandler}>Search</Button>
         ) : (
-          <SearchBar /> // Include the new SearchBar component here
+          <SearchBar
+            isMobile={state.screenSize < 573}
+          /> // Include the new SearchBar component here
         )}
 
-        <ProfileButton
-          profileName={state.currentUser}
-          profilePictureUrl={state.currentUserPfp}
-          isLoggedIn={state.isLoggedIn}
-          logOut={logOut}
-          isMobile={state.screenSize <= 430}
-          id={state.currentUserId}
-        />
+        {(!state.isMobileSearchOpen) ? (
+          <ProfileButton
+            profileName={state.currentUser}
+            profilePictureUrl={state.currentUserPfp}
+            isLoggedIn={state.isLoggedIn}
+            logOut={logOut}
+            isMobile={state.screenSize <= 430}
+            id={state.currentUserId}
+          />
+        ) : (<Button variant="secondary" onClick={mobileSearchHandler}>Exit</Button>)}
       </header>
       {state.isErrorDialogOpen && (
         <LoginErrorDialog

@@ -31,19 +31,7 @@ function MenuNavigation() {
         Find Users
 
       </Dropdown.Item>
-      <Dropdown.Item href="/new_platforms">
-        {location.pathname === '/new_platforms' && <text>✓</text>}
-        {' '}
-        Create New Platform
 
-      </Dropdown.Item>
-
-      <Dropdown.Item href="/messages/inbox">
-        {(/^\/messages.*/).test(location.pathname) && <text>✓</text>}
-        {' '}
-        Messages
-
-      </Dropdown.Item>
     </div>
   );
 }

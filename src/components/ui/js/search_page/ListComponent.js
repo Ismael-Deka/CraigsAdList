@@ -2,6 +2,7 @@ import {
   Col, Row, Pagination,
 } from 'react-bootstrap';
 import PropTypes from 'prop-types';
+import FadeIn from 'react-fade-in';
 import PlatformItem from './platforms/PlatformItem';
 import AdCampaignItem from './ads/AdCampaignItem';
 import UserItem from './users/UserItem';
@@ -46,47 +47,47 @@ function ListComponent({
           <Col>
             <Pagination variant="secondary" className="mb-5">
               {
-                              Array.from({
-                                length: Math.floor(queryResultsCount / itemsPerPage),
-                              }).map((_, index) => {
-                                if ((index < 2)
-                                      || (index > currentPage - 3 && index < currentPage + 2)
-                                      || (index > Math.floor(queryResultsCount / itemsPerPage) - 3)
-                                ) {
-                                  return (
-                                    <Pagination.Item
-                                      key={`page-${index + 1}`}
-                                      active={index + 1 === currentPage}
-                                      onClick={() => {
-                                        setCurrentPage(index + 1);
-                                      }}
-                                    >
-                                      {index + 1}
-                                    </Pagination.Item>
-                                  );
-                                } if (
-                                  (index === 2 && currentPage > 5)
+                Array.from({
+                  length: Math.floor(queryResultsCount / itemsPerPage),
+                }).map((_, index) => {
+                  if ((index < 2)
+                    || (index > currentPage - 3 && index < currentPage + 2)
+                    || (index > Math.floor(queryResultsCount / itemsPerPage) - 3)
+                  ) {
+                    return (
+                      <Pagination.Item
+                        key={`page-${index + 1}`}
+                        active={index + 1 === currentPage}
+                        onClick={() => {
+                          setCurrentPage(index + 1);
+                        }}
+                      >
+                        {index + 1}
+                      </Pagination.Item>
+                    );
+                  } if (
+                    (index === 2 && currentPage > 5)
                                 || (index === Math.floor(queryResultsCount / itemsPerPage) - 3
                                 && currentPage < Math.floor(queryResultsCount / itemsPerPage) - 5)
-                                ) {
-                                  // Show an ellipsis item
-                                  return (
-                                    <>
-                                      <Pagination.Ellipsis key={`ellipsis-${index + 1}`} />
-                                      <Pagination.Item
-                                        key={`page-${Math.floor(queryResultsCount / itemsPerPage)}`}
-                                        onClick={() => setCurrentPage(
-                                          Math.floor(queryResultsCount / itemsPerPage),
-                                        )}
-                                      >
-                                        {Math.floor(queryResultsCount / itemsPerPage)}
-                                      </Pagination.Item>
-                                    </>
-                                  );
-                                }
+                  ) {
+                    // Show an ellipsis item
+                    return (
+                      <>
+                        <Pagination.Ellipsis key={`ellipsis-${index + 1}`} />
+                        <Pagination.Item
+                          key={`page-${Math.floor(queryResultsCount / itemsPerPage)}`}
+                          onClick={() => setCurrentPage(
+                            Math.floor(queryResultsCount / itemsPerPage),
+                          )}
+                        >
+                          {Math.floor(queryResultsCount / itemsPerPage)}
+                        </Pagination.Item>
+                      </>
+                    );
+                  }
 
-                                return null; // Hide other pages
-                              })
+                  return null; // Hide other pages
+                })
                           }
             </Pagination>
           </Col>
@@ -99,61 +100,62 @@ function ListComponent({
           {' '}
           results found.
         </h3>
+        <FadeIn>
+          <Row lg={1} xl={2} className="g-4">
 
-        <Row lg={1} xl={2} className="g-4">
-          {
+            {
+              results.map(
+                (resultsItem) => (
+                  handleResultItems(resultsItem)
+                ),
+              )
+            }
 
-                        results.map(
-                          (resultsItem) => (
-                            handleResultItems(resultsItem)
-                          ),
-                        )
-
-                            }
-        </Row>
+          </Row>
+        </FadeIn>
       </Col>
       <Row>
         <Pagination className="mt-5">
           {
-                      Array.from({
-                        length: Math.floor(queryResultsCount / itemsPerPage),
-                      }).map((_, index) => {
-                        if ((index < 2)
-                              || (index > currentPage - 3 && index < currentPage + 2)
-                              || (index > Math.floor(queryResultsCount / itemsPerPage) - 3)
-                        ) {
-                          return (
-                            <Pagination.Item
-                              key={`page-${index + 1}`}
-                              active={index + 1 === currentPage}
-                              onClick={() => setCurrentPage(index + 1)}
-                            >
-                              {index + 1}
-                            </Pagination.Item>
-                          );
-                        } if (
-                          (index === 2 && currentPage > 5)
+              Array.from({
+                length: Math.floor(queryResultsCount / itemsPerPage),
+              }).map((_, index) => {
+                if ((index < 2)
+                  || (index > currentPage - 3 && index < currentPage + 2)
+                  || (index > Math.floor(queryResultsCount / itemsPerPage) - 3)
+                ) {
+                  return (
+                    <Pagination.Item
+                      key={`page-${index + 1}`}
+                      active={index + 1 === currentPage}
+                      onClick={() => setCurrentPage(index + 1)}
+                    >
+                      {index + 1}
+                    </Pagination.Item>
+                  );
+                } if (
+                  (index === 2 && currentPage > 5)
                               || (index === Math.floor(queryResultsCount / itemsPerPage) - 3
                                   && currentPage < Math.floor(queryResultsCount / itemsPerPage) - 5)
-                        ) {
-                          // Show an ellipsis item
-                          return (
-                            <>
-                              <Pagination.Ellipsis key={`ellipsis-${index + 1}`} />
-                              <Pagination.Item
-                                key={`page-${Math.floor(queryResultsCount / itemsPerPage)}`}
-                                onClick={() => setCurrentPage(
-                                  Math.floor(queryResultsCount / itemsPerPage),
-                                )}
-                              >
-                                {Math.floor(queryResultsCount / itemsPerPage)}
-                              </Pagination.Item>
-                            </>
-                          );
-                        }
+                ) {
+                  // Show an ellipsis item
+                  return (
+                    <>
+                      <Pagination.Ellipsis key={`ellipsis-${index + 1}`} />
+                      <Pagination.Item
+                        key={`page-${Math.floor(queryResultsCount / itemsPerPage)}`}
+                        onClick={() => setCurrentPage(
+                          Math.floor(queryResultsCount / itemsPerPage),
+                        )}
+                      >
+                        {Math.floor(queryResultsCount / itemsPerPage)}
+                      </Pagination.Item>
+                    </>
+                  );
+                }
 
-                        return null; // Hide other pages
-                      })
+                return null; // Hide other pages
+              })
                   }
         </Pagination>
       </Row>

@@ -21,7 +21,7 @@ class Account(UserMixin, db.Model):
     bio = db.Column(db.Text, nullable=True)
     platform_owner = db.Column(db.Boolean, default=False)
     profile_pic = db.Column(db.Integer, default=-1)
-    date_created = db.Column(db.Integer, default=int(time.time()))
+    date_created = db.Column(db.Integer, default=int(db.func.extract('epoch', db.func.now())))
     last_login = db.Column(db.Integer, nullable=True)
     full_name = db.Column(db.String(256), nullable=True)
 
@@ -32,7 +32,7 @@ class Account(UserMixin, db.Model):
         self.full_name = full_name
         self.platform_owner = platform_owner
         self.profile_pic = profile_pic
-        self.date_created = int(time.time())  # Current Unix timestamp
+        self.date_created = int(db.func.extract('epoch', db.func.now()))  # Current Unix timestamp
         self.last_login = None
         self.bio = bio
         self.phone = phone
@@ -83,9 +83,9 @@ class Platform(db.Model):
     currency = db.Column(db.String(3), nullable=False)  # using 3-character ISO codes
     medium = db.Column(db.String(128), nullable=True)  
     
-    date_created = db.Column(db.Integer, default=time.time())
+    date_created = db.Column(db.Integer, default=db.func.extract('epoch', db.func.now()))
     is_active = db.Column(db.Boolean, default=True)
-    last_updated = db.Column(db.Integer, default=time.time(), onupdate=time.time())
+    last_updated = db.Column(db.Integer, default=db.func.extract('epoch', db.func.now()), onupdate=db.func.extract('epoch', db.func.now()))
 
     def __init__(self, owner_id, show_platform, platform_name, impressions, impression_type, topics, preferred_price, currency, medium, description=None):
         self.owner_id = owner_id

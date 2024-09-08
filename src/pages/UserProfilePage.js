@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container, Row, Col, ListGroup, Spinner, Button, Modal, Form, Card, Stack,
 } from 'react-bootstrap';
+import FadeIn from 'react-fade-in';
 import CircleImage from '../components/ui/js/misc/CircleImage';
 
 function UserProfilePage() {
@@ -47,8 +48,10 @@ function UserProfilePage() {
       return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
     } if (diffInHours > 0) {
       return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    } if (diffInMinutes > 0) {
+      return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
     }
-    return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+    return 'Just Now';
   };
 
   const navigateToPlatform = (e, id) => {
@@ -60,9 +63,9 @@ function UserProfilePage() {
   };
 
   // Open the new message modal
-  const handleShowMessageModal = () => {
+  /* const handleShowMessageModal = () => {
     setShowMessageModal(true);
-  };
+  }; */
 
   // Close the new message modal
   const handleCloseMessageModal = () => {
@@ -163,14 +166,16 @@ function UserProfilePage() {
   if (!isUserFound) {
     document.title = '404 - CraigsAdList';
     return (
-      <div
-        align="center"
-        style={{ marginTop: '40vh' }}
-      >
-        <h1>404</h1>
-        <l>This user cannot be found or does not exist.</l>
-        <p>Please try again later.</p>
-      </div>
+      <FadeIn>
+        <div
+          align="center"
+          style={{ marginTop: '40vh' }}
+        >
+          <h1>404</h1>
+          <l>This user cannot be found or does not exist.</l>
+          <p>Please try again later.</p>
+        </div>
+      </FadeIn>
     );
   }
 
@@ -182,89 +187,92 @@ function UserProfilePage() {
           <Row className="justify-content-center">
             <Col className="mb-5" md={8} alignItem="center">
               {/* Profile Picture */}
-              <CircleImage
-                src={decodedPfp}
-                alt="Profile"
-                size="large"
-                className="mb-3"
-              />
-              {/* Full Name */}
-              <h2>{fullName}</h2>
-              <Stack direction="horizontal" gap={3}>
-                <Col>
-                  {/* Email */}
-                  <p>
-                    <Card.Subtitle className="text-muted">
-                      Email:
-                    </Card.Subtitle>
-                    {' '}
-                    {email}
-                  </p>
-                  {/* Phone number (if available) */}
-                  {phone ? (
+              <FadeIn>
+                <CircleImage
+                  src={decodedPfp}
+                  alt="Profile"
+                  size="large"
+                  className="mb-3"
+                />
+                {/* Full Name */}
+                <h2>{fullName}</h2>
+                <Stack direction="horizontal" gap={3}>
+                  <Col>
+                    {/* Email */}
                     <p>
                       <Card.Subtitle className="text-muted">
-                        Phone:
+                        Email:
                       </Card.Subtitle>
                       {' '}
-                      {phone}
+                      {email}
                     </p>
-                  ) : (
+                    {/* Phone number (if available) */}
+                    {phone ? (
+                      <p>
+                        <Card.Subtitle className="text-muted">
+                          Phone:
+                        </Card.Subtitle>
+                        {' '}
+                        {phone}
+                      </p>
+                    ) : (
+                      <p>
+                        <Card.Subtitle className="text-muted">
+                          Phone:
+                        </Card.Subtitle>
+                        {' Not Availible'}
+
+                      </p>
+                    ) }
+                  </Col>
+                  <Col>
+                    {/* Last login */}
                     <p>
                       <Card.Subtitle className="text-muted">
-                        Phone:
+                        Last login:
                       </Card.Subtitle>
-                      {' Not Availible'}
-
+                      {' '}
+                      {lastLogin || 'Never logged in'}
                     </p>
-                  ) }
-                </Col>
-                <Col>
-                  {/* Last login */}
-                  <p>
-                    <Card.Subtitle className="text-muted">
-                      Last login:
-                    </Card.Subtitle>
-                    {' '}
-                    {lastLogin || 'Never logged in'}
-                  </p>
-                  {/* Date created */}
-                  <p>
-                    <Card.Subtitle className="text-muted">
-                      Account created:
-                    </Card.Subtitle>
-                    {' '}
-                    {dateCreated}
-                  </p>
-                </Col>
-              </Stack>
-              <Button variant="primary" onClick={handleShowMessageModal}>
+                    {/* Date created */}
+                    <p>
+                      <Card.Subtitle className="text-muted">
+                        Account created:
+                      </Card.Subtitle>
+                      {' '}
+                      {dateCreated}
+                    </p>
+                  </Col>
+                </Stack>
+                {/* <Button variant="primary" onClick={handleShowMessageModal}>
                 Send Message
-              </Button>
+              </Button> */}
+              </FadeIn>
             </Col>
           </Row>
           <Row className="justify-content-center">
             <Col md={8}>
-              {/* Bio Section inside a Bootstrap Card */}
-              <Card className="mb-4">
-                <Card.Header><h3>Bio</h3></Card.Header>
-                <Card.Body>
-                  <Card.Text>{bio}</Card.Text>
-                </Card.Body>
-              </Card>
+              <FadeIn>
+                {/* Bio Section inside a Bootstrap Card */}
+                <Card className="mb-4">
+                  <Card.Header><h3>Bio</h3></Card.Header>
+                  <Card.Body>
+                    <Card.Text>{bio}</Card.Text>
+                  </Card.Body>
+                </Card>
 
-              {/* Conditional List (Campaigns or Platforms) */}
-              <div className="mb-4">
-                <Card.Header style={{ border: '1px solid rgba(0,0,0,.125)' }}><h3>{isPlatformOwner ? 'Platforms Owned' : 'Ad Campaigns'}</h3></Card.Header>
-                <ListGroup>
-                  {isPlatformOwner
-                    ? platforms.map((platform) => (
-                      <ListGroup.Item
-                        style={{ cursor: 'pointer' }}
-                        onClick={(e) => navigateToPlatform(e, platform.id)}
-                        key={platform.id}
-                      >
-                        {!isScreenSmall && (
+                {/* Conditional List (Campaigns or Platforms) */}
+                <div className="mb-4">
+                  <Card.Header style={{ border: '1px solid rgba(0,0,0,.125)' }}><h3>{isPlatformOwner ? 'Platforms Owned' : 'Ad Campaigns'}</h3></Card.Header>
+                  <ListGroup>
+                    {isPlatformOwner
+                      ? platforms.map((platform) => (
+                        <ListGroup.Item
+                          style={{ cursor: 'pointer' }}
+                          onClick={(e) => navigateToPlatform(e, platform.id)}
+                          key={platform.id}
+                        >
+                          {!isScreenSmall && (
                           <Stack direction="horizontal" gap={5}>
                             <div>
                               <CircleImage
@@ -297,8 +305,8 @@ function UserProfilePage() {
                               </p>
                             </div>
                           </Stack>
-                        )}
-                        {isScreenSmall && (
+                          )}
+                          {isScreenSmall && (
                           <Stack gap={3}>
                             <div align="center">
                               <CircleImage
@@ -329,16 +337,16 @@ function UserProfilePage() {
                               {` ${platform.topics}`}
                             </p>
                           </Stack>
-                        )}
-                      </ListGroup.Item>
-                    ))
-                    : campaigns.map((campaign) => (
-                      <ListGroup.Item
-                        style={{ cursor: 'pointer' }}
-                        onClick={(e) => navigateToCampaign(e, campaign.id)}
-                        key={campaign.id}
-                      >
-                        {!isScreenSmall && (
+                          )}
+                        </ListGroup.Item>
+                      ))
+                      : campaigns.map((campaign) => (
+                        <ListGroup.Item
+                          style={{ cursor: 'pointer' }}
+                          onClick={(e) => navigateToCampaign(e, campaign.id)}
+                          key={campaign.id}
+                        >
+                          {!isScreenSmall && (
                           <Stack direction="horizontal" gap={5}>
                             <div>
                               <CircleImage
@@ -365,8 +373,8 @@ function UserProfilePage() {
                               </p>
                             </div>
                           </Stack>
-                        )}
-                        {isScreenSmall && (
+                          )}
+                          {isScreenSmall && (
                           <Stack gap={3}>
                             <div align="center">
                               <CircleImage
@@ -393,11 +401,12 @@ function UserProfilePage() {
                               </p>
                             </div>
                           </Stack>
-                        )}
-                      </ListGroup.Item>
-                    ))}
-                </ListGroup>
-              </div>
+                          )}
+                        </ListGroup.Item>
+                      ))}
+                  </ListGroup>
+                </div>
+              </FadeIn>
             </Col>
           </Row>
         </Col>

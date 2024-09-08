@@ -67,7 +67,7 @@ function SimpleListItem({
               </OverlayTrigger>
             </Card.Title>
             <Card.Text>
-              <p className={classes.ellipsisText}>
+              <p className={classes.ellipsisText} style={{ fontSize: 'small' }}>
                 {metadata}
               </p>
             </Card.Text>

@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import {
-  Container, Row, Col, Spinner,
+  Container, Row, Col, Spinner, Stack,
 } from 'react-bootstrap';
+import FadeIn from 'react-fade-in';
 import SimpleListItem from '../components/ui/js/misc/SimpleListItem';
+import PlatformIcon from '../images/empty_billboard_Vector.svg';
+import CampaignIcon from '../images/cal_blowhorn_icon.svg';
+import HomeView from '../components/ui/js/misc/HomeView';
 
 function LandingPage() {
   const [platforms, setPlatforms] = useState([]);
@@ -84,58 +88,64 @@ function LandingPage() {
 
   return (
     <Container>
-      <Row>
-        <Col>
-          <h1>Welcome to CraigsAdList!</h1>
-          <p>Discover platforms, ad campaigns, and more.</p>
-          <p style={{ fontSize: '0.6rem' }}>(Pardon the mess. This site is still under construction.)</p>
-        </Col>
-      </Row>
+      <FadeIn>
+        <Row>
+          <HomeView />
+        </Row>
 
-      <Row>
-        <Col>
-          <a href="/search/platforms" style={{ float: 'right' }}>More.</a>
-          <h3>Platforms</h3>
+        <Row>
+          <Col>
+            <a href="/search/platforms" style={{ float: 'right' }}>More.</a>
+            <Stack direction="horizontal">
+              <img
+                style={{ height: '40px', width: '40px', paddingRight: '0.5rem' }}
+                src={PlatformIcon}
+                alt="Platform Icon"
+              />
+              <h3>Platforms</h3>
+            </Stack>
+            <Row className="mb-5">
+              {platforms.map((platform) => (
+                <Col className="mb-3" xs={12} md={6} key={platform.id}>
+                  <SimpleListItem
+                    name={platform.platformName}
+                    metadata={`Monthly Impressions: ${platform.impressions.toLocaleString()}`}
+                    pfp={platform.pfp}
+                    isMobile={isMobile}
+                    navigateToUserProfile={() => navigateToPlatform(platform.id)}
+                  />
+                </Col>
+              ))}
+            </Row>
+            <a href="/search/campaigns" style={{ float: 'right' }}>More.</a>
+            <Stack direction="horizontal">
+              <img style={{ height: '40px', width: '40px' }} src={CampaignIcon} alt="Campaign Icon" />
+              <h3>Ad Campaigns</h3>
+            </Stack>
+            <Row className="mb-5">
+              {campaigns.map((campaign) => (
+                <Col className="mb-3" xs={12} md={6} key={campaign.id}>
+                  <SimpleListItem
+                    name={campaign.campaignName}
+                    metadata={`Budget: $${campaign.budget.toLocaleString()}`}
+                    pfp={campaign.pfp}
+                    isMobile={isMobile}
+                    navigateToUserProfile={() => navigateToCampaign(campaign.id)}
+                  />
+                </Col>
+              ))}
+            </Row>
+          </Col>
+        </Row>
 
-          <Row className="mb-5">
-            {platforms.map((platform) => (
-              <Col className="mb-3" xs={12} md={6} key={platform.id}>
-                <SimpleListItem
-                  name={platform.platformName}
-                  metadata={`Monthly Impressions: ${platform.impressions.toLocaleString()}`}
-                  pfp={platform.pfp}
-                  isMobile={isMobile}
-                  navigateToUserProfile={() => navigateToPlatform(platform.id)}
-                />
-              </Col>
-            ))}
-          </Row>
-          <a href="/search/campaigns" style={{ float: 'right' }}>More.</a>
-          <h3>Ad Campaigns</h3>
-
-          <Row className="mb-5">
-            {campaigns.map((campaign) => (
-              <Col className="mb-3" xs={12} md={6} key={campaign.id}>
-                <SimpleListItem
-                  name={campaign.campaignName}
-                  metadata={`Budget: $${campaign.budget.toLocaleString()}`}
-                  pfp={campaign.pfp}
-                  isMobile={isMobile}
-                  navigateToUserProfile={() => navigateToCampaign(campaign.id)}
-                />
-              </Col>
-            ))}
-          </Row>
-        </Col>
-      </Row>
-
-      <div style={{
-        bottom: 0,
-        textAlign: 'center',
-      }}
-      >
-        <p style={{ fontSize: 'small' }}>Made by: Ismael Deka, Subhash Tanikella, Pavel Popov, Utsav Patel (2022)</p>
-      </div>
+        <div style={{
+          bottom: 0,
+          textAlign: 'center',
+        }}
+        >
+          <p style={{ fontSize: 'small' }}>Made by: Ismael Deka, Subhash Tanikella, Pavel Popov, Utsav Patel (2022)</p>
+        </div>
+      </FadeIn>
     </Container>
 
   );

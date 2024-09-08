@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 import PropTypes from 'prop-types';
 
-import OfferModal from '../../misc/OfferModal';
+// import OfferModal from '../../misc/OfferModal';
 
 import classes from '../../../css/ListItem.module.css';
 
@@ -25,7 +25,7 @@ function AdCampaignItem(props) {
   const infoCardRef = useRef(null);
   const infoCardTitleRef = useRef(null);
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 475);
   const [showTooltip, setShowTooltip] = useState(false);
   const [cardWidth, setCardWidth] = useState(0);
 
@@ -44,7 +44,7 @@ function AdCampaignItem(props) {
       }
     };
     const handleWindowResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 475);
     };
 
     handleCardResize();
@@ -74,7 +74,7 @@ function AdCampaignItem(props) {
 
   return (
     <Col>
-      <Card ref={infoCardRef} style={isMobile ? { width: 'max-content' } : {}}>
+      <Card ref={infoCardRef} style={isMobile ? { width: '90vw' } : {}}>
         <Stack direction={isMobile ? 'vertical' : 'horizontal'}>
           {isMobile && (
             <Card.Img
@@ -127,7 +127,7 @@ function AdCampaignItem(props) {
           </Card.Body>
         </Stack>
         <Card.Footer>
-          <OfferModal style={{ float: 'left' }} campaignId={campaign.id} />
+          {/* <OfferModal style={{ float: 'left' }} campaignId={campaign.id} /> */}
           <small className="text-muted" style={{ float: 'right' }}>
             by
             {' '}

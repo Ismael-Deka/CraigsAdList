@@ -54,21 +54,12 @@ function LoginPage() {
   }
 
   useEffect(() => {
-    document.title = 'Please Log-in - CraigsAdList';
+    document.title = 'Log-in - CraigsAdList';
   }, []);
 
   return (
     <div>
-      <Card style={{
-        marginTop: '5vh',
-        display: 'block',
-        width: '50%',
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        textAlign: 'center',
-        padding: '50px',
-      }}
-      >
+      <Card className={classes.cardContainer}>
         <div>
           <div className={classes.welcome_logo}>Log-In</div>
           <Form className="d-flex justify-content-center">
@@ -80,7 +71,6 @@ function LoginPage() {
                 <Form.Control type="password" placeholder="Password" onChange={setPassword} />
               </Form.Group>
             </div>
-
           </Form>
 
           <Button variant="outline-secondary" onClick={logIn}>Submit</Button>

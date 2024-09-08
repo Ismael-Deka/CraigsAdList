@@ -1,3 +1,22 @@
+/* LoginSignupPage.module.css */
+.cardContainer {
+  margin-top: 5vh;
+  display: block;
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  padding: 50px;
+}
+
+/* Media query for screen widths less than 603px */
+@media (max-width: 603px) {
+  .cardContainer {
+    width: 90%;
+  }
+}
+
+
 .login {
     padding: 50x;
 }

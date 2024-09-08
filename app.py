@@ -4,6 +4,7 @@ import os
 import flask
 import ibm_boto3
 import traceback
+import time
 
 from flask_login import current_user, login_required, login_user, logout_user, LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -99,6 +100,9 @@ def handle_login():
             user.password, flask.request.json["password"]
         ):
             is_login_successful = login_user(user)
+            if is_login_successful:
+                user.last_login = time.time()
+                db.session.commit()
             return flask.jsonify(
                 {"is_login_successful": is_login_successful, "error_message": ""}
             )
