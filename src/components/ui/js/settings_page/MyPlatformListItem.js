@@ -4,8 +4,8 @@ import {
   Card, Button, Modal, Form,
 } from 'react-bootstrap';
 
-function PlatformListItem({
-  id, platformName, impressions, topics, pricePerAdView, currency, onDelete, onUpdate,
+function MyPlatformListItem({
+  id, platformName, impressions, topics, pricePerAdView, onDelete, onUpdate,
 }) {
   const [updatedPlatformName, setUpdatedPlatformName] = useState(platformName);
   const [updatedImpressions, setUpdatedImpressions] = useState(impressions);
@@ -46,22 +46,12 @@ function PlatformListItem({
     <Card className="mb-3">
       <Card.Body>
         <h1>{platformName}</h1>
-        <Card.Subtitle className="mb-2 text-muted">
-          Impressions:
-        </Card.Subtitle>
+        <Card.Subtitle className="mb-2 text-muted">Impressions:</Card.Subtitle>
         <Card.Text>{impressions}</Card.Text>
-        <Card.Subtitle className="mb-2 text-muted">
-          Topics:
-        </Card.Subtitle>
-        <Card.Text>{` ${topics}`}</Card.Text>
-        <Card.Subtitle className="mb-2 text-muted">
-          Preferred Price per Ad View:
-        </Card.Subtitle>
-        <Card.Text>
-          {` ${pricePerAdView}`}
-          {' '}
-          {currency}
-        </Card.Text>
+        <Card.Subtitle className="mb-2 text-muted">Topics:</Card.Subtitle>
+        <Card.Text>{topics}</Card.Text>
+        <Card.Subtitle className="mb-2 text-muted">Preferred Price per Ad View:</Card.Subtitle>
+        <Card.Text>{pricePerAdView}</Card.Text>
         {onDelete && (
           <div>
             <Button variant="primary" onClick={handleShowEditModal}>
@@ -110,7 +100,7 @@ function PlatformListItem({
               <Form.Control
                 type="number"
                 value={updatedPricePerAdView}
-                onChange={(e) => setUpdatedPricePerAdView(e.target.value)}
+                onChange={(e) => setUpdatedPricePerAdView(`$${e.target.value}`)}
               />
             </Form.Group>
           </Form>
@@ -131,7 +121,7 @@ function PlatformListItem({
           <Modal.Title>Invalid Input</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Please enter valid numbers for Impressions and Price per Ad View.
+          Please enter valid numbers for Price per Ad View.
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseWarningModal}>
@@ -143,15 +133,14 @@ function PlatformListItem({
   );
 }
 
-PlatformListItem.propTypes = {
+MyPlatformListItem.propTypes = {
   id: PropTypes.string.isRequired,
   platformName: PropTypes.string.isRequired,
   impressions: PropTypes.number.isRequired,
   topics: PropTypes.string.isRequired,
   pricePerAdView: PropTypes.number.isRequired,
-  currency: PropTypes.string.isRequired,
   onDelete: PropTypes.func.isRequired,
   onUpdate: PropTypes.func.isRequired,
 };
 
-export default PlatformListItem;
+export default MyPlatformListItem;

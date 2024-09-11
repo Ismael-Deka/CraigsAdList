@@ -5,9 +5,11 @@
 """ Fuctions for extracting data from database """
 from flask_login import current_user
 from models import Account, Campaign, Platform, db
+from sqlalchemy.exc import IntegrityError
 import os
 import io
 import traceback
+import flask
 from PIL import Image
 
 def get_profile_pic( pfp_index, img_type):
@@ -25,44 +27,38 @@ def get_search_pic(pfp_index, img_type):
 def upload_profile_pic(cos, pfp_index, img, img_type):
     if img is None or img == '':
         return False
-    img_search = img
     # Upload img to IBM COS
-    try:
-        cos.upload_fileobj(img, os.getenv("COS_BUCKET_NAME"), f"pfp/{img_type}/{pfp_index}.png")
-        cos.upload_fileobj(resize_profile_pic(img_search), os.getenv("COS_BUCKET_NAME"), f"pfp00/{img_type}/{pfp_index}.png")
-        return True
-    except Exception as e:
-        tb = traceback.format_exc()
-        print(f"An error occurred: {e}")
-        print(tb)
-        return False
-def upload_profile_pic(cos, pfp_index, img, img_type):
-    if img is None or img == '':
-        return False
     img_search = resize_profile_pic(img)
-    # Upload img to IBM COS
+    img.seek(0)
+    img_search.seek(0)
     try:
         cos.upload_fileobj(img, os.getenv("COS_BUCKET_NAME"), f"pfp_source/{img_type}/{pfp_index}.png")
+        
         cos.upload_fileobj(img_search, os.getenv("COS_BUCKET_NAME"), f"pfp200/{img_type}/{pfp_index}.png")
+
         return True
+    except IntegrityError as e:
+        db.session.rollback()
+        print('hello')
+        print(f"Integrity error occurred: {e}")
     except Exception as e:
         tb = traceback.format_exc()
         print(f"An error occurred: {e}")
         print(tb)
-        return False
+    
+    return False
 
-def resize_profile_pic(img):
-        img_buffer = io.BytesIO(img.read())
-        print(img_buffer)
-        with Image.open(img.stream) as img:
-            img_resized = img.resize((200,200), Image.Resampling.LANCZOS)
+def resize_profile_pic(new_img):
+        with Image.open(new_img.stream) as img:
+            img_resized = img.resize((200,200), Image.LANCZOS)
             
-            img_io = io.BytesIO()
+            img_io = io.BytesIO(img_resized.tobytes())
 
             img_resized.save(img_io, format='PNG')  
             img_io.seek(0)  
-
-            return img_io  
+            print(len(img_io.read()))
+            return img_io
+          
 
 def get_all_accounts():
     """Returns all accounts stored in database"""
@@ -97,13 +93,6 @@ def create_campaign(title, topics="", description="", budget=0, show_in_list=Tru
     return does_campaign_exist(title)
 
 
-
-def does_campaign_exist(ad_title):
-    """Check if the Campaign with the given title exists in the database"""
-    advertisement = Campaign.query.filter_by(title=ad_title).first()
-    return advertisement is not None
-
-
 def create_platform(
     platform_name, topics, preferred_price, impressions=0, show_platform=True
 ):
@@ -121,6 +110,15 @@ def create_platform(
     db.session.commit()
     return does_platform_exist(platform_name)
 
+def does_user_exist(user_id):
+    """Check if the Campaign with the given title exists in the database"""
+    user = Account.query.filter_by(id=user_id).first()
+    return user is not None
+
+def does_campaign_exist(ad_title):
+    """Check if the Campaign with the given title exists in the database"""
+    advertisement = Campaign.query.filter_by(title=ad_title).first()
+    return advertisement is not None
 
 def does_platform_exist(platform_name):
     """Check if the Platform with the given name exists in the database"""
@@ -267,7 +265,6 @@ def get_user_results(args):
     sort_method = args.get("sortBy")
     sort_order = args.get("sortOrder")
     accounts = Account.query.all()
-    print(len(accounts))
     accounts_data = []
 
     for account in accounts:
@@ -285,7 +282,6 @@ def get_user_results(args):
             print(f"An error occurred: {e}")
             print(tb)
             continue
-    print(f'Length of data: {len(accounts)}')
     accounts_data = filter_results(args=args, data_list=accounts_data, arg_list=
                                         ["id",
                                          "email",

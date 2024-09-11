@@ -3,14 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, Tab, Spinner } from 'react-bootstrap';
 import UserAccountForm from './UserAccountForm';
-import PlatformManagementForm from './PlatformManagementForm';
+import MyPlatformsCampaignsList from './MyPlatformsCampaignsList';
 
 function UserTabs() {
   const [activeTab, setActiveTab] = useState('account');
   const [loading, setLoading] = useState(true);
   const [account, setAccount] = useState({});
   const [platforms, setPlatforms] = useState(Array(0));
-  // const [campaignProps, setCampaignProps] = useState({});
+  const [campaignProps, setCampaignProps] = useState({});
+  const [isPlatformOwner, setIsPlatformOwner] = useState(false);
 
   const handleTabSelect = (tab) => {
     setActiveTab(tab);
@@ -38,8 +39,12 @@ function UserTabs() {
       })
       .then((data) => {
         handleAccountInfo(data.account);
-        setPlatforms(data.platforms);
-        // setCampaignProps(data.campaigns);
+        setIsPlatformOwner(data.account.platform_owner);
+        if (data.platforms !== null) {
+          setPlatforms(data.platforms);
+        } else {
+          setCampaignProps(data.campaigns);
+        }
       })
       .catch((error) => {
         // eslint-disable-next-line no-console
@@ -68,11 +73,11 @@ function UserTabs() {
           <Tab eventKey="account" className="card-body" title="My Account">
             <UserAccountForm account={account} />
           </Tab>
-          <Tab eventKey="platforms" title="My Platforms">
-            <PlatformManagementForm platforms={platforms} />
-          </Tab>
-          <Tab eventKey="campaign-props" title="My Campaigns">
-            {/* <CampaignPropositionList /> */}
+          <Tab eventKey="platformsCampaigns" title={isPlatformOwner ? 'My Platforms' : 'My Campaigns'}>
+            <MyPlatformsCampaignsList
+              platforms={isPlatformOwner ? platforms : []}
+              campaigns={!isPlatformOwner ? campaignProps : []}
+            />
           </Tab>
 
         </Tabs>

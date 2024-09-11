@@ -3,10 +3,12 @@ import {
   Form, Button, Modal, Container, Row, Col, Toast,
 } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import ImageSelectForm from '../misc/ImageSelectForm'; // Import the new component
+import ImageSelectForm from '../misc/ImageSelectForm';
 
 function UserAccountForm() {
   const [localUsername, setLocalUsername] = useState('');
+  const [localFullName, setLocalFullName] = useState(''); // Full Name state
+  const [localPhoneNumber, setLocalPhoneNumber] = useState(''); // Phone Number state
   const [localEmail, setLocalEmail] = useState('');
   const [localProfilePic, setLocalPfp] = useState('');
   const [currentProfilePic, setCurrentPfp] = useState('');
@@ -27,8 +29,13 @@ function UserAccountForm() {
 
   const [submittingForm, setSubmittingForm] = useState(null);
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // Delete Account modal state
+
   const handleShowConfirmation = () => setShowConfirmationModal(true);
   const handleCloseConfirmation = () => setShowConfirmationModal(false);
+
+  const handleShowDeleteModal = () => setShowDeleteModal(true); // Open delete modal
+  const handleCloseDeleteModal = () => setShowDeleteModal(false); // Close delete modal
 
   const handleConfirmSubmit = (formType) => {
     if (formType === 'profile' && emailFormatError) return;
@@ -49,6 +56,8 @@ function UserAccountForm() {
       formData.append('is_pfp_changed', localProfilePic !== '');
       formData.append('username', localUsername);
       formData.append('email', localEmail);
+      formData.append('full_name', localFullName); // Include full name in profile update
+      formData.append('phone_number', localPhoneNumber); // Include phone number in profile update
 
       const requestOptions = {
         method: 'POST',
@@ -118,8 +127,26 @@ function UserAccountForm() {
     };
   };
 
+  const handleDeleteAccount = () => {
+    fetch('/delete_current_user', { method: 'POST' })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          setSuccessMessage('Account successfully deleted.');
+          setShowSuccessModal(true);
+          setTimeout(() => {
+            fetch('/handle_logout');
+            window.location.reload();
+          }, 4000);
+        } else {
+          setErrorMessage('Failed to delete the account.');
+          setShowErrorModal(true);
+        }
+      });
+    handleCloseDeleteModal(); // Close delete confirmation modal
+  };
+
   const validateEmail = (email) => {
-    // Regular expression for email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
@@ -146,6 +173,8 @@ function UserAccountForm() {
         setLocalEmail(data.account.email);
         setLocalUsername(data.account.username);
         setCurrentPfp(data.account.pfp);
+        setLocalFullName(data.account.full_name || ''); // Load full name
+        setLocalPhoneNumber(data.account.phone || ''); // Load phone number
       });
   }, []);
 
@@ -153,7 +182,6 @@ function UserAccountForm() {
     <Container>
       <Row className="mt-5">
         <Col md={{ span: 8, offset: 2 }}>
-
           <h2>My Account</h2>
 
           {/* Use ImageSelectForm Component */}
@@ -171,6 +199,7 @@ function UserAccountForm() {
           >
             <h4 className="mt-5">Edit Profile</h4>
             <hr className="hr hr-blurry" />
+
             <Form.Group className="mb-3 mt-3" controlId="username">
               <Form.Label>Username</Form.Label>
               <Form.Control
@@ -182,13 +211,33 @@ function UserAccountForm() {
               />
             </Form.Group>
 
+            <Form.Group className="mb-3" controlId="fullName">
+              <Form.Label>Full Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter your full name"
+                value={localFullName}
+                onChange={(e) => setLocalFullName(e.target.value)}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="phoneNumber">
+              <Form.Label>Phone Number</Form.Label>
+              <Form.Control
+                type="tel"
+                placeholder="Enter your phone number"
+                value={localPhoneNumber}
+                onChange={(e) => setLocalPhoneNumber(e.target.value)}
+              />
+            </Form.Group>
+
             <Form.Group className="mb-3" controlId="email">
               <Form.Label>Email Address</Form.Label>
               <Form.Control
                 type="email"
                 placeholder="Enter your email address"
                 value={localEmail}
-                onChange={(e) => handleEmailChange(e.target.value)}
+                onChange={(e) => handleEmailChange(e)}
                 required
               />
               {emailFormatError && <Form.Text className="text-danger">{emailFormatError}</Form.Text>}
@@ -244,6 +293,12 @@ function UserAccountForm() {
             </Button>
           </Form>
 
+          <h4 className="mt-5">Danger Zone</h4>
+          <hr className="hr hr-blurry" />
+          <Button className="mb-5" variant="danger" onClick={handleShowDeleteModal}>
+            Delete Account
+          </Button>
+
           <Toast onClose={() => setShowPfpToast(false)} show={showPfpToast} delay={5000}>
             <Toast.Header>
               <strong className="mr-auto">Error</strong>
@@ -295,6 +350,21 @@ function UserAccountForm() {
             </Modal.Footer>
           </Modal>
 
+          {/* Delete Confirmation Modal */}
+          <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
+            <Modal.Header closeButton>
+              <Modal.Title>Confirm Account Deletion</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>Are you sure you want to permanently delete your account?</Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseDeleteModal}>
+                Cancel
+              </Button>
+              <Button variant="danger" onClick={handleDeleteAccount}>
+                Delete Account
+              </Button>
+            </Modal.Footer>
+          </Modal>
         </Col>
       </Row>
     </Container>

@@ -7,9 +7,11 @@ import traceback
 import time
 
 from flask_login import current_user, login_required, login_user, logout_user, LoginManager
+from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 from ibm_botocore.client import Config
 from dotenv import load_dotenv, find_dotenv
+from functools import wraps
 
 
 from db_utils import (
@@ -17,7 +19,8 @@ from db_utils import (
     get_results,
     get_profile_pic,
     upload_profile_pic,
-    delete_account
+    delete_account,
+    does_user_exist,
 )
 
 from models import db, Account, Campaign, Platform
@@ -49,19 +52,17 @@ login_manager.init_app(app)
 def load_user(user_id):
     """Stolen from some tutorial on flask-login. While it is not explicitly used
     here, it is required by flask-login"""
-    print(f"Current User ID: {user_id}")
     return Account.query.get(int(user_id))
 
-# Decorator to check authentication
 def require_auth(func):
-    @login_required
+    @wraps(func)  # Preserves the original function name and docstring
     def auth_wrapper(*args, **kwargs):
-        if flask.g.user:  # Assuming Flask-Login is used and g.user contains the current user
+        if flask.g.get('user', None):  # Check if g.user is set
             return func(*args, **kwargs)
         else:
             return flask.jsonify({"message": "Authentication required"}), 401
-
     return auth_wrapper
+
 # set up a separate route to serve the index.html file generated
 # by create-react-app/npm run build.
 # By doing this, we make it so you can paste in all your old app routes
@@ -101,8 +102,17 @@ def handle_login():
         ):
             is_login_successful = login_user(user)
             if is_login_successful:
-                user.last_login = time.time()
-                db.session.commit()
+                try:
+                    user.last_login = time.time()
+                    db.session.commit()
+                except IntegrityError as e:
+                    db.session.rollback()
+                    print(f"Integrity error occurred: {e}")
+                except Exception as e:
+                    tb = traceback.format_exc()
+                    print(f"An error occurred: {e}")
+                    print(tb)
+                
             return flask.jsonify(
                 {"is_login_successful": is_login_successful, "error_message": ""}
             )
@@ -170,8 +180,16 @@ def handle_signup():
             )
 
             # Add and commit new user to the database
-            db.session.add(new_user)
-            db.session.commit()
+            try:
+                db.session.add(new_user)
+                db.session.commit()
+            except IntegrityError as e:
+                db.session.rollback()
+                print(f"Integrity error occurred: {e}")
+            except Exception as e:
+                tb = traceback.format_exc()
+                print(f"An error occurred: {e}")
+                print(tb)
 
             # Verify that the new user was successfully created
             check_new_user = Account.query.filter_by(
@@ -191,7 +209,7 @@ def handle_signup():
                             {"is_signup_successful": True, "error_message": ""}
                         )
                     else:
-                        delete_account(check_new_user.id)
+                        db.session.rollback()
                         return flask.jsonify(
                             {"is_signup_successful": False, "error_message": "There was a problem uploading your new profile picture. Please try again."}
                         )
@@ -247,6 +265,34 @@ def get_current_user():
         flask.abort(404)
 
 @require_auth
+@bp.route("/edit_bio", methods=["POST"])
+def edit_bio():
+    if not current_user.is_authenticated:
+        flask.abort(401)
+    try:
+        user = Account.query.filter_by(id=current_user.id).first()
+        user.bio = flask.request.json["newBio"]
+        success=db.session.commit()
+        return flask.jsonify({"is_successful":success is not None})
+    except Exception as e:
+         # Rollback transaction in case of an error
+        db.session.rollback()
+
+        # Log the error with traceback
+        print(f"An error occurred: {e}")
+        print(traceback.format_exc())
+
+        # Return a more generic message to the client
+        flask.abort(500, description="An internal server error occurred")
+
+@require_auth
+@bp.route("/delete_current_user", methods=["POST"])
+def delete_current_user():
+    user_id = current_user.id
+    delete_account(user_id)
+    return flask.jsonify({"success":does_user_exist(user_id=user_id)})
+
+
 @bp.route("/account_info", methods=["GET"])
 def account_info():
     """Return current user's JSON data"""
@@ -275,6 +321,8 @@ def account_info():
         "last_login": account.last_login,  # Optionally, format to human-readable date
         "full_name": account.full_name
     }
+    if current_user is not None:
+        account_data["current_user_id"] = current_user.id
 
     # Initialize empty lists for campaigns and platforms
     campaign_list = []
@@ -419,6 +467,8 @@ def edit_profile():
     username = flask.request.form['username']
     email = flask.request.form['email']
     is_pfp_changed = flask.request.form['is_pfp_changed']
+    full_name = flask.request.form['full_name']
+    phone = flask.request.form['phone_number']
     if is_pfp_changed == "true":
         pfp = flask.request.files["pfp"]
     user_id = current_user.id
@@ -428,17 +478,20 @@ def edit_profile():
 
         account.username = username
         account.email = email
+        account.full_name = full_name
+        account.phone = phone
+        account.profile_pic = user_id
         if is_pfp_changed == "true":
             pfp_id = current_user.profile_pic
             if pfp_id == -1:
                 pfp_id = current_user.id
-            is_pfp_upload_success = upload_profile_pic(cos, current_user.profile_pic, pfp,'users')
+            is_pfp_upload_success = upload_profile_pic(cos, user_id, pfp,'users')
         else:
             is_pfp_upload_success = False
         try:
             
             success = db.session.commit() is None
-            current_user.username = username
+            print(account.pfp)
         except Exception as e:
             db.session.rollback()
             success = False

@@ -21,9 +21,17 @@ function UserProfilePage() {
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [newMessageContent, setNewMessageContent] = useState('');
 
+  const [isCurrentUserProfile, setIsCurrentUserProfile] = useState(false);
+
   const [isUserFound, setIsUserFound] = useState(false);
 
   const [isScreenSmall, setSmallScreen] = useState(window.innerWidth < 1024);
+
+  // New state for editing the bio
+
+  const [isEditingBio, setIsEditingBio] = useState(false);
+
+  const [tempBio, setTempBio] = useState('');
 
   const params = useParams();
 
@@ -120,6 +128,7 @@ function UserProfilePage() {
         })
         .then((data) => {
           const { account } = data;
+          setIsCurrentUserProfile(account.id === account.current_user_id);
           setFullName(account.full_name || 'N/A');
           setEmail(account.email);
           setPhone(account.phone || null);
@@ -128,6 +137,7 @@ function UserProfilePage() {
           )); // Some dummy data were generated incorrectly. Shouldn't be a problem for real users.
           setDateCreated(formatTimeSince(account.date_created));
           setBio(account.bio || 'No bio available.');
+          setTempBio(account.bio || 'No bio available.'); // Set temp bio for editing
           setDecodedPfp(account.pfp);
           setIsPlatformOwner(account.platform_owner);
           if (account.platform_owner) {
@@ -146,11 +156,59 @@ function UserProfilePage() {
           setLoading(false); // Set loading to false regardless of success or failure
         });
     }
-  }, [userId]);
+  }, [userId, bio]);
 
   useEffect(() => {
     document.title = `${fullName} - CraigsAdList`;
   }, [fullName]);
+
+  // Handle edit/save bio
+
+  const handleBioEdit = () => {
+    setIsEditingBio(!isEditingBio); // Enable edit mode
+  };
+
+  const handleSaveBio = () => {
+    // Send the new bio to the backend via a POST request
+    fetch('/edit_bio', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        newBio: tempBio, // Pass the updated bio
+      }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          // If the request is successful, update the local state
+          setBio(tempBio);
+          setIsEditingBio(false);
+        } else if (response.status === 400) {
+          // Handle validation error (e.g., missing 'newBio')
+          throw new Error("Validation error: Missing 'newBio' field");
+        } else if (response.status === 401) {
+          // Handle unauthorized error
+          throw new Error('You are not authorized to edit this bio.');
+        } else if (response.status === 404) {
+          // Handle user not found error
+          throw new Error('User not found.');
+        } else {
+          // Handle other potential errors
+          throw new Error('An unexpected error occurred.');
+        }
+      })
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error('Error saving bio:', error);
+      });
+  };
+
+  const handleCancelBioEdit = () => {
+    setTempBio(bio); // Reset the temp bio to the original value
+
+    setIsEditingBio(false); // Exit edit mode
+  };
 
   if (loading) {
     return (
@@ -255,15 +313,59 @@ function UserProfilePage() {
               <FadeIn>
                 {/* Bio Section inside a Bootstrap Card */}
                 <Card className="mb-4">
-                  <Card.Header><h3>Bio</h3></Card.Header>
+                  <Card.Header>
+                    <Stack direction="horizontal" gap={1}>
+                      <h3>Bio</h3>
+                      {/* Pencil Icon to toggle bio edit mode */}
+
+                      {isCurrentUserProfile && (
+                      <Button
+                        variant="light"
+                        onClick={handleBioEdit}
+                        style={{
+                          border: 'none', padding: '0', marginLeft: '10px', marginBottom: '5px',
+                        }}
+                      >
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil" viewBox="0 0 16 16">
+
+                          <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
+
+                        </svg>
+
+                      </Button>
+                      )}
+
+                    </Stack>
+                  </Card.Header>
                   <Card.Body>
-                    <Card.Text>{bio}</Card.Text>
+                    {isEditingBio ? (
+
+                      <>
+
+                        <Form.Control
+                          as="textarea"
+                          rows={3}
+                          value={tempBio !== 'No bio available.' ? tempBio : ''}
+                          onChange={(e) => setTempBio(e.target.value)}
+                        />
+
+                        <Button variant="success" className="mt-2" onClick={handleSaveBio}>Save</Button>
+
+                        <Button variant="secondary" className="mt-2 ms-2" onClick={handleCancelBioEdit}>Cancel</Button>
+
+                      </>
+
+                    ) : (
+
+                      <Card.Text>{bio}</Card.Text>
+                    )}
                   </Card.Body>
                 </Card>
 
                 {/* Conditional List (Campaigns or Platforms) */}
                 <div className="mb-4">
-                  <Card.Header style={{ border: '1px solid rgba(0,0,0,.125)' }}><h3>{isPlatformOwner ? 'Platforms Owned' : 'Ad Campaigns'}</h3></Card.Header>
+                  {((isPlatformOwner && platforms.length > 0) || (!isPlatformOwner && campaigns.length > 0)) && (<Card.Header style={{ border: '1px solid rgba(0,0,0,.125)' }}><h3>{isPlatformOwner ? 'Platforms Owned' : 'Ad Campaigns'}</h3></Card.Header>)}
                   <ListGroup>
                     {isPlatformOwner
                       ? platforms.map((platform) => (
@@ -273,70 +375,70 @@ function UserProfilePage() {
                           key={platform.id}
                         >
                           {!isScreenSmall && (
-                          <Stack direction="horizontal" gap={5}>
-                            <div>
-                              <CircleImage
-                                src={platform.pfp}
-                                alt="Platform"
-                                size="medium"
-                                className="mb-3"
-                              />
-                            </div>
-                            <div>
+                            <Stack direction="horizontal" gap={5}>
+                              <div>
+                                <CircleImage
+                                  src={platform.pfp}
+                                  alt="Platform"
+                                  size="medium"
+                                  className="mb-3"
+                                />
+                              </div>
+                              <div>
+                                <h3>{platform.platformName}</h3>
+                                <p>{platform.description}</p>
+                                <p>
+                                  <Card.Subtitle className="text-muted">
+                                    Preferred Price Per Ad View:
+                                  </Card.Subtitle>
+                                  {`$${(platform.pricePerAdView / 10).toFixed(2)}`}
+                                </p>
+                                <p>
+                                  <Card.Subtitle className="text-muted">
+                                    Impressions(Per Month):
+                                  </Card.Subtitle>
+                                  {`${platform.impressions.toLocaleString()}`}
+                                </p>
+                                <p>
+                                  <Card.Subtitle className="text-muted">
+                                    Topics:
+                                  </Card.Subtitle>
+                                  {`${platform.topics}`}
+                                </p>
+                              </div>
+                            </Stack>
+                          )}
+                          {isScreenSmall && (
+                            <Stack gap={3}>
+                              <div align="center">
+                                <CircleImage
+                                  src={platform.pfp}
+                                  alt="Platform"
+                                  size="medium"
+                                  className="mb-3"
+                                />
+                              </div>
                               <h3>{platform.platformName}</h3>
                               <p>{platform.description}</p>
                               <p>
                                 <Card.Subtitle className="text-muted">
-                                  Preferred Price Per Ad View:
+                                  Preferred Price Per Impression:
                                 </Card.Subtitle>
-                                {` $${(platform.pricePerAdView / 10).toFixed(2)}`}
+                                {`$${(platform.pricePerAdView / 100).toFixed(2)}`}
                               </p>
                               <p>
                                 <Card.Subtitle className="text-muted">
                                   Impressions(Per Month):
                                 </Card.Subtitle>
-                                {` ${platform.impressions.toLocaleString()}`}
+                                {`${platform.impressions.toLocaleString()}`}
                               </p>
                               <p>
                                 <Card.Subtitle className="text-muted">
                                   Topics:
                                 </Card.Subtitle>
-                                {` ${platform.topics}`}
+                                {`${platform.topics}`}
                               </p>
-                            </div>
-                          </Stack>
-                          )}
-                          {isScreenSmall && (
-                          <Stack gap={3}>
-                            <div align="center">
-                              <CircleImage
-                                src={platform.pfp}
-                                alt="Platform"
-                                size="medium"
-                                className="mb-3"
-                              />
-                            </div>
-                            <h3>{platform.platformName}</h3>
-                            <p>{platform.description}</p>
-                            <p>
-                              <Card.Subtitle className="text-muted">
-                                Preferred Price Per Impression:
-                              </Card.Subtitle>
-                              {` $${(platform.pricePerAdView / 100).toFixed(2)}`}
-                            </p>
-                            <p>
-                              <Card.Subtitle className="text-muted">
-                                Impressions(Per Month):
-                              </Card.Subtitle>
-                              {` ${platform.impressions.toLocaleString()}`}
-                            </p>
-                            <p>
-                              <Card.Subtitle className="text-muted">
-                                Topics:
-                              </Card.Subtitle>
-                              {` ${platform.topics}`}
-                            </p>
-                          </Stack>
+                            </Stack>
                           )}
                         </ListGroup.Item>
                       ))
@@ -347,60 +449,60 @@ function UserProfilePage() {
                           key={campaign.id}
                         >
                           {!isScreenSmall && (
-                          <Stack direction="horizontal" gap={5}>
-                            <div>
-                              <CircleImage
-                                src={campaign.pfp}
-                                alt="Campaign"
-                                size="medium"
-                                className="mb-3"
-                              />
-                            </div>
-                            <div>
-                              <h3>{campaign.title}</h3>
-                              <p>{campaign.description}</p>
-                              <p>
-                                <Card.Subtitle className="text-muted">
-                                  Budget:
-                                </Card.Subtitle>
-                                {`$${campaign.budget.toLocaleString()}`}
-                              </p>
-                              <p>
-                                <Card.Subtitle className="text-muted">
-                                  Topics:
-                                </Card.Subtitle>
-                                {campaign.topics}
-                              </p>
-                            </div>
-                          </Stack>
+                            <Stack direction="horizontal" gap={5}>
+                              <div>
+                                <CircleImage
+                                  src={campaign.pfp}
+                                  alt="Campaign"
+                                  size="medium"
+                                  className="mb-3"
+                                />
+                              </div>
+                              <div>
+                                <h3>{campaign.title}</h3>
+                                <p>{campaign.description}</p>
+                                <p>
+                                  <Card.Subtitle className="text-muted">
+                                    Budget:
+                                  </Card.Subtitle>
+                                  {`$${campaign.budget.toLocaleString()}`}
+                                </p>
+                                <p>
+                                  <Card.Subtitle className="text-muted">
+                                    Topics:
+                                  </Card.Subtitle>
+                                  {campaign.topics}
+                                </p>
+                              </div>
+                            </Stack>
                           )}
                           {isScreenSmall && (
-                          <Stack gap={3}>
-                            <div align="center">
-                              <CircleImage
-                                src={campaign.pfp}
-                                alt="Campaign"
-                                size="medium"
-                                className="mb-3"
-                              />
-                            </div>
-                            <div>
-                              <h3>{campaign.title}</h3>
-                              <p>{campaign.description}</p>
-                              <p>
-                                <Card.Subtitle className="text-muted">
-                                  Budget:
-                                </Card.Subtitle>
-                                {`$${campaign.budget.toLocaleString()}`}
-                              </p>
-                              <p>
-                                <Card.Subtitle className="text-muted">
-                                  Topics:
-                                </Card.Subtitle>
-                                {campaign.topics}
-                              </p>
-                            </div>
-                          </Stack>
+                            <Stack gap={3}>
+                              <div align="center">
+                                <CircleImage
+                                  src={campaign.pfp}
+                                  alt="Campaign"
+                                  size="medium"
+                                  className="mb-3"
+                                />
+                              </div>
+                              <div>
+                                <h3>{campaign.title}</h3>
+                                <p>{campaign.description}</p>
+                                <p>
+                                  <Card.Subtitle className="text-muted">
+                                    Budget:
+                                  </Card.Subtitle>
+                                  {`$${campaign.budget.toLocaleString()}`}
+                                </p>
+                                <p>
+                                  <Card.Subtitle className="text-muted">
+                                    Topics:
+                                  </Card.Subtitle>
+                                  {campaign.topics}
+                                </p>
+                              </div>
+                            </Stack>
                           )}
                         </ListGroup.Item>
                       ))}
