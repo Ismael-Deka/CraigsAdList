@@ -353,6 +353,8 @@ def account_info():
                 "impressions": i.impressions,
                 "topics": i.topics,
                 "pricePerAdView": i.preferred_price,
+                "showPlatform": i.show_platform,
+                "isActive": i.is_active,
                 "pfp":get_profile_pic(i.id,"platforms")
             }
             platform_list.append(platform_dict)
@@ -509,12 +511,27 @@ def edit_profile():
 @require_auth
 @bp.route("/create_platform", methods=["POST"])
 def create_new_platform():
-    is_successful = create_platform(
-        platform_name=flask.request.json["platform_name"],
-        topics=flask.request.json["topic_list"],
-        impressions=flask.request.json["impressions"],
-        preferred_price=flask.request.json["preferred_price"],
-        show_platform=flask.request.json["show_platform"])
+    is_new_pfp_selected=flask.request.form["is_new_pfp_selected"]
+    if is_new_pfp_selected:
+        pfp = flask.request.files['pfp']
+    else:
+        pfp = None
+    is_successful, platform_id = create_platform(
+            platform_name=flask.request.form["platform_name"],
+            medium=flask.request.form["medium"],
+            description=flask.request.form["description"],
+            impressions=flask.request.form["impressions"],
+            impression_type=flask.request.form["impression_type"],
+            topics=flask.request.form["topics"],
+            preferred_price=flask.request.form["preferred_price"],
+            currency=flask.request.form["currency"],
+            show_platform=flask.request.form["show_platform"],
+            is_active=flask.request.form["is_active"],
+            pfp=pfp
+        )
+    if is_successful:
+        if(pfp is not None):
+            upload_profile_pic(cos, platform_id, pfp, 'platforms')
     return flask.jsonify({"success": is_successful})
 
 @bp.route("/return_results", methods=["GET"])
