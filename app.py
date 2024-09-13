@@ -256,7 +256,7 @@ def is_logged_in():
 @bp.route("/get_current_user", methods=["GET"])
 def get_current_user():
     """returns current logged in user"""
-    if current_user is not None:
+    if current_user.is_authenticated:
         return flask.jsonify({
             "current_user": current_user.username,
             "id": current_user.id,
@@ -321,7 +321,7 @@ def account_info():
         "last_login": account.last_login,  # Optionally, format to human-readable date
         "full_name": account.full_name
     }
-    if current_user is not None:
+    if current_user.is_authenticated:
         account_data["current_user_id"] = current_user.id
 
     # Initialize empty lists for campaigns and platforms
