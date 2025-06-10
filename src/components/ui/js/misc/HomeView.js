@@ -30,7 +30,8 @@ function HomeView() {
             backgroundImage: `url(${CalIcon})`,
           } : {
             backgroundImage: `url(${CalIcon})`,
-            backgroundSize: 'contain',
+            backgroundSize: 'cover',
+            backgroundPosition: 'left',
           }}
         >
           <Col style={{ paddingLeft: '5vw', paddingTop: '15vh', paddingBottom: '15vh' }}>

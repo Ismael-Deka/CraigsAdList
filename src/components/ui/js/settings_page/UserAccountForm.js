@@ -10,8 +10,8 @@ function UserAccountForm() {
   const [localFullName, setLocalFullName] = useState(''); // Full Name state
   const [localPhoneNumber, setLocalPhoneNumber] = useState(''); // Phone Number state
   const [localEmail, setLocalEmail] = useState('');
-  const [localProfilePic, setLocalPfp] = useState('');
-  const [currentProfilePic, setCurrentPfp] = useState('');
+  const [profilePic, setProfilePic] = useState('');
+
   const [emailFormatError, setEmailFormatError] = useState('');
   const [originalPassword, setOriginalPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -52,8 +52,8 @@ function UserAccountForm() {
     const formData = new FormData();
 
     if (submittingForm === 'profile') {
-      formData.append('pfp', localProfilePic);
-      formData.append('is_pfp_changed', localProfilePic !== '');
+      formData.append('pfp', profilePic);
+      formData.append('is_pfp_changed', profilePic !== '');
       formData.append('username', localUsername);
       formData.append('email', localEmail);
       formData.append('full_name', localFullName); // Include full name in profile update
@@ -71,7 +71,7 @@ function UserAccountForm() {
             if (storedUserData) {
               localStorage.removeItem('userData');
             }
-            if (!pfpSuccess && localProfilePic !== '') {
+            if (!pfpSuccess && profilePic !== '') {
               setPfpFailMessage('Failed to update profile picture. Please try again.');
               setShowPfpToast(true);
             } else {
@@ -112,19 +112,6 @@ function UserAccountForm() {
     }
 
     handleCloseConfirmation(); // Close the confirmation modal
-  };
-
-  const handleProfilePictureChange = (event) => {
-    const selectedPfp = event.target.files[0];
-    const reader = new FileReader();
-    setLocalPfp(selectedPfp);
-
-    reader.readAsDataURL(selectedPfp);
-
-    reader.onload = () => {
-      const base64Pfp = reader.result;
-      setCurrentPfp(base64Pfp);
-    };
   };
 
   const handleDeleteAccount = () => {
@@ -172,7 +159,7 @@ function UserAccountForm() {
       .then((data) => {
         setLocalEmail(data.account.email);
         setLocalUsername(data.account.username);
-        setCurrentPfp(data.account.pfp);
+        setProfilePic(data.account.pfp);
         setLocalFullName(data.account.full_name || ''); // Load full name
         setLocalPhoneNumber(data.account.phone || ''); // Load phone number
       });
@@ -188,8 +175,8 @@ function UserAccountForm() {
           <h4 className="mt-5">Change Profile Picture</h4>
           <hr className="hr hr-blurry" />
           <ImageSelectForm
-            currentProfilePic={currentProfilePic}
-            handleProfilePictureChange={handleProfilePictureChange}
+            currentProfilePic={profilePic}
+            setProfilePic={setProfilePic}
           />
 
           <Form onSubmit={(e) => {

@@ -12,6 +12,8 @@ import InboxPage from './pages/InboxPage';
 import NewPlatformPage from './pages/NewPlatformPage';
 import SearchPage from './pages/SearchPage';
 import CampaignProfilePage from './pages/CampaignProfilePage';
+import NotFoundPage from './pages/NotFoundPage';
+import NewCampaignPage from './pages/NewCampaignPage';
 
 function App() {
   return (
@@ -23,11 +25,13 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/new_platform" element={<NewPlatformPage />} />
+        <Route path="/new_campaign" element={<NewCampaignPage />} />
         <Route path="/profile/:id" element={<UserProfilePage />} />
         <Route path="/platform/:id" element={<PlatformProfilePage />} />
         <Route path="/campaign/:id" element={<CampaignProfilePage />} />
         <Route path="/messages/:folder" element={<InboxPage />} />
         <Route path="/search/:searchType" element={<SearchPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>
   );

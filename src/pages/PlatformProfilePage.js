@@ -142,6 +142,7 @@ function PlatformProfilePage() {
                       </p>
                     </Col>
                   </Stack>
+                  <hr className="hr hr-blurry" />
                 </FadeIn>
               </Col>
             </Row>

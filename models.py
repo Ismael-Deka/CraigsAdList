@@ -55,13 +55,14 @@ class Campaign(db.Model):
     
     is_active = db.Column(db.Boolean, default=True)
     
-    def __init__(self, creator_id, title, topics, currency, show_in_list, description=None, start_date=None, end_date=None, budget=None):
+    def __init__(self, creator_id, title, topics, currency, show_in_list, is_active, description=None, start_date=None, end_date=None, budget=None):
         self.creator_id = creator_id
         self.title = title
         self.topics = topics
         self.description = description
         self.currency = currency
         self.show_in_list = show_in_list
+        self.is_active = is_active
         self.start_date = start_date
         self.end_date = end_date
         self.budget = budget
@@ -87,9 +88,9 @@ class Platform(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     last_updated = db.Column(db.Integer, default=time.time(), onupdate=time.time())
 
-    def __init__(self, owner_id, show_platform, platform_name, impressions, impression_type, topics, preferred_price, currency, medium, description=None):
+    def __init__(self, owner_id, show_platform, platform_name, impressions, impression_type, topics, preferred_price, currency, medium, is_active, description=None):
         self.owner_id = owner_id
-        self.show_platform = show_platform
+        self.show_platform = show_platform is 'true'
         self.platform_name = platform_name
         self.impressions = impressions
         self.impression_type = impression_type
@@ -98,5 +99,6 @@ class Platform(db.Model):
         self.currency = currency
         self.description = description
         self.medium = medium
+        self.is_active=is_active is 'true'
     def __repr__(self):
         return f"<Platform {self.platform_name}>"   

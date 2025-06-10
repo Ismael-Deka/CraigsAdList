@@ -9,7 +9,7 @@ import CircleImage from '../misc/CircleImage';
 import MenuNavigation from './MenuNavigation';
 
 function ProfileButton({
-  profileName, profilePictureUrl, isLoggedIn, logOut, id, isMobile,
+  profileName, profilePictureUrl, isLoggedIn, logOut, id, isPlatformOwner, isMobile,
 }) {
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
@@ -66,7 +66,7 @@ function ProfileButton({
           {isLoggedIn && (
           <div>
 
-            <MenuNavigation />
+            <MenuNavigation isPlatformOwner={isPlatformOwner} />
             <Dropdown.Divider />
 
             <Dropdown.ItemText>
@@ -99,6 +99,7 @@ ProfileButton.propTypes = {
   profilePictureUrl: PropTypes.string.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   logOut: PropTypes.func.isRequired,
+  isPlatformOwner: PropTypes.bool.isRequired,
   isMobile: PropTypes.bool.isRequired,
   id: PropTypes.number.isRequired,
 };

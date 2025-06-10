@@ -24,14 +24,18 @@ function SearchTabs(props) {
   };
 
   useEffect(() => {
-    document.title = `Search ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} - CraigsAdList`;
-    // Extract the current tab from the URL
-    const pathParts = location.pathname.split('/');
-    const currentTab = pathParts[2]; // Assuming the URL structure is /search/<tab>
+    if (['platforms', 'campaigns', 'users'].some((tab) => activeTab === tab)) {
+      document.title = `Search ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} - CraigsAdList`;
+      // Extract the current tab from the URL
+      const pathParts = location.pathname.split('/');
+      const currentTab = pathParts[2]; // Assuming the URL structure is /search/<tab>
 
-    // If the tab in the URL is different from the activeTab, update the activeTab state
-    if (currentTab && currentTab !== activeTab) {
-      setActiveTab(currentTab);
+      // If the tab in the URL is different from the activeTab, update the activeTab state
+      if (currentTab && currentTab !== activeTab) {
+        setActiveTab(currentTab);
+      }
+    } else {
+      navigate('/not_found');
     }
   }, [location.pathname, activeTab]);
 

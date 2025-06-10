@@ -305,7 +305,9 @@ function UserProfilePage() {
                 {/* <Button variant="primary" onClick={handleShowMessageModal}>
                 Send Message
               </Button> */}
+                <hr className="hr hr-blurry" />
               </FadeIn>
+
             </Col>
           </Row>
           <Row className="justify-content-center">
@@ -368,7 +370,7 @@ function UserProfilePage() {
                   {((isPlatformOwner && platforms.length > 0) || (!isPlatformOwner && campaigns.length > 0)) && (<Card.Header style={{ border: '1px solid rgba(0,0,0,.125)' }}><h3>{isPlatformOwner ? 'Platforms Owned' : 'Ad Campaigns'}</h3></Card.Header>)}
                   <ListGroup>
                     {isPlatformOwner
-                      ? platforms.map((platform) => (
+                      ? platforms.map((platform) => platform.showPlatform && (
                         <ListGroup.Item
                           style={{ cursor: 'pointer' }}
                           onClick={(e) => navigateToPlatform(e, platform.id)}

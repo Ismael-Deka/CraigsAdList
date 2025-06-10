@@ -5,8 +5,12 @@ import flask
 import ibm_boto3
 import traceback
 import time
+import requests
+import threading
 
-from flask_login import current_user, login_required, login_user, logout_user, LoginManager
+from flask_login import current_user, login_user, logout_user, LoginManager
+from tenacity import retry,stop_after_attempt,wait_fixed
+from jinja2 import ChoiceLoader, FileSystemLoader
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 from ibm_botocore.client import Config
@@ -16,6 +20,7 @@ from functools import wraps
 
 from db_utils import (
     create_platform,
+    create_campaign,
     get_results,
     get_profile_pic,
     upload_profile_pic,
@@ -25,34 +30,118 @@ from db_utils import (
 
 from models import db, Account, Campaign, Platform
 
-load_dotenv(find_dotenv())
-
 app = flask.Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = os.getenv("SECRET_KEY")
 
-cos = ibm_boto3.client('s3',
-                         ibm_api_key_id=os.getenv("IBM_API_KEY_ID"),
-                         ibm_service_instance_id=os.getenv('IBM_SERVICE_ID'),
-                         ibm_auth_endpoint=os.getenv('IBM_AUTH_ENDPOINT'),
-                         config=Config(signature_version='oauth'),
-                         endpoint_url=os.getenv('ENDPOINT'))
+bp = flask.Blueprint(
+        "bp",
+        __name__
+    )
 
-db.init_app(app)
-with app.app_context():
-
-    db.create_all()
+init_errors = {"env_vars":False, "database":False, "cos": False,}
 
 login_manager = LoginManager()
-login_manager.init_app(app)
+
+def initialize_app():
+    """
+    Initialize the app by setting up environment variables, database, IBM COS client,
+    login manager, and registering blueprints.
+    """
+    global init_errors
+    init_errors = {"env_vars":False, "database":False, "cos": False,}
+    try:
+        print("\nInitializing app...")
+        print("\nLoading environment variables...")
+        dotenv_path = find_dotenv()
+        if not dotenv_path:
+            init_errors["env_vars"] = True
+            raise Exception("**ERROR: .env file not found!**")
+        else:
+            load_dotenv(dotenv_path)
+        
+
+        print("\nSetting up database...")
+        setup_database()
+
+        print("\nCreating IBM COS client...")
+        create_cos_client()
+        
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(f"An error occurred: {e}")
+        print(tb)
+
+    if not 'bp' in app.blueprints:
+        print("\nInitializing Login Manager...")
+        login_manager.init_app(app)
+        
+        setup_database()
+    
+        print("\nRegistering blueprint...")
+        bp.jinja_loader = ChoiceLoader([
+            FileSystemLoader("./static/react"),
+            FileSystemLoader("./error"),
+        ])
+        app.register_blueprint(bp)
+
+def setup_database():
+        if 'sqlalchemy' not in app.extensions:
+            print("--Initializing database...")
+            try:
+                app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+                app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+                app.secret_key = os.getenv("SECRET_KEY")
+                db.init_app(app)
+                with app.app_context():
+                    db.create_all()
+                print("--Done.")
+                return True
+            except Exception as e:
+                tb = traceback.format_exc()
+                print(f"**Error initializing database**: {e}")
+                print(tb)
+                return False 
+        else:
+            return True    
+
+def create_cos_client():
+    try:
+        global cos
+        cos = ibm_boto3.client('s3',
+                                ibm_api_key_id=os.getenv("IBM_API_KEY_ID"),
+                                ibm_service_instance_id=os.getenv('IBM_SERVICE_ID'),
+                                ibm_auth_endpoint=os.getenv('IBM_AUTH_ENDPOINT'),
+                                config=Config(signature_version='oauth'),
+                                endpoint_url=os.getenv('ENDPOINT'))
+        print("--Client created successfully!")
+    except Exception as e:
+        init_errors["cos"] = True
+        raise Exception(f"**Error creating IBM COS client**: {e}")
+
+def initialize_database():
+    if 'sqlalchemy' not in app.extensions:
+        print("--Initializing database...")
+        try:
+            app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+            app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+            app.secret_key = os.getenv("SECRET_KEY")
+            db.init_app(app)
+            with app.app_context():
+                db.create_all()
+            print("--Done.")
+            return True
+        except Exception as e:
+            tb = traceback.format_exc()
+            print(f"**Error initializing database**: {e}")
+            print(tb)
+            return False 
+    else:
+        return True
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    """Stolen from some tutorial on flask-login. While it is not explicitly used
-    here, it is required by flask-login"""
-    return Account.query.get(int(user_id))
+    user = db.session.get(Account, int(user_id))
+    return user
 
 def require_auth(func):
     @wraps(func)  # Preserves the original function name and docstring
@@ -63,33 +152,18 @@ def require_auth(func):
             return flask.jsonify({"message": "Authentication required"}), 401
     return auth_wrapper
 
-# set up a separate route to serve the index.html file generated
-# by create-react-app/npm run build.
-# By doing this, we make it so you can paste in all your old app routes
-# from Milestone 2 without interfering with the functionality here.
-bp = flask.Blueprint(
-    "bp",
-    __name__,
-    template_folder="./static/react",
-)
-
-
 # route for serving React page
 @bp.route("/")
-@bp.route("/login")
-@bp.route("/signup")
-@bp.route("/new_platform")
-@bp.route("/settings")
-@bp.route("/profile/<int:user_id>")
-@bp.route('/platform/<int:platform_id>')
-@bp.route('/campaign/<int:campaign_id>')
-@bp.route("/messages/<string:folder>")
-@bp.route("/search/<string:search_type>")
-def index(user_id=-1,platform_id=-1,campaign_id=-1,folder="",search_type=""):
+@bp.route('/<path:path>')
+def index(path=''):
     """Root endpoint"""
     # NB: DO NOT add an "index.html" file in your normal templates folder
     # Flask will stop serving this React page correctly
     return flask.render_template("index.html")
+
+@bp.errorhandler(500)
+def internal_error(error):
+    return flask.render_template('500.html'), 500
 
 
 @bp.route("/handle_login", methods=["POST"])
@@ -260,6 +334,7 @@ def get_current_user():
         return flask.jsonify({
             "current_user": current_user.username,
             "id": current_user.id,
+            "is_plaform_owner": current_user.platform_owner,
             "pfp": get_profile_pic(current_user.profile_pic, 'users')}),200
     else:
         flask.abort(404)
@@ -338,7 +413,12 @@ def account_info():
                 "topics": i.topics,
                 "description": i.description,
                 "pfp":get_profile_pic(i.id,"campaigns"),
-                "budget": i.budget
+                "budget": i.budget,
+                "currency": i.currency, 
+                "showInList":i.show_in_list, 
+                "isActive": i.is_active, 
+                "startDate": i.start_date, 
+                "endDate":i.end_date
             }
             campaign_list.append(campaign_dict)
 
@@ -420,6 +500,7 @@ def get_platforms_by_id():
                     "pricePerAdView": platform.preferred_price,
                     "medium": platform.medium,
                     "dateCreated": platform.date_created,
+                    "showPlatform":platform.show_platform,
                     "isActive": platform.is_active,
                     "lastUpdated":platform.last_updated,
                     "pfp": get_profile_pic(platform.id, "platforms")
@@ -459,10 +540,6 @@ def change_pass():
         }
     )
 
-
-
-
-
 @require_auth
 @bp.route("/edit_user_profile", methods=["POST"])
 def edit_profile():
@@ -490,15 +567,13 @@ def edit_profile():
             is_pfp_upload_success = upload_profile_pic(cos, user_id, pfp,'users')
         else:
             is_pfp_upload_success = False
-        try:
-            
+        try:  
             success = db.session.commit() is None
-            print(account.pfp)
         except Exception as e:
             db.session.rollback()
             success = False
         
-        return flask.jsonify({"success":True, "pfp_upload":is_pfp_upload_success})
+        return flask.jsonify({"success":success, "pfp_upload":is_pfp_upload_success})
     else:
         return flask.jsonify(
             {
@@ -506,7 +581,98 @@ def edit_profile():
                  "pfp_upload": False,
             }
         )
+
+@require_auth
+@bp.route("/edit_platform", methods=["POST"])
+def edit_platform():
+    id = flask.request.form['id']
+    name = flask.request.form['updatedPlatformName']
+    desc = flask.request.form['updatedDescription']
+    impressions = flask.request.form['updatedImpressions']
+    topics = flask.request.form['updatedTopics']
+    price = flask.request.form['updatedPricePerAdView']
+    show_platform = flask.request.form['updatedShowPlatform']
+    is_active = flask.request.form['updatedIsActive']
+    is_pfp_changed = flask.request.form['isPfpChanged']
+
+    platform = Platform.query.filter_by(id=id).first()
+    if platform:
+        platform.id = id
+        platform.name = name
+        platform.desc = desc
+        platform.impressions = impressions
+        platform.topics = topics
+        platform.price = price
+        platform.show_platform = show_platform == 'true'
+        platform.is_active = is_active == 'true'
+
+        if is_pfp_changed == 'true':
+            pfp = flask.request.files["updatedPfp"]
+            is_pfp_upload_success = upload_profile_pic(cos, id, pfp,'platforms')
+        else:
+            is_pfp_upload_success = False
+        
+        try:  
+            success = db.session.commit() is None
+        except Exception as e:
+            db.session.rollback()
+            success = False
+        
+        return flask.jsonify({"success": success, "pfp_upload":is_pfp_upload_success})
+            
+    else:
+        return flask.jsonify(
+            {
+                 "success": False,
+                 "pfp_upload": False,
+            }
+        )
+
+@require_auth
+@bp.route("/edit_campaign", methods=["POST"])
+def edit_campaign():
+    # Retrieve form data from the POST request
+    id = flask.request.form['id']
+    title = flask.request.form['updatedTitle']
+    description = flask.request.form['updatedDescription']
+    topics = flask.request.form['updatedTopics']
+    budget = flask.request.form['updatedBudget']
+    currency = flask.request.form['updatedCurrency']
+    show_in_list = flask.request.form['updatedShowInList']
+    is_active = flask.request.form['updatedIsActive']
+    start_date = flask.request.form['updatedStartDate']
+    end_date = flask.request.form['updatedEndDate']
     
+    # Find the campaign in the database by ID
+    campaign = Campaign.query.filter_by(id=id).first()
+
+    if campaign:
+        # Update campaign fields with the new values
+        campaign.title = title
+        campaign.description = description
+        campaign.topics = topics
+        campaign.budget = float(budget) if budget else None
+        campaign.currency = currency
+        campaign.show_in_list = show_in_list == 'true'
+        campaign.is_active = is_active == 'true'
+        campaign.start_date = int(start_date) if start_date else None
+        campaign.end_date = int(end_date) if end_date else None
+
+        try:
+            # Commit the updated campaign to the database
+            db.session.commit()
+            success = True
+        except Exception as e:
+            # Rollback in case of an error
+            db.session.rollback()
+            success = False
+
+        return flask.jsonify({"success": success})
+
+    else:
+        # If the campaign wasn't found, return a failure response
+        return flask.jsonify({"success": False})
+
 
 @require_auth
 @bp.route("/create_platform", methods=["POST"])
@@ -532,6 +698,45 @@ def create_new_platform():
     if is_successful:
         if(pfp is not None):
             upload_profile_pic(cos, platform_id, pfp, 'platforms')
+    return flask.jsonify({"success": is_successful})
+
+
+@require_auth
+@bp.route("/create_campaign", methods=["POST"])
+def create_new_campaign():
+    # Collect form data
+    is_new_pfp_selected=flask.request.form["is_new_pfp_selected"]
+    if is_new_pfp_selected:
+        pfp = flask.request.files['pfp']
+    else:
+        pfp = None
+    title = flask.request.form["title"]
+    description = flask.request.form["description"]
+    topics = flask.request.form["topics"]
+    budget = flask.request.form["budget"]
+    currency = flask.request.form["currency"]
+    show_in_list = flask.request.form["show_in_list"]
+    is_active = flask.request.form["is_active"]
+    start_date = flask.request.form["start_date"]
+    end_date = flask.request.form["end_date"]
+    
+
+    # Handle creating the campaign
+    is_successful, campaign_id = create_campaign(
+        title=title,
+        description=description,
+        topics=topics,
+        budget=float(budget) if budget else None,
+        currency=currency,
+        show_in_list=show_in_list == 'true',
+        is_active=is_active == 'true',
+        start_date=int(start_date) if start_date else None,
+        end_date=int(end_date) if end_date else None,
+    )
+
+    if is_successful:
+        if(pfp is not None):
+            upload_profile_pic(cos, campaign_id, pfp, 'campaigns')
     return flask.jsonify({"success": is_successful})
 
 @bp.route("/return_results", methods=["GET"])
@@ -569,8 +774,7 @@ def return_results():
 
 
 
-app.register_blueprint(bp)
-
 if __name__ == "__main__":
-    app.debug=True
+    initialize_app()
+    print("\nLaunching app...\n")
     app.run("0.0.0.0")## Add ssl after deployment -- ssl_context=('localhost.crt', 'localhost.key'))

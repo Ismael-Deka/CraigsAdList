@@ -18,8 +18,8 @@ function SignupPage() {
   const [firstNameText, setFirstNameText] = useState('');
   const [lastNameText, setLastNameText] = useState('');
   const [role, setRole] = useState('advertiser'); // Platform Owner / Advertiser role
-  const [localPfp, setLocalPfp] = useState('https://craigsadslist-cloud-object-storage-cos-standard-6ik.s3.us-east.cloud-object-storage.appdomain.cloud/default.png'); // Default profile picture
-  const [currentPfp, setCurrentPfp] = useState('');
+  const [profilePic, setProfilePic] = useState('https://craigsadslist-cloud-object-storage-cos-standard-6ik.s3.us-east.cloud-object-storage.appdomain.cloud/default.png'); // Default profile picture
+
   const [errorMessage, setErrorMessage] = useState('');
   const [usernameText, setUsernameText] = useState('FirstName.LastName');
   const [RedirectFunction, setRedirectFunction] = useState({});
@@ -87,17 +87,17 @@ function SignupPage() {
   }, []);
 
   // Function to handle profile picture selection
-  const handleProfilePictureChange = (event) => {
+  /* const handleProfilePictureChange = (event) => {
     const selectedPfp = event.target.files[0];
     const reader = new FileReader();
-    setCurrentPfp(selectedPfp);
+    setProfilePic(selectedPfp);
     reader.readAsDataURL(selectedPfp);
 
     reader.onload = () => {
       const base64Pfp = reader.result;
-      setLocalPfp(base64Pfp);
+      setProfilePic(base64Pfp);
     };
-  };
+  }; */
 
   function validateEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -158,8 +158,8 @@ function SignupPage() {
         formData.append('password', passwordText);
         formData.append('full_name', `${firstNameText} ${lastNameText}`);
         formData.append('platform_owner', role === 'platform_owner');
-        formData.append('profile_pic', currentPfp);
-        formData.append('new_pfp_chosen', currentPfp !== '');
+        formData.append('profile_pic', profilePic);
+        formData.append('new_pfp_chosen', profilePic !== 'https://craigsadslist-cloud-object-storage-cos-standard-6ik.s3.us-east.cloud-object-storage.appdomain.cloud/default.png');
 
         const requestOptions = {
           method: 'POST',
@@ -188,8 +188,8 @@ function SignupPage() {
         <Col>
           <div className={classes.welcome_logo}>Sign Up</div>
           <ImageSelectForm
-            currentProfilePic={localPfp}
-            handleProfilePictureChange={handleProfilePictureChange}
+            currentProfilePic={profilePic}
+            setProfilePic={setProfilePic}
             imgSize="medium"
           />
           {!isScreenSmall && (

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Starting</title>
+    <style>body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f0f4f8;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+.loading-container {
+    text-align: center;
+}
+
+.spinner {
+    margin: 0 auto 20px auto;
+    width: 60px;
+    height: 60px;
+    border: 6px solid #ddd;
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+h1 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+}
+
+p {
+    font-size: 1rem;
+    color: #555;
+}
+</style>
+</head>
+
+<body>
+    <div class="loading-container">
+        <div class="spinner"></div>
+        <h1>Database is Starting...</h1>
+        <p>Please wait while the database is starting or restarting. This might take a few moments.</p>
+    </div>
+</body>
+
+</html>

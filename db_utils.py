@@ -9,7 +9,6 @@ from sqlalchemy.exc import IntegrityError
 import os
 import io
 import traceback
-import flask
 from PIL import Image
 
 def get_profile_pic( pfp_index, img_type):
@@ -37,10 +36,6 @@ def upload_profile_pic(cos, pfp_index, img, img_type):
         cos.upload_fileobj(img_search, os.getenv("COS_BUCKET_NAME"), f"pfp200/{img_type}/{pfp_index}.png")
 
         return True
-    except IntegrityError as e:
-        db.session.rollback()
-        print('hello')
-        print(f"Integrity error occurred: {e}")
     except Exception as e:
         tb = traceback.format_exc()
         print(f"An error occurred: {e}")
@@ -48,6 +43,12 @@ def upload_profile_pic(cos, pfp_index, img, img_type):
     
     return False
 
+def delete_profile_pic(cos, img_type, pfp_index):
+    cos.Object(os.getenv("COS_BUCKET_NAME"),f"pfp_source/{img_type}/{pfp_index}.png").delete()
+    cos.Object(os.getenv("COS_BUCKET_NAME"),f"pfp200/{img_type}/{pfp_index}.png").delete()
+
+        
+        
 def resize_profile_pic(new_img):
         with Image.open(new_img.stream) as img:
             img_resized = img.resize((200,200), Image.LANCZOS)
@@ -55,8 +56,7 @@ def resize_profile_pic(new_img):
             img_io = io.BytesIO(img_resized.tobytes())
 
             img_resized.save(img_io, format='PNG')  
-            img_io.seek(0)  
-            print(len(img_io.read()))
+            img_io.seek(0)
             return img_io
           
 
@@ -78,52 +78,78 @@ def get_all_accounts():
     return account_list
 
 
-def create_campaign(title, topics="", description="", budget=0, show_in_list=True):
-    """Creates new Campaign"""
-    # there is an error here, current_user.id arg prolly should not be among the args
-    new_campaign = Campaign(creator_id=current_user.id, 
-                      title=title, 
-                      topics=topics, 
-                      description=description, 
-                      budget=budget, 
-                      show_in_list=show_in_list)
-
-    db.session.add(new_campaign)
-    db.session.commit()
-    return does_campaign_exist(title)
+def create_campaign(title, description, topics, budget, currency, show_in_list, is_active, start_date, end_date):
+    """Creates Campaigns based on given args"""
+    try:
+        # Create and add a new campaign
+        new_campaign = Campaign(
+            creator_id=current_user.id,
+            title=title,
+            description=description,
+            topics=topics,
+            budget=budget,
+            currency=currency,
+            show_in_list=show_in_list,
+            is_active=is_active,
+            start_date=start_date,
+            end_date=end_date
+        )
+        
+        db.session.add(new_campaign)
+        db.session.commit()
+        return does_campaign_exist(new_campaign.id), new_campaign.id
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(f"An error occurred: {e}")
+        print(tb)
+        db.session.rollback()
+        return False, None
 
 
 def create_platform(
-    platform_name, topics, preferred_price, impressions=0, show_platform=True
+     platform_name, medium, description,  topics, preferred_price, pfp, is_active=True, currency='USD', show_platform=True, impressions=0, impression_type='per Ad View'
 ):
     """Creates Platform based on given args"""
-    new_platform = Platform(
-        owner_id=current_user.id,
-        show_platform=show_platform,
-        platform_name=platform_name,
-        impressions=impressions,
-        topics=topics,
-        preferred_price=preferred_price,
-    )
+    try:
+        new_platform = Platform(
+            owner_id=current_user.id,
+            medium=medium,
+            description=description,
+            show_platform=show_platform == 'true',
+            platform_name=platform_name,
+            impressions=impressions,
+            impression_type=impression_type,
+            topics=topics,
+            preferred_price=preferred_price,
+            is_active=is_active == 'true',
+            currency=currency
+        )
 
-    db.session.add(new_platform)
-    db.session.commit()
-    return does_platform_exist(platform_name)
+        db.session.add(new_platform)
+        db.session.commit()
+        return does_platform_exist(new_platform.id), new_platform.id
 
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(f"An error occurred: {e}")
+        print(tb)
+        db.session.rollback()
+        return False, None
+    
 def does_user_exist(user_id):
     """Check if the Campaign with the given title exists in the database"""
     user = Account.query.filter_by(id=user_id).first()
     return user is not None
 
-def does_campaign_exist(ad_title):
+def does_campaign_exist(campaign_id):
     """Check if the Campaign with the given title exists in the database"""
-    advertisement = Campaign.query.filter_by(title=ad_title).first()
+    advertisement = Campaign.query.filter_by(id=campaign_id).first()
     return advertisement is not None
 
-def does_platform_exist(platform_name):
+def does_platform_exist(platform_id):
     """Check if the Platform with the given name exists in the database"""
-    Platform = Platform.query.filter_by(platform_name=platform_name).first()
-    return Platform is not None
+    platform = Platform.query.filter_by(id=platform_id).first()
+    return platform is not None
 
 
 def map_usernames(raw_accounts):
@@ -340,104 +366,7 @@ def is_filter_matched(arg_name,arg_value, data ):
         return arg_value.lower() in data[arg_name].lower()
     
 
-
-def get_ads(args):
-    """Return ads data filtered according to the query"""
-    ads_data = []
-    if args.get("for") == "adsPage":
-        ads = Campaign.query.filter_by(show_in_list=True).all()
-        accounts = map_usernames(Account.query.all())
-        for advertisement in ads:
-            try:
-                advertisement.topics = advertisement.topics.split(",")
-                ads_data.append(
-                    {
-                        "id": advertisement.id,
-                        "creatorName": accounts[advertisement.creator_id],
-                        "title": advertisement.title,
-                        "topics": advertisement.topics,
-                        "description": advertisement.description,
-                        "budget": advertisement.budget,
-                    }
-                )
-            except Exception:
-                continue
-        if args.get("id") is not None:
-            searched_id = int(args.get("id"))
-            ads_data = list(
-                filter(
-                    lambda advertisement: advertisement["id"] == searched_id, ads_data
-                )
-            )
-        if args.get("creator") is not None:
-            searched_creator = args.get("creator")
-            ads_data = list(
-                filter(
-                    lambda advertisement: searched_creator
-                    in advertisement["creatorName"],
-                    ads_data,
-                )
-            )
-        if args.get("title") is not None:
-            searched_title = args.get("title")
-            ads_data = list(
-                filter(
-                    lambda advertisement: searched_title in advertisement["title"],
-                    ads_data,
-                )
-            )
-        if args.get("topics") is not None:
-            searched_topics = args.get("topics")
-            ads_data = list(
-                filter(
-                    lambda advertisement: searched_topics in advertisement["topics"],
-                    ads_data,
-                )
-            )
-        if args.get("description") is not None:
-            searched_text = args.get("description")
-            ads_data = list(
-                filter(
-                    lambda advertisement: searched_text in advertisement["description"],
-                    ads_data,
-                )
-            )
-        if args.get("budget") is not None:
-            max_budget = int(args.get("budget"))
-            ads_data = list(
-                filter(
-                    lambda advertisement: advertisement["budget"] <= max_budget,
-                    ads_data,
-                )
-            )
-
-        for advertisement in ads_data:
-            advertisement["topics"] = (", ").join(advertisement["topics"])
-
-        return ads_data
-
-    return ads_data
-
-
-def get_all_ads():
-    """Return all ads data"""
-    ads = Campaign.query.all()
-    ads_list = []
-    for i in ads:
-        ads_list.append(
-            {
-                "creator_id": i.creator_id,
-                "title": i.title,
-                "topics": i.topics,
-                "description": i.description,
-                "budget": i.budget,
-                "show_in_list": i.show_in_list,
-            }
-        )
-
-    return ads_list
-
-def delete_all_ads():
+def delete_all_campaigns():
     """Deletes all ads"""
     rows_deleted = Campaign.query.delete()
     db.session.commit()
@@ -458,28 +387,81 @@ def delete_all_account():
     return rows_deleted
 
 
-def delete_ad(ad_id):
-    """Deletes the add with given id"""
-    if ad_id is None:
+def delete_campaign(cos, campaign_id):
+    """Deletes campaign with given id"""
+    if campaign_id is None:
         return -1
-    rows_deleted = Campaign.query.filter_by(id=ad_id).delete()
-    db.session.commit()
-    return rows_deleted
+    try:
+        delete_profile_pic(cos, "campaigns", campaign_id)
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(f"An error occurred while deleting campaign profile pic: {e}")
+        print(tb)
+        return -1
+    
+    try:
+        rows_deleted = Campaign.query.filter_by(id=campaign_id).delete()
+        if rows_deleted == 0:
+            return 0   
+        db.session.commit() 
+        return rows_deleted
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(f"An error occurred while deleting the campaign: {e}")
+        print(tb)
+        db.session.rollback() 
+        return -1
 
 
-def delete_platform(platform_id):
-    """Deletes the Platform with given id"""
+
+def delete_platform(cos, platform_id):
+    """Deletes platform with given id"""
     if platform_id is None:
         return -1
-    rows_deleted = Platform.query.filter_by(id=platform_id).delete()
-    db.session.commit()
-    return rows_deleted
+    try:
+        delete_profile_pic(cos, "platforms", platform_id)
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(f"An error occurred while deleting platform profile pic: {e}")
+        print(tb)
+        return -1
+    
+    try:
+        rows_deleted = Platform.query.filter_by(id=platform_id).delete()
+        if rows_deleted == 0:
+            return 0   
+        db.session.commit() 
+        return rows_deleted
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(f"An error occurred while deleting the platform: {e}")
+        print(tb)
+        db.session.rollback() 
+        return -1
 
 
-def delete_account(account_id):
-    """Deletes the account with given id"""
+def delete_account(cos, account_id):
+    """Deletes account with given id"""
     if account_id is None:
         return -1
-    rows_deleted = Account.query.filter_by(id=account_id).delete()
-    db.session.commit()
-    return rows_deleted
+    
+    try:
+        delete_profile_pic(cos, "users", account_id)
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(f"An error occurred while deleting the account: {e}")
+        print(tb)
+        return -1
+      
+    try:
+        rows_deleted = Account.query.filter_by(id=account_id).delete()
+        if rows_deleted == 0:
+            return 0   
+        db.session.commit() 
+        return rows_deleted
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(f"An error occurred while deleting the account: {e}")
+        print(tb)
+        db.session.rollback() 
+        return -1

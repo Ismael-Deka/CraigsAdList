@@ -1,7 +1,8 @@
 import { Dropdown } from 'react-bootstrap';
 import { useLocation } from 'react-router';
+import PropTypes from 'prop-types';
 
-function MenuNavigation() {
+function MenuNavigation({ isPlatformOwner }) {
   const location = useLocation();
   return (
 
@@ -32,8 +33,28 @@ function MenuNavigation() {
 
       </Dropdown.Item>
 
+      {isPlatformOwner && (
+      <Dropdown.Item href="/new_platform">
+        {location.pathname.startsWith('/new_platform') && <text>✓</text>}
+        {' '}
+        Create New Platform
+
+      </Dropdown.Item>
+      )}
+      {!isPlatformOwner && (
+      <Dropdown.Item href="/new_campaign">
+        {location.pathname.startsWith('/new_campaign') && <text>✓</text>}
+        {' '}
+        Create New Campaign
+
+      </Dropdown.Item>
+      )}
+
     </div>
   );
 }
+MenuNavigation.propTypes = {
+  isPlatformOwner: PropTypes.bool.isRequired,
+};
 
 export default MenuNavigation;

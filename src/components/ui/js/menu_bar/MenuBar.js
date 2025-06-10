@@ -20,6 +20,7 @@ function MenuBar() {
     currentUserId: '',
     currentUserPfp: '',
     isLoggedIn: false,
+    isPlatformOwner: false,
     isMobileSearchOpen: false,
     screenSize: window.innerWidth,
   });
@@ -102,6 +103,7 @@ function MenuBar() {
                 currentUser: currentUserData.current_user,
                 currentUserId: currentUserData.id,
                 currentUserPfp: currentUserData.pfp,
+                isPlatformOwner: currentUserData.is_plaform_owner,
               }));
               localStorage.setItem('userData', JSON.stringify(currentUserData));
             } else {
@@ -127,7 +129,7 @@ function MenuBar() {
     <div>
       <header className={classes.header}>
         <span className={classes.menu}>
-          <Nav className="me-auto" activeKey="/ads" style={{ alignItems: 'center' }}>
+          <Nav className="me-auto" activeKey="/campaigns" style={{ alignItems: 'center' }}>
             {state.screenSize >= 320 && !state.isMobileSearchOpen && (
             <Navbar.Brand href="/" style={{ color: 'black' }}>
               <SiteBrand width={40} height={40} />
@@ -157,6 +159,7 @@ function MenuBar() {
             isLoggedIn={state.isLoggedIn}
             logOut={logOut}
             isMobile={state.screenSize <= 430}
+            isPlatformOwner={state.isPlatformOwner}
             id={state.currentUserId}
           />
         ) : (<Button variant="secondary" onClick={mobileSearchHandler}>Exit</Button>)}

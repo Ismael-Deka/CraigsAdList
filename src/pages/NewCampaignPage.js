@@ -3,29 +3,37 @@ import {
   Form, Button, Container, Row, Col, Modal,
 } from 'react-bootstrap';
 import ImageSelectForm from '../components/ui/js/misc/ImageSelectForm';
-import DefaultPlatformPic from '../images/platform_default.svg';
+import DefaultCampaignPic from '../images/campaign_default.svg';
 
-function NewPlatformPage() {
+function NewCampaignPage() {
   // State variables for form inputs
-  const [platformName, setPlatformName] = useState('');
-  const [medium, setMedium] = useState('Online');
+  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [impressions, setImpressions] = useState('');
-  const [impressionType, setImpressionType] = useState('');
   const [topics, setTopics] = useState('');
-  const [preferredPrice, setPreferredPrice] = useState('');
+  const [budget, setBudget] = useState('');
   const [currency, setCurrency] = useState('USD');
-  const [showPlatform, setShowPlatform] = useState(true);
+  const [showInList, setShowInList] = useState(true);
   const [isActive, setIsActive] = useState(true);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
-  const [profilePic, setProfilePic] = useState(DefaultPlatformPic);
-
+  const [profilePic, setProfilePic] = useState(DefaultCampaignPic);
   const [validated, setValidated] = useState(false);
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const convertToUnixTime = (dateString) => {
+    // Create a new Date object from the yyyy-mm-dd string
+    const date = new Date(dateString);
+
+    // Get the Unix timestamp in milliseconds and convert it to seconds
+    const unixTime = Math.floor(date.getTime() / 1000);
+
+    return unixTime;
+  };
 
   // Function to handle form submission with validation
   const handleSubmit = async (event) => {
@@ -36,21 +44,20 @@ function NewPlatformPage() {
       event.stopPropagation();
     } else {
       const formData = new FormData();
-      formData.append('platform_name', platformName);
-      formData.append('medium', medium);
+      formData.append('title', title);
       formData.append('description', description);
-      formData.append('impressions', impressions);
-      formData.append('impression_type', impressionType);
       formData.append('topics', topics);
-      formData.append('preferred_price', preferredPrice);
+      formData.append('budget', budget);
       formData.append('currency', currency);
-      formData.append('show_platform', showPlatform);
+      formData.append('show_in_list', showInList);
       formData.append('is_active', isActive);
-      formData.append('is_new_pfp_selected', !!profilePic);
-      if (profilePic) formData.append('pfp', profilePic);
+      formData.append('start_date', convertToUnixTime(startDate));
+      formData.append('end_date', convertToUnixTime(endDate));
+      formData.append('is_new_pfp_selected', profilePic === DefaultCampaignPic);
+      if (profilePic !== DefaultCampaignPic) formData.append('pfp', profilePic);
 
       try {
-        const response = await fetch('/create_platform', {
+        const response = await fetch('/create_campaign', {
           method: 'POST',
           body: formData,
         });
@@ -58,10 +65,10 @@ function NewPlatformPage() {
         const data = await response.json();
 
         if (data.success) {
-          setModalMessage('Platform created successfully!');
+          setModalMessage('Campaign created successfully!');
           setIsSuccess(true);
         } else {
-          setModalMessage('Failed to create platform. Please try again.');
+          setModalMessage('Failed to create campaign. Please try again.');
           setIsSuccess(false);
         }
       } catch (error) {
@@ -76,7 +83,7 @@ function NewPlatformPage() {
   };
 
   useEffect(() => {
-    document.title = 'Create A New Platform - CraigsAdList';
+    document.title = 'Create A New Campaign';
   }, []);
 
   // Function to close the modal
@@ -92,54 +99,32 @@ function NewPlatformPage() {
     <Container>
       <Row className="justify-content-md-center">
         <Col md={12} className="mt-5">
-          <h2>Create A New Platform</h2>
+          <h2>Create A New Campaign</h2>
           <hr className="hr hr-blurry mb-5" />
           <Row className="mt-5">
             <Col md={{ span: 10, offset: 1 }}>
               <Form noValidate validated={validated} onSubmit={handleSubmit}>
-                <h4 className="mt-2">Choose Cover Image</h4>
+                <h4 className="mt-2">Choose Campaign Image</h4>
                 <hr className="hr hr-blurry" />
                 <ImageSelectForm
                   currentProfilePic={profilePic}
                   setProfilePic={setProfilePic}
                 />
-                <h4 className="mt-2">Basic Information</h4>
+                <h4 className="mt-2">Campaign Information</h4>
                 <hr className="hr hr-blurry" />
                 <div className="col-md-9 offset-md-1 mb-5">
-                  {/* Platform Name */}
-                  <Form.Group className="mb-3" controlId="formPlatformName">
-                    <Form.Label>Platform Name</Form.Label>
+                  {/* Campaign Title */}
+                  <Form.Group className="mb-3" controlId="formTitle">
+                    <Form.Label>Campaign Title</Form.Label>
                     <Form.Control
                       required
                       type="text"
-                      placeholder="Enter platform name"
-                      name="platformName"
-                      value={platformName}
-                      onChange={(e) => setPlatformName(e.target.value)}
+                      placeholder="Enter campaign title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
                     />
                     <Form.Control.Feedback type="invalid">
-                      Please enter a platform name.
-                    </Form.Control.Feedback>
-                  </Form.Group>
-
-                  {/* Medium */}
-                  <Form.Group className="mb-3" controlId="formMedium">
-                    <Form.Label>Medium</Form.Label>
-                    <Form.Control
-                      required
-                      as="select"
-                      name="medium"
-                      value={medium}
-                      onChange={(e) => setMedium(e.target.value)}
-                    >
-                      <option value="Online">Online</option>
-                      <option value="TV">TV</option>
-                      <option value="Print">Print</option>
-                      <option value="Radio">Radio</option>
-                      <option value="Outdoor">Outdoor</option>
-                    </Form.Control>
-                    <Form.Control.Feedback type="invalid">
-                      Please select a medium.
+                      Please enter a campaign title.
                     </Form.Control.Feedback>
                   </Form.Group>
 
@@ -149,47 +134,11 @@ function NewPlatformPage() {
                     <Form.Control
                       as="textarea"
                       placeholder="Enter description"
-                      name="description"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                     />
                     <Form.Control.Feedback type="invalid">
                       Please provide a description.
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </div>
-
-                <h4 className="mt-2">Statistics</h4>
-                <hr className="hr hr-blurry" />
-                <div className="col-md-9 offset-md-1 mb-5">
-                  {/* Impressions */}
-                  <Form.Group className="mb-3" controlId="formImpressions">
-                    <Form.Label>Monthly Impressions</Form.Label>
-                    <Form.Control
-                      type="number"
-                      placeholder="Enter impressions"
-                      name="impressions"
-                      value={impressions}
-                      onChange={(e) => setImpressions(e.target.value)}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      Please provide monthly impressions.
-                    </Form.Control.Feedback>
-                  </Form.Group>
-
-                  {/* Impression Type */}
-                  <Form.Group className="mb-3" controlId="formImpressionType">
-                    <Form.Label>Impression Type</Form.Label>
-                    <Form.Control
-                      required
-                      type="text"
-                      placeholder="Enter impression type"
-                      name="impressionType"
-                      value={impressionType}
-                      onChange={(e) => setImpressionType(e.target.value)}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      Please provide an impression type.
                     </Form.Control.Feedback>
                   </Form.Group>
 
@@ -200,7 +149,6 @@ function NewPlatformPage() {
                       required
                       type="text"
                       placeholder="Enter topics (comma-separated)"
-                      name="topics"
                       value={topics}
                       onChange={(e) => setTopics(e.target.value)}
                     />
@@ -210,23 +158,19 @@ function NewPlatformPage() {
                   </Form.Group>
                 </div>
 
-                <h4 className="mt-2">Compensation</h4>
+                <h4 className="mt-2">Budget and Dates</h4>
                 <hr className="hr hr-blurry" />
                 <div className="col-md-9 offset-md-1 mb-5">
-                  {/* Preferred Price */}
-                  <Form.Group className="mb-3" controlId="formPreferredPrice">
-                    <Form.Label>Preferred Price per Ad view (in cents)</Form.Label>
+                  {/* Budget */}
+                  <Form.Group className="mb-3" controlId="formBudget">
+                    <Form.Label>Budget (in dollars)</Form.Label>
                     <Form.Control
                       required
                       type="number"
-                      placeholder="Enter preferred price in cents"
-                      name="preferredPrice"
-                      value={preferredPrice}
-                      onChange={(e) => setPreferredPrice(e.target.value)}
+                      placeholder="Enter budget"
+                      value={budget}
+                      onChange={(e) => setBudget(e.target.value)}
                     />
-                    <Form.Control.Feedback type="invalid">
-                      Please provide a valid price.
-                    </Form.Control.Feedback>
                   </Form.Group>
 
                   {/* Currency */}
@@ -234,9 +178,9 @@ function NewPlatformPage() {
                     <Form.Label>Currency</Form.Label>
                     <Form.Control
                       required
+                      disabled
                       type="text"
                       placeholder="Enter currency (e.g., USD)"
-                      name="currency"
                       value={currency}
                       onChange={(e) => setCurrency(e.target.value)}
                     />
@@ -245,14 +189,39 @@ function NewPlatformPage() {
                     </Form.Control.Feedback>
                   </Form.Group>
 
-                  {/* Show Platform */}
-                  <Form.Group className="mb-3" controlId="formShowPlatform">
+                  {/* Start Date */}
+                  <Form.Group className="mb-3" controlId="formStartDate">
+                    <Form.Label>Start Date</Form.Label>
+                    <Form.Control
+                      required
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                    />
+                  </Form.Group>
+
+                  {/* End Date */}
+                  <Form.Group className="mb-3" controlId="formEndDate">
+                    <Form.Label>End Date</Form.Label>
+                    <Form.Control
+                      required
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                    />
+                  </Form.Group>
+                </div>
+
+                <h4 className="mt-2">Visibility and Status</h4>
+                <hr className="hr hr-blurry" />
+                <div className="col-md-9 offset-md-1 mb-5">
+                  {/* Show In List */}
+                  <Form.Group className="mb-3" controlId="formShowInList">
                     <Form.Check
                       type="checkbox"
-                      label="Show platform"
-                      name="showPlatform"
-                      checked={showPlatform}
-                      onChange={(e) => setShowPlatform(e.target.checked)}
+                      label="Show in list"
+                      checked={showInList}
+                      onChange={(e) => setShowInList(e.target.checked)}
                     />
                   </Form.Group>
 
@@ -261,7 +230,6 @@ function NewPlatformPage() {
                     <Form.Check
                       type="checkbox"
                       label="Is active"
-                      name="isActive"
                       checked={isActive}
                       onChange={(e) => setIsActive(e.target.checked)}
                     />
@@ -293,4 +261,4 @@ function NewPlatformPage() {
   );
 }
 
-export default NewPlatformPage;
+export default NewCampaignPage;

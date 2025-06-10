@@ -68,6 +68,8 @@ MyPlatformsCampaignsList.propTypes = {
     topics: PropTypes.string.isRequired,
     pricePerAdView: PropTypes.number.isRequired,
     pfp: PropTypes.string.isRequired,
+    showPlatform: PropTypes.bool.isRequired,
+    isActive: PropTypes.bool.isRequired,
   })),
   campaigns: PropTypes.arrayOf(PropTypes.shape({
     index: PropTypes.number.isRequired,

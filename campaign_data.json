@@ -1,0 +1,561 @@
+[
+    {
+        
+        "title": "Summer Sale 2024",
+        "topics": "Sales,Discounts,Clothing",
+        "description": "A campaign promoting our biggest summer sale event.",
+        "budget": 5000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1700000000,
+        "end_date": 1702592000,
+        "is_active": true,
+        "creator_id": 2
+    },
+    {
+        
+        "title": "Tech Innovation Webinar",
+        "topics": "Technology,Webinar,Innovation",
+        "description": "Join us for a deep dive into the latest tech innovations.",
+        "budget": 3000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705193600,
+        "is_active": true,
+        "creator_id": 4
+    },
+    {
+        
+        "title": "Fitness Tracker Launch",
+        "topics": "Health,Fitness,Gadgets",
+        "description": "Launch of our new fitness tracker with advanced features.",
+        "budget": 7500.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1700000000,
+        "end_date": 1703289600,
+        "is_active": true,
+        "creator_id": 6
+    },
+    {
+        
+        "title": "Holiday Travel Deals",
+        "topics": "Travel,Holiday,Flights",
+        "description": "Exclusive holiday travel deals for popular destinations.",
+        "budget": 10000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1704000000,
+        "end_date": 1706745600,
+        "is_active": true,
+        "creator_id": 9
+    },
+    {
+        
+        "title": "Organic Food Fair",
+        "topics": "Food,Organic,Health",
+        "description": "Promoting the Organic Food Fair event with top vendors.",
+        "budget": 4500.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1701000000,
+        "end_date": 1702592000,
+        "is_active": true,
+        "creator_id": 11
+    },
+    {
+        
+        "title": "Eco-Friendly Products",
+        "topics": "Environment,Products,Sustainability",
+        "description": "Campaign to promote eco-friendly products for sustainable living.",
+        "budget": 6000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1705000000,
+        "end_date": 1707592000,
+        "is_active": true,
+        "creator_id": 15
+    },
+    {
+        
+        "title": "Back to School Offers",
+        "topics": "Education,Offers,School",
+        "description": "Special back-to-school deals on books and supplies.",
+        "budget": 8000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 17
+    },
+    {
+        
+        "title": "Streaming Service Launch",
+        "topics": "Entertainment,Movies,TV Shows",
+        "description": "Launch of our new streaming service with original content.",
+        "budget": 12000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1701000000,
+        "end_date": 1703193600,
+        "is_active": true,
+        "creator_id": 20
+    },
+    {
+        
+        "title": "New Year Health Resolutions",
+        "topics": "Health,Resolutions,Fitness",
+        "description": "Kickstart the new year with health and fitness goals.",
+        "budget": 4000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1704000000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 23
+    },
+    {
+        
+        "title": "Sustainable Fashion Week",
+        "topics": "Fashion,Sustainability,Clothing",
+        "description": "Campaign promoting sustainable fashion brands.",
+        "budget": 9000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702000000,
+        "end_date": 1704592000,
+        "is_active": true,
+        "creator_id": 26
+    },
+    {
+        
+        "title": "Winter Sports Gear Sale",
+        "topics": "Sports,Winter,Sale",
+        "description": "Sale on winter sports gear and apparel.",
+        "budget": 3500.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1700000000,
+        "end_date": 1701584000,
+        "is_active": true,
+        "creator_id": 29
+    },
+    {
+        
+        "title": "Mobile App Development Course",
+        "topics": "Education,Tech,Mobile Apps",
+        "description": "A comprehensive course on mobile app development.",
+        "budget": 2500.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 32
+    },
+    {
+        
+        "title": "Digital Marketing Bootcamp",
+        "topics": "Marketing,Education,Digital",
+        "description": "Learn the fundamentals of digital marketing.",
+        "budget": 2800.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1705000000,
+        "end_date": 1707000000,
+        "is_active": true,
+        "creator_id": 35
+    },
+    {
+        
+        "title": "Fitness Wear Launch",
+        "topics": "Health,Fashion,Fitness",
+        "description": "Launch of our new fitness wear collection.",
+        "budget": 5000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1701000000,
+        "end_date": 1702592000,
+        "is_active": true,
+        "creator_id": 39
+    },
+    {
+        
+        "title": "Green Energy Conference",
+        "topics": "Energy,Conference,Sustainability",
+        "description": "Join industry leaders at the Green Energy Conference.",
+        "budget": 7000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 42
+    },
+    {
+        
+        "title": "AI & Machine Learning Summit",
+        "topics": "Technology,AI,Conference",
+        "description": "A summit focusing on the latest AI and machine learning trends.",
+        "budget": 10000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1701000000,
+        "end_date": 1703184000,
+        "is_active": true,
+        "creator_id": 45
+    },
+    {
+        
+        "title": "Blockchain Innovation Expo",
+        "topics": "Technology,Blockchain,Expo",
+        "description": "Explore innovations in blockchain technology at this expo.",
+        "budget": 8500.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1701000000,
+        "end_date": 1702184000,
+        "is_active": true,
+        "creator_id": 47
+    },
+    {
+        
+        "title": "Gourmet Coffee Festival",
+        "topics": "Food,Beverages,Festival",
+        "description": "Celebrate the best of gourmet coffee at this festival.",
+        "budget": 4000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1700000000,
+        "end_date": 1702000000,
+        "is_active": true,
+        "creator_id": 50
+    },
+    {
+        
+        "title": "Cryptocurrency Trading Workshop",
+        "topics": "Finance,Cryptocurrency,Workshop",
+        "description": "Learn the basics of cryptocurrency trading.",
+        "budget": 3000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 53
+    },
+    {
+        
+        "title": "Startup Funding Event",
+        "topics": "Business,Startups,Funding",
+        "description": "An event connecting startups with potential investors.",
+        "budget": 6000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1705000000,
+        "end_date": 1707592000,
+        "is_active": true,
+        "creator_id": 56
+    },
+    {
+        
+        "title": "Cybersecurity Conference",
+        "topics": "Technology,Cybersecurity,Conference",
+        "description": "Industry leaders discuss trends in cybersecurity.",
+        "budget": 8500.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705193600,
+        "is_active": true,
+        "creator_id": 59
+    },
+    {
+        
+        "title": "Real Estate Investment Seminar",
+        "topics": "Finance,Real Estate,Investment",
+        "description": "Learn how to invest in real estate for long-term returns.",
+        "budget": 4500.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1705000000,
+        "end_date": 1707592000,
+        "is_active": true,
+        "creator_id": 62
+    },
+    {
+        
+        "title": "Music Festival Promotion",
+        "topics": "Music,Festival,Events",
+        "description": "Promoting the largest music festival of the year.",
+        "budget": 12000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705193600,
+        "is_active": true,
+        "creator_id": 65
+    },
+    {
+        
+        "title": "E-Sports Tournament",
+        "topics": "Gaming,Tournament,E-Sports",
+        "description": "Join the e-sports tournament with top gamers from around the world.",
+        "budget": 9000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 69
+    },
+    {
+        
+        "title": "Luxury Car Expo",
+        "topics": "Automotive,Luxury,Expo",
+        "description": "The latest in luxury cars and technology at this expo.",
+        "budget": 15000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 71
+    },
+    {
+        
+        "title": "Photography Workshop",
+        "topics": "Art,Photography,Workshop",
+        "description": "Learn photography skills from top professionals.",
+        "budget": 4000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 75
+    },
+    {
+        
+        "title": "Pet Products Sale",
+        "topics": "Pets,Products,Sale",
+        "description": "Special sale on the latest pet products.",
+        "budget": 2000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 78
+    },
+    {
+        
+        "title": "Wedding Expo 2024",
+        "topics": "Wedding,Expo,Events",
+        "description": "Join us for the Wedding Expo with top vendors.",
+        "budget": 8000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 81
+    },
+    {
+        
+        "title": "Tech Startup Pitch Night",
+        "topics": "Technology,Startups,Pitch",
+        "description": "Startups pitch their innovative ideas to investors.",
+        "budget": 6000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 85
+    },
+    {
+        
+        "title": "Charity Gala for Education",
+        "topics": "Charity,Education,Fundraising",
+        "description": "Gala event raising funds for educational programs.",
+        "budget": 10000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 89
+    },
+    {
+        
+        "title": "Fashion Accessories Launch",
+        "topics": "Fashion,Accessories,Launch",
+        "description": "Launch of a new line of fashion accessories.",
+        "budget": 5000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 92
+    },
+    {
+        
+        "title": "Food Truck Festival",
+        "topics": "Food,Festival,Street Food",
+        "description": "A festival celebrating street food from top food trucks.",
+        "budget": 3000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 95
+    },
+    {
+        
+        "title": "Online Gaming Expo",
+        "topics": "Gaming,Expo,Technology",
+        "description": "Showcasing the latest in online gaming and technology.",
+        "budget": 8000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 98
+    },
+    {
+        
+        "title": "Autumn Art Fair",
+        "topics": "Art,Fair,Exhibition",
+        "description": "Celebrating the best in contemporary art at the Autumn Art Fair.",
+        "budget": 4500.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 101
+    },
+    {
+        
+        "title": "Mobile Game Launch",
+        "topics": "Gaming,Mobile,Launch",
+        "description": "Launch of our latest mobile game with interactive features.",
+        "budget": 7500.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 105
+    },
+    {
+        
+        "title": "Winter Book Fair",
+        "topics": "Books,Winter,Fair",
+        "description": "Promoting the Winter Book Fair featuring local and international authors.",
+        "budget": 5500.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 107
+    },
+    {
+        
+        "title": "Smart Home Devices Expo",
+        "topics": "Technology,Smart Home,Expo",
+        "description": "Showcasing the latest in smart home devices and automation.",
+        "budget": 9000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 110
+    },
+    {
+        
+        "title": "Luxury Travel Deals",
+        "topics": "Travel,Luxury,Deals",
+        "description": "Exclusive deals on luxury travel packages.",
+        "budget": 15000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 112
+    },
+    {
+        
+        "title": "Online Coding Bootcamp",
+        "topics": "Education,Coding,Technology",
+        "description": "A 12-week coding bootcamp to kickstart your career in tech.",
+        "budget": 5000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 115
+    },
+    {
+        
+        "title": "Organic Skincare Launch",
+        "topics": "Health,Skincare,Launch",
+        "description": "Launch of our new organic skincare product line.",
+        "budget": 4000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 118
+    },
+    {
+        
+        "title": "Career Fair for Tech Professionals",
+        "topics": "Career,Technology,Fair",
+        "description": "Meet top tech companies at this career fair for professionals.",
+        "budget": 6000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 121
+    },
+    {
+        
+        "title": "Virtual Reality Expo",
+        "topics": "Technology,VR,Expo",
+        "description": "Explore the latest advancements in virtual reality.",
+        "budget": 10000.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 124
+    },
+    {
+        
+        "title": "Meditation and Mindfulness Retreat",
+        "topics": "Health,Meditation,Mindfulness",
+        "description": "A retreat focused on mindfulness and meditation techniques.",
+        "budget": 7500.0,
+        "currency": "USD",
+        "show_in_list": true,
+        "start_date": 1702688000,
+        "end_date": 1705097600,
+        "is_active": true,
+        "creator_id": 128
+    }
+]
