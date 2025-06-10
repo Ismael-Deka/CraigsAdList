@@ -5,11 +5,8 @@ import flask
 import ibm_boto3
 import traceback
 import time
-import requests
-import threading
 
 from flask_login import current_user, login_user, logout_user, LoginManager
-from tenacity import retry,stop_after_attempt,wait_fixed
 from jinja2 import ChoiceLoader, FileSystemLoader
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
