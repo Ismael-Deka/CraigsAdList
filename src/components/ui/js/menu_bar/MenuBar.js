@@ -77,7 +77,7 @@ function MenuBar() {
         const isLoggedInResponse = await fetch('/is_logged_in', { method: 'GET' });
         const isLoggedInData = await isLoggedInResponse.json();
         setState((prevState) => ({ ...prevState, isLoggedIn: isLoggedInData.isuserloggedin }));
-        if (!isLoggedInData.isuserloggedin && location.pathname !== '/' && !['/login', '/signup', '/search', '/profile', '/platform'].some((path) => location.pathname.startsWith(path))) {
+        if (!isLoggedInData.isuserloggedin && location.pathname !== '/' && !['/login', '/signup', '/search', '/profile', '/platform', '/campaign'].some((path) => location.pathname.startsWith(path))) {
           setState((prevState) => ({
             ...prevState,
             errorMessage: 'Please log in.',
